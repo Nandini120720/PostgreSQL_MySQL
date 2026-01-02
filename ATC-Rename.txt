@@ -1,0 +1,166 @@
+virtual keyboard = wind + r  type osk
+Yea#r!20252025
+
+---ALTIUS login :
+raju.bakane@altiusinfra.com
+Americantower@20242024
+
+---Below hostname of ALTIUS :
+# UAT :
+OS - sa.raju.bakane  Americantower@2024
+DB - root H5$#fs590Q@d
+Hostname - altdbwhsaea01  10.16.5.152     
+Username- whsuat  AlT!us@3211fra%$#@!
+
+
+
+#PROD:
+Hostname -altdbwhsaaa01  10.16.2.147
+Prod DB - root  $#fs590Q@d  
+Altus ticket tool - manae engine - https://itservices.altiusinfra.com/
+
+username:- datapatroltpl@gmail.com
+password:- DP123$$
+
+############### sa password expire:- ITREQ0100760  (must use this link:- https://americantower.service-now.com/sp?id=sc_cat_item&sys_id=2a098e16870200101adc480688cb0b12)
+
+service now ticket tool:- https://americantower.service-now.com/nav_to.do?uri=%2Fhome.do%3F
+ATC osTicket Whitespace:- https://indiaappshelpdesk.americantower.com/whsapps/scp/tickets.php
+Assignment group:- BVW.Support
+jump server applications not seen :- Something Broken - ATC IT Service Portal (service-now.com)
+
+
+rupesh.arbal
+Atc@1234
+
+Mail id & Password:
+================
+
+User: raju.bakane@americantower.com
+Pswd: Americantower@2024
+
+To open Zscaler login - zcloud
+UserName: Raju.Bakane@americantower.com
+log-out password:- PZKLZ@xomg4N
+Password: Protiviti@20242024
+
+Remote access user:
+
+UserName: SA.Raju.Bakane@americantower.com
+Password: Protiviti@20242024
+
+Plus Microsoft Authentication : 6 digit code in mobile
+
+To connect ATC putty 
+======================
+Zscaler needs to be ON
+--In task manager 
+Need Cortex XDR service & Zscaler Tunnel (32 bit) shoud be running - enter code from mobile to connect zscaler (to logout pswd: PZKLZ@xomg4N  )
+
+Open ATC remote desktop then from mobile open & approve Microsoft Authentication : 6 digit code in mobile
+connect through putty.  
+
+----------connect to mysql server 
+
+sudo -i
+Password: Protiviti@20242024
+
+sudo su - -s /bin/bash mysql   -------connect to mysql server
+
+mysql -u raju.bakane -p ------------connect to db & use below password for respective servers
+
+(user:   raju.bakane)
+Prdwhsdb01:  Raju@bk!234   
+prdwhsdb03:  Raju@bk!234@db03
+uatwhsdb01:  Raju@bk!234@uat01
+
+Mails
+=====
+
+https://myaccount.microsoft.com/
+
+https://login.microsoftonline.com/common/oauth2/logoutsession
+
+===========================================================================
+# Below are the main servers #
+
+Prdwhsdb01:- 10.9.156.200  - production/Master
+prdwhsdb03:- 10.9.156.23  -  Slave
+uatwhsdb01 - 10.9.156.146  - UAT
+
+UserName: SA.Raju.Bakane@americantower.com
+Password: Protiviti@20242024
+
+Mysql id to connect mysql database
+
+$  sudo -i
+Password: Protiviti@20242024
+
+
+mysql export-import root password
+Prdwhsdb01:- r00t@prdwh$db01
+prdwhsdb03:- r00t@prdwh$db03
+uatwhsdb01:- r00t@uatwh$db01
+
+r00t@prdwh$db01%
+
+------------------------------------------------------------------------
+uatwhsdb01.cgpgt64ntpzz.ap-south-1.rds.amazonaws.com
+prdwhsdb01.cgpgt64ntpzz.ap-south-1.rds.amazonaws.com
+
+for prd tldbvw/tldbvw!2022
+for uat tldbvw/tldbvw@uat01
+
+Comparator
+
+AVD Hostname:- US17AVDTIP-2
+AVD Pool :- AVDProdTIPLITWorkspace(RD).
+
+for prd admin/1XPSyVn2p3pL10aKriuJ
+for uat admin/u&9E9Za)M89n
+
+for prd raju.bakane/Raju@bk!234@prd01  
+for uat raju.bakane/Raju@bk!234@uat01
+
+==============================================================================
+
+Prdwhsdb01:- 10.9.156.200  - production
+login : SA.Raju.Bakane
+pswd: Protiviti@20242024
+[sa.raju.bakane@americantower.com@prdwhsdb01 ~]$ hostname
+prdwhsdb01.americantower.idm
+[sa.raju.bakane@americantower.com@prdwhsdb01 ~]$ hostname -i
+10.9.156.200
+[sa.raju.bakane@americantower.com@prdwhsdb01 ~]$
+
+
+prdwhsdb03:- 10.9.156.23  -  
+
+[sa.raju.bakane@americantower.com@prdwhsdb03 ~]$ hostname
+prdwhsdb03.americantower.idm
+[sa.raju.bakane@americantower.com@prdwhsdb03 ~]$ hostname -i
+10.9.156.23
+[sa.raju.bakane@americantower.com@prdwhsdb03 ~]$
+
+
+
+uatwhsdb01 - 10.9.156.146  - UAT
+
+[sa.raju.bakane@americantower.com@uatwhsdb01 ~]$ hostname
+uatwhsdb01.americantower.idm
+[sa.raju.bakane@americantower.com@uatwhsdb01 ~]$ hostname -i
+10.9.156.146
+[sa.raju.bakane@americantower.com@uatwhsdb01 ~]$
+
+UserName: SA.Raju.Bakane@americantower.com
+Password: Protiviti@20242024
+
+
+microosft Team : pin 310172
+user/pswd: raju.bakane@americantower.com / Atc@1234
+
+Disk 100% - cmd (run as administrator) - net.exe stop sysmain  (This will solve problem)
+
+
+sa.mohammad.farhan 
+Biryani@#$56789

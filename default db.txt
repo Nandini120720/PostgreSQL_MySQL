@@ -1,0 +1,38 @@
+
+System Default Databases of mysql :
+
+When you install MySQL, several system databases are created by default:
+
+		Database								Purpose
+	mysql					Contains user accounts, privileges, system configuration.
+	information_schema		Virtual database that provides metadata about the database system.
+	performance_schema		Monitors performance of the MySQL server.	
+	sys						Simplified views and functions for database performance tuning.
+
+
+Want to See Existing Databases use below command :
+	SHOW DATABASES;
+	
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| test               |
++--------------------+
+
+	
+Default path: 
+
+datadir=/Data/mysql
+socket=/Data/mysql/mysql.sock
+
+
+general_log_file=/Data/mysql/tnmysqldb4.log
+slow_query_log_file=/Data/mysql/tnmysqldb4-slow.log
+
+log_error=/Data/mysql/mysqld.log
+pid-file=/Data/mysqld/mysqld.pid

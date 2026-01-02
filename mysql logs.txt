@@ -1,0 +1,223 @@
+############# MySQL Server Logs #################
+
+**Log Type	                        Information Written to Log
+1) Error log	                   Problems encountered starting, running, or stopping mysqld
+2) General query log	 		  Established client connections and statements received from clients
+3) Binary log	                  Statements that change data (also used for replication)
+4) Relay log	                  Data changes received from a replication source server
+5) Slow query log	         	 Queries that took more than long_query_time seconds to execute
+6) DDL log (metadata log)	      Metadata operations performed by DDL statements
+
+
+]# less /var/log/mysqld.log       (it can read & default location of error log file)
+]# mysqlbinlog mysql-bin.00101              (it can read the binory log file)
+]# sudo less /var/log/mysql/slow.logs     (command less= shift+g ->bottam, up-down arrow also work)
+]# mysqldumpslow /var/log/mysql/slow.logs
+
+$$$$$$$$$$$ enabaling logs
+vi /etc/my.cnf
+1)log-error=/var/log/mysqld.log
+2)log_bin= /var/lib/mysql-bin.log
+sql_log_bin = 1;
+expire_logs_days = 10 
+binlog_format = mixed
+
+3)general_log_file = /var/lib/mysql/gen-query.log
+general_log = 1
+
+4)slow_query_log = 1
+slow_query_log = /var/log/mysql/slow-query.log
+long_query_time = 2      (Giving timing in sec.)
+
+########## Automating Log Rotation with Logrotate ##########
+A quick and easy way to check if logrotate is already installed or not
+$ logrotate –-version
+
+
+############### Error log and Slow log #######################
+
+To Enable them just follow below steps:
+
+step1: Go to this file (/etc/mysql/conf.d/mysqld_safe_syslog.cnf) and remove or comment those line.
+step2: Go to mysql conf file (/etc/mysql/my.cnf) and add following lines
+
+To enable error log add following
+
+[mysqld_safe]
+log_error=/var/log/mysql/mysql_error.log
+
+[mysqld]
+log_error=/var/log/mysql/mysql_error.log
+To enable general query log add following
+
+general_log_file        = /var/log/mysql/mysql.log
+general_log             = 1
+To enable Slow Query Log add following
+
+slow_query_log = 1                    ( # Enable slow query logging)
+slow_query_log_file = /var/log/mysql/mysql-slow.log
+long_query_time = 2                  (# Log queries taking longer than 2 second)
+
+log-queries-not-using-indexes - This parameter specifies whether to log queries that are not using indexes. If you want to log queries that are not using indexes, set it to ON as the default value is OFF.
+
+step3: save the file and restart mysql using following commands
+
+service mysql restart
+To enable logs at runtime, login to mysql client (mysql -u root -p) and give:
+
+SET GLOBAL general_log = 'ON';
+SET GLOBAL slow_query_log = 'ON';
+============
+General log
+In mysql general log has no retention policy so we use some alternative approaches to manage the size and longevity of your general log:
+Edit in my.cnf configuration file.
+•	You can specify the following settings:
+o	general_log_file: 				Set the filename for the log file.
+o	max_general_log_size:	 		Define the maximum size (in bytes) each log file can reach before rotating.
+o	general_log_rotation_period: 	Specify the frequency (in seconds) for rotating the log file (e.g., general_log_rotation_period = 3600 for hourly rotation).
+•	Delete older archived logs when they reach a certain age or storage limitations are met.
+
+########## binary logging (As Archived log in oracle) ################
+
+$$$$$$$$$ Display Only SQL Queries in the Output
+]# mysqlbinlog -s mysqld-bin.000001 
+]# mysqlbinlog -short-form mysqld-bin.000001  
+
+
+The binary log contains “events” that describe database changes such as table creation operations or changes to table data. 
+It also contains events for statements that potentially could have made changes (for example, a DELETE which matched no rows), unless row-based logging is used. 
+
+mysql> show variables like 'log_bin';  (To see binary log are enable or not)
+
+mysql> show variables like 'log_bin%'; 
++---------------------------------+-----------------------------+
+| Variable_name                   | Value                       |
++---------------------------------+-----------------------------+
+| log_bin                         | ON                          |
++---------------------------------+-----------------------------+
+| log_bin_basename      	      | var/lib/mysql/binlog        |
++---------------------------------+-----------------------------+
+| log_bin_index         	      | var/lib/mysql/binlog.index  |
++---------------------------------+-----------------------------+
+| log_bin_trust_function_creators |  OFF                        |
++---------------------------------+-----------------------------+
+| log_bin_use_v1_row_events       | OFF                         |
++---------------------------------+-----------------------------+
+
+$$$ binary log format
+Three types 1) statement 2)row 3)mixed
+1)statement :- it is actual statement are logged.
+2)row :- changes made to each row are logged
+3)mixed :- mysql switches from statement to row as and when needed.
+
+mysql> set @@global.binlog_format = 'statement';
+mysql> set @@global.binlog_format = 'row';
+
+mysql> SET GLOBAL binlog_format = 'format_name';    or mysql> SET session binlog_format = 'format_name';      (we can set globaly or session vise)
+
+mysql> select @@global.binlog_format;    (It can show your binlog format)
+or mysql> show variables like "%binlog_format%"
+
+
+$$$ enable binlog
+To enable binlog you have to set log_bin and server_id and restart the server.
+
+ex. To set log_bin is set to /data/mysql/binlogs/bin_log_name   (here we set path and base name)
+index file, which contains the location of each binary log.
+
+    ~]# service mysqld stop
+    ~]# vi /etc/my.cnf
+log_bin = /var/lib/mysql/binlog/server1
+server_id = 100
+binlog_format=mixed                 (# Recommended binary logging format – mixed)
+    ~]# service mysqld start
+
+
+$ Display all binary logs of the server 
+mysql> show master logs;  or   mysql> show binary logs;
+
+$ To see current binary log
+mysql> show master status;
+
+$ Disabaling and enabling binary log for session
+To Disabaling set sql_log_bin = 0;
+To enabling set sql_log_bin = 1;
+
+mysql> select @@autocommit;      (1 means enable. for commit it should be always enable means 1)
++----------------+
+| @@autocommit   |
++----------------+
+|    1           |
++----------------+   
+
+mysql>  flush logs; (To close current binary log and open new one.)
+
+$$$ Expire policy of binary log
+binlog_expire_logs_seconds       (To see in second.)
+expire_logs_days                  (To see in days.)  
+
+mysql> set @@global.expire_logs_days =2     or we set in /etc/my.cnf
+
+To purge mannually
+mysql> purge binary log to 'log_name';     (here we give log_9 then before 9 all logs are deleted.)
+
+$$$ Extracting statement from a binary log 
+[root ~]# sudo mysqlbinlog binlog_name -vv         (first v is used to show output in sudo format and second v show all metadata also)
+
+$$$$ 1)Extracting based on time and position
+mysqlbinlog /var/lib/mysql/binlog.000017 --start-datetime="2020-12-20 00:00:01" --stop-datetime="2020-12-20 12:17:00">binlog_extract
+
+2)Extracting based on the database
+sudo mysqlbinlog /data/mysql/binlogs/binlog.000017 --database=employees > binlog_extract       (employees=database name, it extract only specific employees database)
+
+3)Rewriting a database name    (means we can restore in other server by giving other name of database also)
+   --rewrite_db='from_name->to_name
+ex  --rewrite_db='employees->employees_dev'     (just put this parameter in above statement it write source database employees to target database in employees_dev) 
+ 
+4)Disabaling a binary log for recovery
+  --disable-log-binary                      (This parameter disable binary log writing at target server)
+ex    sudo mysqlbinlog /data/mysql/binlogs/binlog.0001 -start-position=123 --stop-position=1223 --disable-log-binary > binlog_restore   (it don't write from 123 to 1223)  
+   or mysqlbinlog --disable-log-bin binlog.0001 
+$$$$ Displaying events in a binary log file
+mysql> show binlog events in 'binlog.0001';     (it show all changes/information of that binlog)
+
+  ]$ mysqlbinlog --database database_name mysql-bin.0001 > crm-event_log.txt    (it show that database event)
+ 
+  ]$ mysqlbinlog -D mysqld-bin.000001   or   
+  ]$ mysqlbinlog --disable-log-bin mysqld-bin.000001 
+ 
+$$$$$ Binary Logs Compressed
+Beginning with MySQL 8.0.20, you can enable binary log transaction compression on a MySQL server instance. 
+mysql> set session binlog_transaction_compression = on;  
+
+
+$$$$$ Debug Messages in mysqlbinlog Output
+The following debug-check option will check for open file and memory use after it finish processing the given binary log file.
+  ]$ mysqlbinlog --debug-check mysqld-bin.000001
+
+$$$$$ Skip First N number of Entries
+ ]$ mysqlbinlog -o 10 mysqld-bin.000001        (-o 10 =it can skip fist 10 entries)
+
+
+$$$$$ Get Binary Log from a Remote Server
+ ]$ mysqlbinlog -R -h 192.168.101.2 -p mysqld-bin.000001  
+   
+-R option instructs mysqlbinlog command to read the log file from the remote server
+-h specify the ip-address of the remote server
+-p This will prompt you for the password. By default, it will use “root” as the username. You can also specify an username using -u option.
+mysqld-bin.000001 This is the name of the binary log file from the remote server that we are reading here.
+
+
+===================================================
+slow query log
+
+
+
+
+Common MySQL Log Files
+Log Type				Purpose
+Error Log			Startup/shutdown messages, errors, crashes
+General Query Log	All SQL queries (verbose, usually disabled)
+Slow Query Log		Queries that take longer than a threshold
+Binary Log			Changes to data (used for replication, backup)
+  

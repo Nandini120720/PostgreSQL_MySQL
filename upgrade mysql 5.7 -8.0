@@ -1,0 +1,267 @@
+check prequiste (what changes need to follow while doing mysql 5.7 to 8.0)
+
+
+
+
+Overview of Steps :
+
+Backup your databases. -rw-r--r--  1 root  root  898187 Sep 16 14:34 alldb_backup.sql
+
+Check for compatibility using mysql_upgrade or mysql-shell.
+
+Stop MySQL service.
+
+Remove MySQL 5.7 packages.
+
+Install MySQL 8.0 repo and packages.
+
+Start MySQL 8.0.
+
+Run mysql_upgrade (again).
+
+Test everything.
+
+📦 1. Backup Your Databases
+
+Before anything:
+
+mysqldump -u root -p --all-databases --single-transaction > alldb_backup.sql
+
+
+Also back up:
+
+/etc/my.cnf (MySQL config)
+
+/var/lib/mysql/ (data directory)
+
+✅ Step 1: Preparation
+1.1 Backup Your Database
+mysqldump -u root -p --all-databases --single-transaction > alldb_backup.sql
+
+
+Or use:
+
+mysqlpump -u root -p --all-databases > full_backup.sql
+
+
+Also, back up config files:
+
+cp /etc/my.cnf /etc/my.cnf.bak
+
+1.2 Check for Incompatibilities
+
+Run the MySQL Upgrade Checker Utility:
+
+mysqlsh -- util check-for-server-upgrade root@localhost:3306
+
+
+Install mysql-shell if needed:
+
+yum install mysql-shell
+
+✅ Step 2: Stop MySQL Service
+systemctl stop mysqld
+
+✅ Step 3: Remove Old MySQL 5.7 Packages
+
+⚠️ Make sure your backups are solid before removing anything.
+
+yum remove mysql-community-server mysql-community-client mysql-community-common mysql-community-libs
+
+
+You can verify installed packages using:
+
+rpm -qa | grep mysql
+
+✅ Step 4: Install MySQL 8.0
+4.1 Download MySQL Yum Repository
+wget https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+sudo rpm -Uvh mysql80-community-release-el7-5.noarch.rpm
+
+4.2 Disable MySQL 5.7 Repo & Enable 8.0
+yum-config-manager --disable mysql57-community
+yum-config-manager --enable mysql80-community
+
+4.3 Install MySQL 8.0
+yum install mysql-community-server
+
+✅ Step 5: Start MySQL 8.0
+systemctl start mysqld
+systemctl enable mysqld
+
+✅ Step 6: Run mysql_upgrade
+
+This step is crucial to update system tables and check for incompatibilities.
+
+mysql_upgrade -u root -p
+
+✅ Step 7: Check & Secure MySQL
+7.1 Check Version
+mysql -V
+
+7.2 Secure MySQL
+mysql_secure_installation
+
+🔁 Optional: Restore from Backup (if needed)
+
+If something breaks, restore using:
+
+mysql -u root -p < alldb_backup.sql
+
+🧠 Key Notes:
+
+Some MySQL 5.7 features are deprecated or removed in 8.0.
+
+Be aware of new authentication plugin defaults in 8.0 (caching_sha2_password).
+
+Review your applications for compatibility with MySQL 8.0.
+
+
+
+
+
+
+Key changes:
+
+Feature	MySQL 5.7	MySQL 8.0
+Default charset	latin1	utf8mb4
+Query cache	Available	Removed
+Password plugin	mysql_native	caching_sha2
+INFORMATION_SCHEMA	Simpler views	Data dictionary
+Roles	No	Yes
+Window functions	No	Yes
+
+
+
+
+
+✅ 1. Preparation Phase
+A. Backup Everything
+
+Take a full backup of your database (use mysqldump or mysqlpump, or physical backup with Percona XtraBackup).
+
+Backup configuration files (my.cnf or my.ini), logs, etc.
+
+B. Read the Official Upgrade Guide
+
+MySQL 8.0 Upgrade Guide
+
+C. Check Application Compatibility
+
+Ensure your application (framework, ORM, drivers) supports MySQL 8.0.
+
+✅ 2. Pre-Upgrade Checks
+A. Install MySQL Shell (for upgrade checker)
+mysqlsh -- util check-for-server-upgrade --user root --password --host localhost --port 3306
+
+
+This tool will report:
+
+Deprecated features
+
+Removed features
+
+Incompatible data types
+
+User account issues
+
+System schema changes
+
+B. Run mysql_upgrade (on 5.7)
+
+Before upgrading:
+
+mysql_upgrade -u root -p
+
+C. Check Character Sets
+
+MySQL 8.0 uses utf8mb4 as default instead of latin1 or utf8.
+
+Check and plan for character set/collation changes:
+
+SHOW VARIABLES LIKE 'character_set%';
+
+✅ 3. Stop Services and Upgrade Binaries
+A. Stop MySQL 5.7
+sudo systemctl stop mysql
+
+B. Upgrade MySQL Binaries
+
+Replace MySQL 5.7 binaries with MySQL 8.0.
+
+Use official packages (DEB, RPM, or tarball) depending on your OS.
+
+✅ 4. Start MySQL 8.0 and Run Post-Upgrade Commands
+A. Start MySQL 8.0
+sudo systemctl start mysql
+
+B. Run mysql_upgrade (on 8.0)
+mysql_upgrade -u root -p
+
+
+This step is mandatory. It updates system tables and checks compatibility.
+
+✅ 5. Post-Upgrade Tasks
+A. Review and Tune Configuration
+
+Many variables have changed or been removed.
+
+Check for deprecated/removed options in my.cnf (like query_cache_size, etc.)
+
+Use:
+
+mysqld --help --verbose | grep -A1 "Variables that are"
+
+
+Key changes:
+
+Feature	MySQL 5.7	MySQL 8.0
+Default charset	latin1	utf8mb4
+Query cache	Available	Removed
+Password plugin	mysql_native	caching_sha2
+INFORMATION_SCHEMA	Simpler views	Data dictionary
+Roles	No	Yes
+Window functions	No	Yes
+B. Check Authentication Plugins
+
+MySQL 8.0 uses caching_sha2_password by default.
+
+If your apps don’t support it, change back to:
+
+ALTER USER 'youruser'@'%' IDENTIFIED WITH mysql_native_password BY 'yourpassword';
+
+✅ 6. Testing
+
+Run your application in a staging environment with MySQL 8.0.
+
+Validate all queries, modules, and edge cases.
+
+Use tools like pt-query-digest to identify slow/failed queries.
+
+✅ 7. Monitor and Tune
+
+Monitor logs (error.log, slow query log, etc.)
+
+Tune new configuration settings (e.g., innodb_buffer_pool_size, redo log, etc.)
+
+Keep an eye on performance regressions or unusual errors.
+
+⚠️ Key Breaking Changes in MySQL 8.0
+Feature / Behavior	Description
+utf8 alias changed	Now maps to utf8mb3, not utf8mb4
+ZEROFILL and display width	Removed
+query_cache	Removed
+system tables	Now stored in transactional dictionary
+Reserved keywords	New ones like CUME_DIST, RANK, WINDOW, etc.
+Error handling	Stricter validation on GROUP BY, JSON, etc.
+Partitioning syntax changes	Some partitioning methods deprecated
+GRANT / CREATE USER	Users and grants stored differently
+🧪 Suggested Tools
+
+mysqlsh – Upgrade checker utility
+
+mysqldump or mysqlpump – For logical backups
+
+pt-upgrade (from Percona Toolkit) – Compare query results on 5.7 vs 8.0
+
+mysql_upgrade – Post-upgrade fix

@@ -1,0 +1,93 @@
+# How to change default datadir location to new mount point
+
+Current datadir location: /var/lib/mysql
+Target  datadir location: /Data/mysql
+
+# Take full backup and user's, privileges table backup
+$ mysqldump -u root -p --all-databases --single-transaction --routines --triggers > full_backup.sql
+$ mysqldump -u root -p mysql > user_privileges_backup.sql 
+
+* stop mysqld service
+systemctl stop mysqld
+
+*mkdir -p /Data/mysql       /u01/mysql/db
+
+*create mysqld directory for pid file
+mkdir -p /Data/mysqld
+
+* copy mysql directory from old location to new one
+cp -r /var/lib/mysql/* /Data/mysql
+
+NOTE : while chnging data_dir for mysql8.0 not need to create sock file as it will create automatically.
+ * Create mysql.sock file in new datadir location
+touch /Data/mysql/mysql.sock
+
+* as given below go to that location and create 'log-file' using 'touch' and make owner
+
+general_log_file=/Data/mysql/general.log -------location
+touch general.log  -------create logfile
+chown mysql:mysql general.log ---make owner
+ 
+slow_query_log_file=/Data/mysql/slow_query.log   --------location
+touch slow_query.log -------create logfile
+chown mysql:mysql slow_query.log ---make owner
+
+log_error=/Data/mysql/mysqld.log -----------location
+touch mysqld.log -------create logfile
+chown mysql:mysql mysqld.log ---make owner
+
+pid-file=/Data/mysqld/mysqld.pid ----------location 
+touch mysqld.pid -------create logfile
+chown mysql:mysql mysqld.pid ---make owner
+
+
+* create soft-link in new datadir location that will point to old mysql.sock path
+ln -s /Data/mysql/mysql.sock /var/lib/mysql/mysql.sock          (create soft link at new location pointed toward old location)
+
+* change the permission of the created softlink and datadir
+chown mysql:mysql /var/lib/mysql/mysql.sock -R
+chown mysql:mysql /Data -R
+
+
+* edit my.cnf file to change datadir location
+vi /etc/my.cnf
+
+* following are old entries:
+-------------------------------------
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+pid-file=/var/run/mysqld/mysqld.pid
+
+
+general_log_file=/var/lib/mysql/tnmysqldb4.log
+slow_query_log_file=/var/lib/mysql/tnmysqldb4-slow.log
+log_error=/var/log/mysqld.log  
+--------------------------------------
+
+
+* following are new entries:   do this changes in 'vi /etc/my.cnf' file
+-------------------------------------
+datadir=/Data/mysql
+socket=/Data/mysql/mysql.sock
+log_error=/Data/mysql/mysqld.log
+pid-file=/Data/mysqld/mysqld.pid
+
+general_log_file=/Data/mysql/general.log
+slow_query_log_file=/Data/mysql/slow_query.log  
+
+
+
+-------------------------------------
+
+#Disable selinux-
+sudo vi /etc/selinux/config
+SELINUX=disabled
+sudo reboot
+
+
+* start mysqld service and login
+systemctl start mysqld
+mysql -uroot -p
+Done!
+

@@ -1,0 +1,441 @@
+login as: nandini
+nandini@192.168.56.102's password:
+Last login: Thu Sep 18 11:26:37 2025
+[nandini@localhost ~]$ su -
+Password:
+Last login: Thu Sep 18 11:30:30 IST 2025 on pts/1
+[root@localhost ~]# wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+--2025-09-18 11:37:52--  https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+Resolving dev.mysql.com (dev.mysql.com)... 23.47.233.155, 2600:140f:1e00:486::2e31, 2600:140f:1e00:4b2::2e31
+Connecting to dev.mysql.com (dev.mysql.com)|23.47.233.155|:443... connected.
+HTTP request sent, awaiting response... 302 Moved Temporarily
+Location: https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm [following]
+--2025-09-18 11:37:52--  https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
+Resolving repo.mysql.com (repo.mysql.com)... 118.214.139.213, 2600:140f:4:d9a::1d68, 2600:140f:4:d93::1d68
+Connecting to repo.mysql.com (repo.mysql.com)|118.214.139.213|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 25680 (25K) [application/x-redhat-package-manager]
+Saving to: ‘mysql57-community-release-el7-11.noarch.rpm’
+
+100%[===================================================================================================================================================>] 25,680      --.-K/s   in 0.008s
+
+2025-09-18 11:37:52 (2.92 MB/s) - ‘mysql57-community-release-el7-11.noarch.rpm’ saved [25680/25680]
+
+[root@localhost ~]# sudo rpm -ivh mysql57-community-release-el7-11.noarch.rpm
+warning: mysql57-community-release-el7-11.noarch.rpm: Header V3 DSA/SHA1 Signature, key ID 5072e1f5: NOKEY
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:mysql57-community-release-el7-11 ################################# [100%]
+[root@localhost ~]#
+[root@localhost ~]#
+[root@localhost ~]# sudo yum-config-manager --disable mysql80-community
+Loaded plugins: langpacks, product-id, subscription-manager
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+================================================================================== repo: mysql80-community ==================================================================================
+[mysql80-community]
+async = True
+bandwidth = 0
+base_persistdir = /var/lib/yum/repos/x86_64/7Server
+baseurl = http://repo.mysql.com/yum/mysql-8.0-community/el/7/x86_64/
+cache = 0
+cachedir = /var/cache/yum/x86_64/7Server/mysql80-community
+check_config_file_age = True
+compare_providers_priority = 80
+cost = 1000
+deltarpm_metadata_percentage = 100
+deltarpm_percentage =
+enabled = False
+enablegroups = True
+exclude =
+failovermethod = priority
+ftp_disable_epsv = False
+gpgcadir = /var/lib/yum/repos/x86_64/7Server/mysql80-community/gpgcadir
+gpgcakey =
+gpgcheck = True
+gpgdir = /var/lib/yum/repos/x86_64/7Server/mysql80-community/gpgdir
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+hdrdir = /var/cache/yum/x86_64/7Server/mysql80-community/headers
+http_caching = all
+includepkgs =
+ip_resolve =
+keepalive = True
+keepcache = False
+mddownloadpolicy = sqlite
+mdpolicy = group:small
+mediaid =
+metadata_expire = 21600
+metadata_expire_filter = read-only:present
+metalink =
+minrate = 0
+mirrorlist =
+mirrorlist_expire = 86400
+name = MySQL 8.0 Community Server
+old_base_cache_dir =
+password =
+persistdir = /var/lib/yum/repos/x86_64/7Server/mysql80-community
+pkgdir = /var/cache/yum/x86_64/7Server/mysql80-community/packages
+proxy = False
+proxy_dict =
+proxy_password =
+proxy_username =
+repo_gpgcheck = False
+retries = 10
+skip_if_unavailable = False
+ssl_check_cert_permissions = True
+sslcacert =
+sslclientcert =
+sslclientkey =
+sslverify = True
+throttle = 0
+timeout = 30.0
+ui_id = mysql80-community/x86_64
+ui_repoid_vars = releasever,
+   basearch
+username =
+
+[root@localhost ~]# sudo yum-config-manager --enable mysql57-community
+Loaded plugins: langpacks, product-id, subscription-manager
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+================================================================================== repo: mysql57-community ==================================================================================
+[mysql57-community]
+async = True
+bandwidth = 0
+base_persistdir = /var/lib/yum/repos/x86_64/7Server
+baseurl = http://repo.mysql.com/yum/mysql-5.7-community/el/7/x86_64/
+cache = 0
+cachedir = /var/cache/yum/x86_64/7Server/mysql57-community
+check_config_file_age = True
+compare_providers_priority = 80
+cost = 1000
+deltarpm_metadata_percentage = 100
+deltarpm_percentage =
+enabled = True
+enablegroups = True
+exclude =
+failovermethod = priority
+ftp_disable_epsv = False
+gpgcadir = /var/lib/yum/repos/x86_64/7Server/mysql57-community/gpgcadir
+gpgcakey =
+gpgcheck = True
+gpgdir = /var/lib/yum/repos/x86_64/7Server/mysql57-community/gpgdir
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+hdrdir = /var/cache/yum/x86_64/7Server/mysql57-community/headers
+http_caching = all
+includepkgs =
+ip_resolve =
+keepalive = True
+keepcache = False
+mddownloadpolicy = sqlite
+mdpolicy = group:small
+mediaid =
+metadata_expire = 21600
+metadata_expire_filter = read-only:present
+metalink =
+minrate = 0
+mirrorlist =
+mirrorlist_expire = 86400
+name = MySQL 5.7 Community Server
+old_base_cache_dir =
+password =
+persistdir = /var/lib/yum/repos/x86_64/7Server/mysql57-community
+pkgdir = /var/cache/yum/x86_64/7Server/mysql57-community/packages
+proxy = False
+proxy_dict =
+proxy_password =
+proxy_username =
+repo_gpgcheck = False
+retries = 10
+skip_if_unavailable = False
+ssl_check_cert_permissions = True
+sslcacert =
+sslclientcert =
+sslclientkey =
+sslverify = True
+throttle = 0
+timeout = 30.0
+ui_id = mysql57-community/x86_64
+ui_repoid_vars = releasever,
+   basearch
+username =
+
+[root@localhost ~]# yum repolist enabled | grep mysql
+mysql-connectors-community/x86_64       MySQL Connectors Community        286
+mysql-tools-community/x86_64            MySQL Tools Community             116
+mysql57-community/x86_64                MySQL 5.7 Community Server        696
+[root@localhost ~]#
+[root@localhost ~]#
+[root@localhost ~]#
+[root@localhost ~]# sudo yum install -y mysql-community-server
+Loaded plugins: langpacks, product-id, search-disabled-repos, subscription-manager
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Resolving Dependencies
+--> Running transaction check
+---> Package mysql-community-server.x86_64 0:5.7.44-1.el7 will be installed
+--> Processing Dependency: mysql-community-common(x86-64) = 5.7.44-1.el7 for package: mysql-community-server-5.7.44-1.el7.x86_64
+--> Processing Dependency: mysql-community-client(x86-64) >= 5.7.9 for package: mysql-community-server-5.7.44-1.el7.x86_64
+--> Running transaction check
+---> Package mysql-community-client.x86_64 0:5.7.44-1.el7 will be installed
+--> Processing Dependency: mysql-community-libs(x86-64) >= 5.7.9 for package: mysql-community-client-5.7.44-1.el7.x86_64
+---> Package mysql-community-common.x86_64 0:5.7.44-1.el7 will be installed
+--> Running transaction check
+---> Package mariadb-libs.x86_64 1:5.5.68-1.el7 will be obsoleted
+--> Processing Dependency: libmysqlclient.so.18()(64bit) for package: 2:postfix-2.10.1-9.el7.x86_64
+--> Processing Dependency: libmysqlclient.so.18(libmysqlclient_18)(64bit) for package: 2:postfix-2.10.1-9.el7.x86_64
+---> Package mysql-community-libs.x86_64 0:5.7.44-1.el7 will be obsoleting
+--> Running transaction check
+---> Package mysql-community-libs-compat.x86_64 0:5.7.44-1.el7 will be obsoleting
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=============================================================================================================================================================================================
+ Package                                                  Arch                                Version                                   Repository                                      Size
+=============================================================================================================================================================================================
+Installing:
+ mysql-community-libs                                     x86_64                              5.7.44-1.el7                              mysql57-community                              3.0 M
+     replacing  mariadb-libs.x86_64 1:5.5.68-1.el7
+ mysql-community-libs-compat                              x86_64                              5.7.44-1.el7                              mysql57-community                              1.2 M
+     replacing  mariadb-libs.x86_64 1:5.5.68-1.el7
+ mysql-community-server                                   x86_64                              5.7.44-1.el7                              mysql57-community                              184 M
+Installing for dependencies:
+ mysql-community-client                                   x86_64                              5.7.44-1.el7                              mysql57-community                               31 M
+ mysql-community-common                                   x86_64                              5.7.44-1.el7                              mysql57-community                              313 k
+
+Transaction Summary
+=============================================================================================================================================================================================
+Install  3 Packages (+2 Dependent packages)
+
+Total download size: 220 M
+Downloading packages:
+warning: /var/cache/yum/x86_64/7Server/mysql57-community/packages/mysql-community-common-5.7.44-1.el7.x86_64.rpm: Header V4 RSA/SHA256 Signature, key ID 3a79bd29: NOKEY
+Public key for mysql-community-common-5.7.44-1.el7.x86_64.rpm is not installed
+(1/5): mysql-community-common-5.7.44-1.el7.x86_64.rpm                                                                                                                 | 313 kB  00:00:00
+(2/5): mysql-community-libs-5.7.44-1.el7.x86_64.rpm                                                                                                                   | 3.0 MB  00:00:00
+(3/5): mysql-community-libs-compat-5.7.44-1.el7.x86_64.rpm                                                                                                            | 1.2 MB  00:00:00
+(4/5): mysql-community-client-5.7.44-1.el7.x86_64.rpm                                                                                                                 |  31 MB  00:00:01
+(5/5): mysql-community-server-5.7.44-1.el7.x86_64.rpm                                                                                                                 | 184 MB  00:00:08
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                         22 MB/s | 220 MB  00:00:09
+Retrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+Importing GPG key 0x5072E1F5:
+ Userid     : "MySQL Release Engineering <mysql-build@oss.oracle.com>"
+ Fingerprint: a4a9 4068 76fc bd3c 4567 70c8 8c71 8d3b 5072 e1f5
+ Package    : mysql57-community-release-el7-11.noarch (installed)
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+
+
+Public key for mysql-community-libs-5.7.44-1.el7.x86_64.rpm is not installed
+
+
+ Failing package is: mysql-community-libs-5.7.44-1.el7.x86_64
+ GPG Keys are configured as: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+
+[root@localhost ~]# cd /etc/yum.repos.d/
+[root@localhost yum.repos.d]# ls
+mysql-community.repo  mysql-community-source.repo  redhat.repo
+[root@localhost yum.repos.d]# vi mysql-community.repo
+[root@localhost yum.repos.d]# cd
+[root@localhost ~]# sudo yum install -y mysql-community-server
+Loaded plugins: langpacks, product-id, search-disabled-repos, subscription-manager
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+mysql-connectors-community                                                                                                                                            | 3.0 kB  00:00:00
+mysql-tools-community                                                                                                                                                 | 3.0 kB  00:00:00
+mysql57-community                                                                                                                                                     | 2.6 kB  00:00:00
+Resolving Dependencies
+--> Running transaction check
+---> Package mysql-community-server.x86_64 0:5.7.44-1.el7 will be installed
+--> Processing Dependency: mysql-community-common(x86-64) = 5.7.44-1.el7 for package: mysql-community-server-5.7.44-1.el7.x86_64
+--> Processing Dependency: mysql-community-client(x86-64) >= 5.7.9 for package: mysql-community-server-5.7.44-1.el7.x86_64
+--> Running transaction check
+---> Package mysql-community-client.x86_64 0:5.7.44-1.el7 will be installed
+--> Processing Dependency: mysql-community-libs(x86-64) >= 5.7.9 for package: mysql-community-client-5.7.44-1.el7.x86_64
+---> Package mysql-community-common.x86_64 0:5.7.44-1.el7 will be installed
+--> Running transaction check
+---> Package mariadb-libs.x86_64 1:5.5.68-1.el7 will be obsoleted
+--> Processing Dependency: libmysqlclient.so.18()(64bit) for package: 2:postfix-2.10.1-9.el7.x86_64
+--> Processing Dependency: libmysqlclient.so.18(libmysqlclient_18)(64bit) for package: 2:postfix-2.10.1-9.el7.x86_64
+---> Package mysql-community-libs.x86_64 0:5.7.44-1.el7 will be obsoleting
+--> Running transaction check
+---> Package mysql-community-libs-compat.x86_64 0:5.7.44-1.el7 will be obsoleting
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=============================================================================================================================================================================================
+ Package                                                  Arch                                Version                                   Repository                                      Size
+=============================================================================================================================================================================================
+Installing:
+ mysql-community-libs                                     x86_64                              5.7.44-1.el7                              mysql57-community                              3.0 M
+     replacing  mariadb-libs.x86_64 1:5.5.68-1.el7
+ mysql-community-libs-compat                              x86_64                              5.7.44-1.el7                              mysql57-community                              1.2 M
+     replacing  mariadb-libs.x86_64 1:5.5.68-1.el7
+ mysql-community-server                                   x86_64                              5.7.44-1.el7                              mysql57-community                              184 M
+Installing for dependencies:
+ mysql-community-client                                   x86_64                              5.7.44-1.el7                              mysql57-community                               31 M
+ mysql-community-common                                   x86_64                              5.7.44-1.el7                              mysql57-community                              313 k
+
+Transaction Summary
+=============================================================================================================================================================================================
+Install  3 Packages (+2 Dependent packages)
+
+Total size: 220 M
+Downloading packages:
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+Warning: RPMDB altered outside of yum.
+  Installing : mysql-community-common-5.7.44-1.el7.x86_64                                                                                                                                1/6
+  Installing : mysql-community-libs-5.7.44-1.el7.x86_64                                                                                                                                  2/6
+  Installing : mysql-community-client-5.7.44-1.el7.x86_64                                                                                                                                3/6
+  Installing : mysql-community-server-5.7.44-1.el7.x86_64                                                                                                                                4/6
+  Installing : mysql-community-libs-compat-5.7.44-1.el7.x86_64                                                                                                                           5/6
+  Erasing    : 1:mariadb-libs-5.5.68-1.el7.x86_64                                                                                                                                        6/6
+  Verifying  : mysql-community-libs-5.7.44-1.el7.x86_64                                                                                                                                  1/6
+  Verifying  : mysql-community-libs-compat-5.7.44-1.el7.x86_64                                                                                                                           2/6
+  Verifying  : mysql-community-client-5.7.44-1.el7.x86_64                                                                                                                                3/6
+  Verifying  : mysql-community-common-5.7.44-1.el7.x86_64                                                                                                                                4/6
+  Verifying  : mysql-community-server-5.7.44-1.el7.x86_64                                                                                                                                5/6
+  Verifying  : 1:mariadb-libs-5.5.68-1.el7.x86_64                                                                                                                                        6/6
+
+Installed:
+  mysql-community-libs.x86_64 0:5.7.44-1.el7                 mysql-community-libs-compat.x86_64 0:5.7.44-1.el7                 mysql-community-server.x86_64 0:5.7.44-1.el7
+
+Dependency Installed:
+  mysql-community-client.x86_64 0:5.7.44-1.el7                                                  mysql-community-common.x86_64 0:5.7.44-1.el7
+
+Replaced:
+  mariadb-libs.x86_64 1:5.5.68-1.el7
+
+Complete!
+[root@localhost ~]# sudo systemctl start mysqld
+
+^C
+[root@localhost ~]# sudo systemctl status mysqld
+● mysqld.service - MySQL Server
+   Loaded: loaded (/usr/lib/systemd/system/mysqld.service; enabled; vendor preset: disabled)
+   Active: active (running) since Thu 2025-09-18 11:45:37 IST; 5s ago
+     Docs: man:mysqld(8)
+           http://dev.mysql.com/doc/refman/en/using-systemd.html
+  Process: 4428 ExecStart=/usr/sbin/mysqld --daemonize --pid-file=/var/run/mysqld/mysqld.pid $MYSQLD_OPTS (code=exited, status=0/SUCCESS)
+  Process: 4370 ExecStartPre=/usr/bin/mysqld_pre_systemd (code=exited, status=0/SUCCESS)
+ Main PID: 4431 (mysqld)
+    Tasks: 27
+   CGroup: /system.slice/mysqld.service
+           └─4431 /usr/sbin/mysqld --daemonize --pid-file=/var/run/mysqld/mysqld.pid
+
+Sep 18 11:45:20 localhost.localdomain systemd[1]: Starting MySQL Server...
+Sep 18 11:45:37 localhost.localdomain systemd[1]: Started MySQL Server.
+[root@localhost ~]# sudo systemctl enable mysqld
+[root@localhost ~]# sudo systemctl status mysqld
+● mysqld.service - MySQL Server
+   Loaded: loaded (/usr/lib/systemd/system/mysqld.service; enabled; vendor preset: disabled)
+   Active: active (running) since Thu 2025-09-18 11:45:37 IST; 14s ago
+     Docs: man:mysqld(8)
+           http://dev.mysql.com/doc/refman/en/using-systemd.html
+ Main PID: 4431 (mysqld)
+   CGroup: /system.slice/mysqld.service
+           └─4431 /usr/sbin/mysqld --daemonize --pid-file=/var/run/mysqld/mysqld.pid
+
+Sep 18 11:45:20 localhost.localdomain systemd[1]: Starting MySQL Server...
+Sep 18 11:45:37 localhost.localdomain systemd[1]: Started MySQL Server.
+[root@localhost ~]# sudo grep 'temporary password' /var/log/mysqld.log
+2025-09-18T06:15:29.205027Z 1 [Note] A temporary password is generated for root@localhost: 4vco-*kg0iC!
+[root@localhost ~]# sudo mysql_secure_installation
+
+Securing the MySQL server deployment.
+
+Enter password for user root:
+
+The existing password for the user account root has expired. Please set a new password.
+
+New password:
+
+Re-enter new password:
+The 'validate_password' plugin is installed on the server.
+The subsequent steps will run with the existing configuration
+of the plugin.
+Using existing password for root.
+
+Estimated strength of the password: 100
+Change the password for root ? ((Press y|Y for Yes, any other key for No) : n
+
+ ... skipping.
+By default, a MySQL installation has an anonymous user,
+allowing anyone to log into MySQL without having to have
+a user account created for them. This is intended only for
+testing, and to make the installation go a bit smoother.
+You should remove them before moving into a production
+environment.
+
+Remove anonymous users? (Press y|Y for Yes, any other key for No) : y
+Success.
+
+
+Normally, root should only be allowed to connect from
+'localhost'. This ensures that someone cannot guess at
+the root password from the network.
+
+Disallow root login remotely? (Press y|Y for Yes, any other key for No) : n
+
+ ... skipping.
+By default, MySQL comes with a database named 'test' that
+anyone can access. This is also intended only for testing,
+and should be removed before moving into a production
+environment.
+
+
+Remove test database and access to it? (Press y|Y for Yes, any other key for No) : y
+ - Dropping test database...
+Success.
+
+ - Removing privileges on test database...
+Success.
+
+Reloading the privilege tables will ensure that all changes
+made so far will take effect immediately.
+
+Reload privilege tables now? (Press y|Y for Yes, any other key for No) : y
+Success.
+
+All done!
+[root@localhost ~]#
+[root@localhost ~]#
+[root@localhost ~]#
+[root@localhost ~]# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 5
+Server version: 5.7.44 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql>
+
+
+

@@ -1,0 +1,42 @@
+
+Install PostgreSQL-17 on Ubuntu 22.04
+
+#Install prerequisites
+
+	sudo apt install curl ca-certificates gnupg -y
+
+
+#Import the PostgreSQL repository key
+
+	sudo install -d /usr/share/postgresql-common/pgdg
+
+	sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+     https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+
+#Add the PostgreSQL APT repository
+
+Run this command (it automatically detects your Ubuntu version):
+
+	echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] \
+	https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+	| sudo tee /etc/apt/sources.list.d/pgdg.list
+
+
+#Update your package list
+
+	sudo apt update
+
+
+#Install PostgreSQL 17
+
+	sudo apt install postgresql-17 -y
+________________________________________
+Check that it’s running
+systemctl status postgresql
+Or connect to it:
+  sudo -u postgres psql
+
+
+use 'sudo su' to get into root instead of ubuntu(default user)
+

@@ -1,0 +1,3 @@
+Postgresql ip -
+10.90.40.154 standby 
+

@@ -1,0 +1,243 @@
+password policy in mysql (12 letter pass should be there)
+
+diff between 8 and 5.5
+replication master -slave , Gtid
+what is sock ? file 
+PITR
+if any query run on slave side then find ------imp
+
+----25/08/2025 task 
+create 3 tables(below created tables) in 1 db
+1-simple tables -500 rows data -
+
+db - sample_db
+table - user   (SHOW TABLES;    check data insed table: SELECT * FROM users;)
+
+CREATE DATABASE sample_db;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    age INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+USE sample_db;   --connect to db
+
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Alice', 'Johnson', 'alice.johnson1@example.com', 25);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Bob', 'Smith', 'bob.smith2@example.com', 32);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Charlie', 'Brown', 'charlie.brown3@example.com', 29);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Diana', 'Miller', 'diana.miller4@example.com', 41);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Ethan', 'Davis', 'ethan.davis5@example.com', 35);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Fiona', 'Garcia', 'fiona.garcia6@example.com', 27);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('George', 'Martinez', 'george.martinez7@example.com', 46);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Hannah', 'Lopez', 'hannah.lopez8@example.com', 31);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Ian', 'Taylor', 'ian.taylor9@example.com', 38);
+INSERT INTO users (first_name, last_name, email, age) VALUES ('Julia', 'Anderson', 'julia.anderson10@example.com', 24);
+
+SELECT * FROM users; -------------check data inside 'user' table
+
+
+2-partion tables
+
+CREATE DATABASE sample_db;
+
+CREATE TABLE users_partitioned (
+    id INT NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    age INT,
+    PRIMARY KEY (id, age)  -- Required for RANGE partitioning
+)
+PARTITION BY RANGE (age) (
+    PARTITION p1 VALUES LESS THAN (20),
+    PARTITION p2 VALUES LESS THAN (30),
+    PARTITION p3 VALUES LESS THAN (40),
+    PARTITION p4 VALUES LESS THAN (50),
+    PARTITION p5 VALUES LESS THAN MAXVALUE
+);
+
+INSERT INTO users_partitioned (first_name, last_name, email, age) VALUES
+('Alice', 'Miller', 'alice1@example.com', 19),
+('Bob', 'Smith', 'bob2@example.com', 25),
+('Charlie', 'Jones', 'charlie3@example.com', 31),
+('Diana', 'White', 'diana4@example.com', 45),
+('Ethan', 'Taylor', 'ethan5@example.com', 51),
+('Fiona', 'Clark', 'fiona6@example.com', 22),
+('George', 'Wright', 'george7@example.com', 38),
+('Hannah', 'Young', 'hannah8@example.com', 27),
+('Ian', 'Lee', 'ian9@example.com', 49),
+('Julia', 'Hall', 'julia10@example.com', 35);
+
+SELECT * FROM users_partitioned; ----------check data inside 'users_partitioned' table
+
+
+3-functions and procedure :
+
+🔹 What is a Function in MySQL?
+A Function is a set of SQL statements that returns a single value.
+You can use it in SQL queries anywhere an expression is allowed (like in SELECT, WHERE, etc.).
+Functions must return a value using the RETURN statement.
+Typically used for computations or to encapsulate reusable logic.
+
+🔹 What is a Procedure (Stored Procedure) in MySQL?
+A Procedure is a set of SQL statements that perform an action but does not have to return a value.
+It can return multiple results or output parameters, or just perform operations like INSERT, UPDATE, DELETE, etc.
+Procedures are called with CALL procedure_name(...).
+Useful for complex business logic, batch processing, or multi-step tasks.
+Step 1: Create the users table
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    age INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+Step 2: Create a function to get full name by user ID
+DELIMITER $$
+
+CREATE FUNCTION get_full_name(user_id INT) RETURNS VARCHAR(101)
+DETERMINISTIC
+BEGIN
+    DECLARE full_name VARCHAR(101);
+    SELECT CONCAT(first_name, ' ', last_name) INTO full_name
+    FROM users WHERE id = user_id;
+    RETURN full_name;
+END$$
+
+DELIMITER ;
+
+Step 3: Create a stored procedure to insert a user
+DELIMITER $$
+
+CREATE PROCEDURE insert_user(
+    IN p_first_name VARCHAR(50),
+    IN p_last_name VARCHAR(50),
+    IN p_email VARCHAR(100),
+    IN p_age INT
+)
+BEGIN
+    INSERT INTO users (first_name, last_name, email, age)
+    VALUES (p_first_name, p_last_name, p_email, p_age);
+END$$
+
+DELIMITER ;
+
+Step 4: Insert sample users using the procedure
+CALL insert_user('Alice', 'Johnson', 'alice.johnson@example.com', 30);
+CALL insert_user('Bob', 'Smith', 'bob.smith@example.com', 25);
+CALL insert_user('Charlie', 'Brown', 'charlie.brown@example.com', 35);
+
+Step 5: Test the function
+SELECT get_full_name(1) AS full_name;  -- Should return 'Alice Johnson'
+SELECT get_full_name(2) AS full_name;  -- Should return 'Bob Smith'
+
+
+
+
+
+# craete user and provide access of above all tables
+-- 1. Create a user named 'newuser' and Restrict access to only localhost :
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password123';
+ CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'Welcome@1234';
+
+
+-- 2.Give all access on the 'users' and users_partitioned tables in the sample_db database
+
+GRANT ALL PRIVILEGES ON sample_db.users TO 'newuser'@'localhost';
+GRANT ALL PRIVILEGES ON sample_db.users_partitioned TO 'newuser'@'localhost';
+
+SELECT user, host FROM mysql.user;    ---check which users are exist in mysql.user (mysql.user : all user data stored in mysql.user )
+
+
+
+# Grant all privileges on the whole sample_db database:
+   GRANT ALL PRIVILEGES ON sample_db.* TO 'newuser'@'localhost';
+    
+
+If the user needs remote access, then provide with '%' :
+-- 1. Create the user
+CREATE USER 'appuserr'@'%' IDENTIFIED BY 'securepass123';
+ CREATE USER 'appuserr'@'%' IDENTIFIED BY 'Welcome@123';
+
+
+-- 2. Grant SELECT and INSERT on specific tables
+GRANT SELECT, INSERT ON sample_db.users TO 'appuserr'@'%';
+GRANT SELECT, INSERT ON sample_db.users_partitioned TO 'appuserr'@'%';
+
+-- 3. Apply changes
+FLUSH PRIVILEGES;
+
+
+
+15/10/2025
+
+# copy/transfer data from one to another server (but there has not any connection between servers)
+
+### ✅ Step 1: Export the Data from Source Server
+
+On the **source server**, use `mysqldump` to export the desired database or tables:
+
+#### Export Entire Database:
+  mysqldump -u [username] -p [database_name] > backup.sql
+
+#### Export Specific Tables:
+	mysqldump -u [username] -p [database_name] table1 table2 > backup_tables.sql
+
+> You'll be prompted to enter the MySQL password.
+
+You can also compress the output:
+
+mysqldump -u [username] -p [database_name] | gzip > backup.sql.gz
+
+
+### ✅ Step 2: Transfer the Dump File to the Target Server
+
+Use any file transfer method, such as:
+
+* **SCP** (if SSH is available)
+
+  scp backup.sql user@target-server:/path/to/destination/
+ 
+* **SFTP**
+
+* **USB or External Drive** (air-gapped environments)
+
+* **Cloud storage** (e.g., Dropbox, Google Drive, etc.)
+
+---
+
+### ✅ Step 3: Import the Dump into the Target Server
+
+Log in to the **target server** and import the SQL dump into MySQL:
+
+#### If file is uncompressed:
+
+mysql -u [username] -p [target_database_name] < /path/to/backup.sql
+
+
+#### If file is compressed:
+
+	gunzip < backup.sql.gz | mysql -u [username] -p [target_database_name]
+
+
+> Make sure the `target_database_name` already exists, or create it:
+
+	mysql -u [username] -p -e "CREATE DATABASE target_database_name;"
+
+
+
+#11-11-2025
+
+install postgresql-17 on ubuntu 22.04
+
+change data directory : /data/postgres/17/main 
+
+set replication  -done 
+
+pending : switchover ,pg_pool 

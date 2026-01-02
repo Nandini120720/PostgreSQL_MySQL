@@ -1,0 +1,31 @@
+scp
+import
+backup 
+how to run in background above all and how to generate log
+
+
+while taking backup : how to exclude db 
+
+
+
+ full bkp 
+ :
+mysqldump -u root -p --all-databases --single-transaction --routines --triggers > full_backup.sql
+
+
+scheduled for 5Pm
+0 17 * * * mysqldump -u root -p'Mysql@123' mydb > /Data/mysql/backup/daily_$(date +\%F).sql 2>> /Data/mysql/backup/cron_backup.log
+
+
+
+--Altius command for replication : confirm vandana which db exlude 
+
+0 22 5 12 5 mysqldump -u root -p --all-databases --single-transaction --events --triggers --master-data=2 > /dbdata/mysql/backup/full_backup_06122025.sql 2>> /dbdata/mysql/backup/full_backup06122025.log
+
+gzip full_backup_06122025.sql.gz
+
+nohup scp /dbdata/mysql/backup/full_backup_06122025.sql.gz  root@10.16.2.149:/dbdata/mysql/backup/ &
+
+
+
+

@@ -1,0 +1,2 @@
+schema in table ,fatch data of tables but not fatch tables:
+ -this table under in 'public' schema ,so they are not fatching tables in created schema (while creating schema give schemaname.tablename)

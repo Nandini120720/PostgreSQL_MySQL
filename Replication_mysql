@@ -1,0 +1,108 @@
+master host-192.168.23.131
+slave host -192.168.23.132
+
+# Change settings and create a user for replication on MariaDB Matser Host.
+
+vi /etc/my.cnf.d/server.cnf
+
+[mysqld]
+server-id=1
+bind-address=192.168.23.131
+log_error=1
+log_bin=/Data/mysql/binlog  
+log_error=/Data/mysql/mysqld.log
+
+
+gtid-domain-id = 1                               --only add this for GTID based replication
+
+systemctl restart mysqld.service
+
+mysql -u root -p
+
+-- 1. Create the user (with password)
+CREATE USER 'replication'@'%' IDENTIFIED BY 'replica';
+
+-- 2. Grant REPLICATION SLAVE privilege
+GRANT REPLICATION SLAVE ON *.* TO 'replication'@'%';
+
+-- 3. (Optional but recommended)
+FLUSH PRIVILEGES;
+
+
+
+# Change settings on Slave Host.
+
+vi /etc/my.cnf.d/server.cnf
+
+[mysqld]
+bind-address=192.168.23.132
+server-id=2
+read_only=on
+log_error=1
+log_bin=/Data/mysql/binlog 
+log_error=/Data/mysql/mysqld.log
+
+--------------------------------------
+
+
+
+systemctl restart mysqld.service
+
+
+# Get Dump-Data on Master Host.
+
+mysql -u root -p
+
+# lock all tables
+MariaDB [(none)]> flush tables with read lock;
+
+# show status (remember File, Position value)
+MariaDB [(none)]> show master status;
+
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+|  binlog.000016  |      640 |              |                  |
++------------------+----------+--------------+------------------+
+
+# remain the window above and open the another window and execute dump
+[root@www ~]# mysqldump -u root -p --all-databases --single-transaction --events --triggers --master-data=2 > mysql_dump.sql
+
+# back to the remained window and unlock
+MariaDB [(none)]> unlock tables;
+
+# transfer the dump to Slave Host
+[root@www ~]# scp mysql_dump.sql node01.srv.world:/tmp/
+
+scp mysql_dump.sql root@192.168.23.132:/tmp/
+
+
+# Before importing consider changing following parameters if some table data is too large and you have a lot of procedures
+innodb_strict_mode=OFF
+log_bin_trust_function_creators=ON
+
+# import dump from Master Host
+[root@node01 ~]# mysql -u root -p < mysql_dump.sql
+
+[root@node01 ~]# mysql -u root -p
+
+
+MariaDB [(none)]> change master to
+    -> master_host='192.168.23.131',                # Master Hosts's IP
+    -> master_user='replication',                  # replication ID
+    -> master_password='replica',             # replication ID's password
+    -> master_log_file=' binlog.000016 ',     # File value confirmed on Master
+    -> master_log_pos=342;                     # Position value confirmed on Master
+	
+CHANGE REPLICATION SOURCE TO
+    SOURCE_HOST='192.168.23.131',
+    SOURCE_USER='replication',
+    SOURCE_PASSWORD='replica',
+    SOURCE_LOG_FILE='binlog.000016',
+    SOURCE_LOG_POS=107;
+
+# start replication
+MariaDB [(none)]> start slave;
+
+# show status
+MariaDB [(none)]> show slave status\G

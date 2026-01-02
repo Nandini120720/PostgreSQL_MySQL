@@ -1,0 +1,98 @@
+Upgrading MySQL 5.7 to 8.0 on Red Hat 7.9 (RHEL 7.9) is a significant upgrade that must be done carefully due to major changes between the versions, including authentication, reserved keywords, data dictionary structure, and default configuration differences.
+
+🔒 Important Prerequisites
+
+Before proceeding, ensure:
+
+✅ You have a full backup (mysqldump or physical backup like xtrabackup)
+
+✅ You’ve tested the upgrade in a non-production/staging environment
+
+✅ You're prepared for downtime
+
+✅ Your application code is compatible with MySQL 8.0
+
+📋 Summary of Steps
+
+ Backup your databases and configs
+
+ Stop MySQL 5.7 service
+
+ Remove MySQL 5.7 safely
+
+ Install MySQL 8.0 repository
+
+ Install MySQL 8.0 packages
+
+ Run the mysql_upgrade tool
+
+ Adjust config files and users if needed
+
+ Test and start the upgraded MySQL
+ 
+ 
+ 
+											✅ Step-by-Step Instructions
+1. 🔐 Backup Everything
+# Backup all databases
+mysqldump -u root -p --all-databases --single-transaction --routines --triggers > full_backup.sql
+
+# Backup MySQL config  (below cnf backup stored in /data/mysql_dumps)
+
+cp /etc/my.cnf /data/mysql_dumps
+cp /etc/mysql/mysql.cnf /data/mysql_dumps
+cp /etc/mysql/mysql.conf.d/mysqld.cnf /data/mysql_dumps
+
+
+2. 🔻 Stop MySQL 5.7
+sudo systemctl stop mysqld
+
+3. 🧹 Remove MySQL 5.7
+This won’t delete your data in /var/lib/mysql, but always ensure your backup is safe.
+
+sudo yum remove mysql-community-server mysql-community-client mysql-community-common mysql-community-libs
+
+4. : Remove MySQL 5.7 Repository
+Run:
+
+sudo yum remove mysql57-community-release
+
+
+5. 📦 Install MySQL 8.0 Yum Repository
+sudo yum localinstall https://dev.mysql.com/get/mysql80-community-release-el7-5.noarch.rpm
+sudo yum-config-manager --disable mysql57-community
+sudo yum-config-manager --enable mysql80-community
+
+6 (Optional): Verify Enabled Repos
+After installing the 8.0 repo, verify which MySQL repo is enabled:
+
+yum repolist enabled | grep mysql
+
+7 : Permanently Disable GPG Check for a Repo
+Open the repo file (usually found in /etc/yum.repos.d/):
+
+sudo vi /etc/yum.repos.d/mysql-community.repo
+
+Find the section(s) like [mysql80-community] and change:
+
+gpgcheck=1
+to:
+gpgcheck=0
+
+8. vi /etc/my.cnf (keep server stop)
+configer parameters 
+datadir=/Data/mysql
+socket=/Data/mysql/mysql.sock
+
+general_log_file=/Data/mysql/general.log
+slow_query_log_file=/Data/mysql/slow_query.log
+log_error=/Data/mysql/mysqld.log
+pid-file=/Data/mysqld/mysqld.pid
+
+NOTE : mysql_upgrade is deprecated in 8.0, and the upgrade process is handled automatically by the server
+
+9 . Restart and Enable MySQL 8.0
+sudo systemctl start mysqld
+
+sudo systemctl status mysqld
+

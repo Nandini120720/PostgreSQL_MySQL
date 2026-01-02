@@ -1,0 +1,143 @@
+mysqldump with diff db of sample_db
+
+✅ Step 1: Dump sample_db using mysqldump
+This command will export the entire sample_db into a .sql file:
+	mysqldump -u root -p sample_db > sample_db_backup.sql
+
+✅ Step 2: Restore into a different database (e.g., new_db)
+2.1 Create the new database (if it doesn’t exist yet):
+	mysql -u root -p -e "CREATE DATABASE new_db;"
+
+2.2 Import the backup into new_db:
+	mysql -u root -p new_db < sample_db_backup.sql
+
+
+🔁 This imports all tables and data from sample_db into new_db.
+
+
+
+✅ Full Command Summary:
+# Step 1: Dump the source database
+	mysqldump -u root -p sample_db > sample_db_backup.sql
+
+# Step 2: Create the new destination database
+	mysql -u root -p -e "CREATE DATABASE new_db;"
+
+# Step 3: Restore the dump into the new database
+	mysql -u root -p new_db < sample_db_backup.sql
+	
+	
+	
+	
+	
+1. create new schema on local as copy of another one schema.
+
+
+mysqldump -u root -pMysql@123 --single-transaction --routines --triggers --databases sample_db > sample_db.sql
+
+mysql -u root -pMysql@123 < sample_db.sql
+
+Or
+Export the source schema
+
+mysqldump -u root -p source_schema_name > source_schema.sql
+
+Create the new schema manually (if not already in dump):**
+
+   CREATE DATABASE new_schema_name;
+  
+Import the dump file into the new schema:**
+
+   mysql -u root -p new_schema_name < source_schema.sql
+   
+
+
+
+2. Please provide user list of prdwhsdb01 in both excel and word formats.
+
+SELECT user, host FROM mysql.user;
+mysql -u root -p -e "SELECT user, host FROM mysql.user;" > appuserr_prdwhsdb01.csv
+
+
+
+
+3. Provide access for three different databases to dwjob user.
+
+create database sales_db;
+create database finance_db;
+create database inventory_db;
+
+Give dwjob read/write access (i.e., SELECT, INSERT, UPDATE, DELETE).
+the three databases are:
+
+sales_db
+
+finance_db
+
+inventory_db
+
+# Grant Privileges 
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON sales_db.* TO 'appuserr'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON finance_db.* TO 'appuserr'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE ON inventory_db.* TO 'appuserr'@'%';
+FLUSH PRIVILEGES; ----Apply Changes
+
+SHOW GRANTS FOR 'appuserr'@'%'; ---Verify the Grants
+
+
+
+4. Copy 2 databases from one to another server.
+Source server: source_host (e.g., prdwhsdb01)
+
+Target server: target_host (e.g., replica01)
+
+Databases to copy: db1, db2
+
+Dump the Databases
+mysqldump -h source_host -u root -p --single-transaction --routines --triggers --databases db1 db2 > db_copy.sql
+
+
+
+: Import into Target Server
+mysql -h target_host -u root -p < db_copy.sql
+
+
+5. Copy 1 database from one to another server with different target db name.
+Example Scenario
+
+Source server: source_host
+
+Source database: db_source
+
+Target server: target_host
+
+Target database (new name): db_target
+
+Dump the Source Database
+  mysqldump -h source_host -u root -p --single-transaction --routines --triggers --databases db_source > db_source.sql
+
+# Replace the Source DB Name with Target DB Name 
+This changes every mention of db_source to db_target (usually in CREATE DATABASE and USE statements):
+sed 's/`db_source`/`db_target`/g' db_source.sql > db_target.sql
+
+# Create the Target Database (Optional but Recommended)
+Before importing, ensure the target database exists:
+mysql -h target_host -u root -p -e "CREATE DATABASE IF NOT EXISTS db_target;"
+
+# Import the Modified Dump File
+mysql -h target_host -u root -p db_target < db_target.sql (Now db_source is fully copied to db_target on the new server.)
+
+# After import, verify on the target server:
+SHOW TABLES FROM db_target;
+
+
+
+
+
+
+
+
+
+
+insurance 

@@ -1,0 +1,81 @@
+🔍 What is a binlog (binary log) in MySQL?
+
+The binary log (binlog) is a crucial transaction log used by MySQL to record all changes made to the database. It stores a history of all write operations (like INSERT, UPDATE, DELETE, CREATE, etc.), but not read operations (SELECT).
+
+🧠 Purpose of the Binlog
+✅ 1. Replication
+-Used to replicate changes from a primary (source/master) to replica (slave) servers.
+-Replicas read the binlog from the primary and execute the same changes to stay in sync.
+
+✅ 2. Point-in-Time Recovery (PITR)
+If you do a full backup (e.g. with mysqldump) and then apply binlogs recorded after that backup, you can restore the database to a specific time.
+
+✅ 3. Auditing / Debugging
+You can see who changed what and when — helpful for tracking data issues.
+
+🔧 What the Binlog Contains
+It logs all data-changing statements, such as:
+-INSERT, UPDATE, DELETE
+-DDL like CREATE TABLE, ALTER TABLE
+-GRANT, REVOKE
+-Transactions (BEGIN, COMMIT, ROLLBACK)
+
+⚠️ SELECT statements are NOT logged.
+
+🔍 Binlog Formats
+
+There are three binlog formats, defined by the variable binlog_format:
+
+	Format					Description
+STATEMENT		Logs the actual SQL statements.
+ROW				Logs each changed row (more detailed and safer for replication).
+MIXED			Combines STATEMENT and ROW modes intelligently.
+
+Check your format with:
+	SHOW VARIABLES LIKE 'binlog_format';
+
+📁 Binlog Files
+-Stored as files like: mysql-bin.000001, mysql-bin.000002, etc.
+Managed with an index file: mysql-bin.index
+
+List binlogs:
+
+	SHOW BINARY LOGS;
+
+Read them using the command line:
+
+	mysqlbinlog mysql-bin.000001
+
+🧰 Binlog-Related Commands
+	Task										Command
+Check if binlog is enabled			SHOW VARIABLES LIKE 'log_bin';
+See current binlog file				SHOW MASTER STATUS;
+Read binlog file					mysqlbinlog mysql-bin.000001
+List all binlogs					SHOW BINARY LOGS;
+
+
+🔒 Security / Permissions
+
+To access binlogs or replication features, a user typically needs:
+-REPLICATION SLAVE privilege (to read)
+-SUPER or REPLICATION CLIENT (for some other actions)
+
+🧼 Managing Binlogs
+
+Binlogs grow over time — make sure to purge old binlogs.
+	PURGE BINARY LOGS TO 'mysql-bin.000123';
+
+Or automatically via config:
+	expire_logs_days = 7
+
+
+Or in modern versions:
+	binlog_expire_logs_seconds = 604800  # 7 days
+
+🧾 Summary
+	Feature								Purpose
+Replication				Keep replicas in sync with the primary server
+Backup & Recovery		Perform point-in-time recovery
+Auditing				Track who made changes and when
+Format					Can be STATEMENT, ROW, or MIXED
+File location			Usually in MySQL's data directory

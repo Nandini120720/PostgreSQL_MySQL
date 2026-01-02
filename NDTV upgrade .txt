@@ -1,0 +1,176 @@
+drwxr-xr-x 21 root root      4096 Jul 18 11:30  ../
+-rw-------  1 root root     12288 Oct  7 17:31  .bash_history
+-rw-r--r--  1 root root      3106 Dec  5  2019  .bashrc
+drwx------  2 root root      4096 Mar  6  2025  .gnupg/
+-rw-------  1 root root        39 Aug 19 15:58  .lesshst
+-rw-------  1 root root         0 Oct  8 11:19  .mysql_history
+-rw-r--r--  1 root root       161 Dec  5  2019  .profile
+drwx------  2 root root      4096 Nov 28  2024  .ssh/
+drwxr-xr-x  2 root root      4096 Sep 23 11:42  .vim/
+-rw-------  1 root root     12292 Sep 23 13:06  .viminfo
+-rw-r--r--  1 root root    254416 Sep 22 17:56  estatus
+-rw-r--r--  1 root root         0 Sep 22 17:24  general.log
+-rw-r--r--  1 root root 324792320 Sep 23 14:45  reporter_old_backup.sql
+drwx------  4 root root      4096 Nov 26  2024  snap/
+-rw-r--r--  1 root root     11807 Sep 22 17:38 'udo dmesg'
+root@mum-reporters-i-09e23314bc22eca61:~# cd /data/
+root@mum-reporters-i-09e23314bc22eca61:/data# cd mysql_dumps/
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475320
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:28 ./
+drwxr-xr-x 8 mysql mysql      4096 Sep  8 18:05 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# cp /etc/my.cnf /data/mysql_dump
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475320
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:28 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:39 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ls -lrt ..
+total 28
+drwxr-xr-x 2 mysql mysql 4096 Nov 28  2024 mysql-keyring
+drwxr-xr-x 2 mysql mysql 4096 Nov 28  2024 mysql-files
+drwxr-xr-x 2 mysql mysql 4096 Sep  8 17:51 mysqld
+drwxr-x--- 6 mysql mysql 4096 Sep  8 18:03 mysql_var.bak
+drwxr-x--- 6 mysql mysql 4096 Sep 23 15:25 mysql
+drwxr-xr-x 2 mysql mysql 4096 Oct  8 11:28 mysql_dumps
+-rw-r--r-- 1 root  root   493 Oct  8 11:39 mysql_dump
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# rm -rf ../mysql_dump
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475320
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:28 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:40 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# rm -rf ../mysql_dump
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475320
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:28 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:40 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ls -lrt ..
+total 24
+drwxr-xr-x 2 mysql mysql 4096 Nov 28  2024 mysql-keyring
+drwxr-xr-x 2 mysql mysql 4096 Nov 28  2024 mysql-files
+drwxr-xr-x 2 mysql mysql 4096 Sep  8 17:51 mysqld
+drwxr-x--- 6 mysql mysql 4096 Sep  8 18:03 mysql_var.bak
+drwxr-x--- 6 mysql mysql 4096 Sep 23 15:25 mysql
+drwxr-xr-x 2 mysql mysql 4096 Oct  8 11:28 mysql_dumps
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps#
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps#
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# cp /etc/my.cnf /data/mysql_dumps
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475324
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:41 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:40 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-r--r-- 1 root  root        493 Oct  8 11:41 my.cnf
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# cp /etc/mysql/mysql.cnf /data/mysql_dumps
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475328
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:42 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:40 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-r--r-- 1 root  root        493 Oct  8 11:41 my.cnf
+-rw-r--r-- 1 root  root       1607 Oct  8 11:42 mysql.cnf
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# cp /etc/mysql/mysql.conf.d/mysqld.cnf /data/mysql_dumps
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475332
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:43 ./
+drwxr-xr-x 8 mysql mysql      4096 Oct  8 11:40 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql
+-rw-r--r-- 1 root  root        493 Oct  8 11:41 my.cnf
+-rw-r--r-- 1 root  root       1607 Oct  8 11:42 mysql.cnf
+-rw-r--r-- 1 root  root       1822 Oct  8 11:43 mysqld.cnf
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps#
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps#
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# cd
+root@mum-reporters-i-09e23314bc22eca61:~#
+
+
+
+root is 100% ,so unable to install, so asked to relese space then only we can install 
+
+
+
+
+root@mum-reporters-i-09e23314bc22eca61:~# df -h
+Filesystem       Size  Used Avail Use% Mounted on
+/dev/root        7.6G  7.6G     0 100% /
+devtmpfs         3.8G     0  3.8G   0% /dev
+tmpfs            3.8G     0  3.8G   0% /dev/shm
+tmpfs            776M   79M  697M  11% /run
+tmpfs            5.0M     0  5.0M   0% /run/lock
+tmpfs            3.8G     0  3.8G   0% /sys/fs/cgroup
+/dev/loop0        28M   28M     0 100% /snap/amazon-ssm-agent/11320
+/dev/loop4        64M   64M     0 100% /snap/core20/2599
+/dev/loop3        64M   64M     0 100% /snap/core20/2496
+/dev/loop2        92M   92M     0 100% /snap/lxd/32662
+/dev/loop9        92M   92M     0 100% /snap/lxd/29619
+/dev/loop8        50M   50M     0 100% /snap/snapd/24792
+/dev/nvme1n1p1   295G  3.8G  276G   2% /data
+/dev/nvme0n1p15  105M  6.1M   99M   6% /boot/efi
+/dev/loop10       28M   28M     0 100% /snap/amazon-ssm-agent/11797
+/dev/loop1        51M   51M     0 100% /snap/snapd/25202
+/dev/loop5        74M   74M     0 100% /snap/core22/2111
+/dev/loop7        74M   74M     0 100% /snap/core22/2133
+/dev/loop6       128K  128K     0 100% /tmp/syscheck-mountpoint-4134494984
+tmpfs            776M     0  776M   0% /run/user/1000
+root@mum-reporters-i-09e23314bc22eca61:~# cd /
+root@mum-reporters-i-09e23314bc22eca61:/# ll
+total 80
+drwxr-xr-x  21 root  root   4096 Jul 18 11:30 ./
+drwxr-xr-x  21 root  root   4096 Jul 18 11:30 ../
+lrwxrwxrwx   1 root  root      7 Nov 12  2024 bin -> usr/bin/
+drwxr-xr-x   4 root  root   4096 Jul 20 11:50 boot/
+drwxr-xr-x   8 mysql mysql  4096 Oct  8 11:40 data/
+drwxr-xr-x   2 root  root   4096 Nov 26  2024 data-old/
+drwxr-xr-x  16 root  root   3400 Aug 21 09:33 dev/
+drwxr-xr-x 100 root  root   4096 Oct  8 11:32 etc/
+drwxr-xr-x   4 root  root   4096 Dec  3  2024 home/
+lrwxrwxrwx   1 root  root      7 Nov 12  2024 lib -> usr/lib/
+lrwxrwxrwx   1 root  root      9 Nov 12  2024 lib32 -> usr/lib32/
+lrwxrwxrwx   1 root  root      9 Nov 12  2024 lib64 -> usr/lib64/
+lrwxrwxrwx   1 root  root     10 Nov 12  2024 libx32 -> usr/libx32/
+drwx------   2 root  root  16384 Nov 12  2024 lost+found/
+drwxr-xr-x   2 root  root   4096 Nov 12  2024 media/
+drwxr-xr-x   2 root  root   4096 Nov 12  2024 mnt/
+drwxr-xr-x   7 root  root   4096 Mar  6  2025 opt/
+dr-xr-xr-x 178 root  root      0 Jul 18 11:30 proc/
+drwx------   6 root  root   4096 Oct  8 11:25 root/
+drwxr-xr-x  29 root  root   1100 Oct  8 11:44 run/
+lrwxrwxrwx   1 root  root      8 Nov 12  2024 sbin -> usr/sbin/
+drwxr-xr-x   8 root  root   4096 Nov 12  2024 snap/
+drwxr-xr-x   2 root  root   4096 Nov 12  2024 srv/
+dr-xr-xr-x  13 root  root      0 Jul 18 11:30 sys/
+drwxrwxrwt  17 root  root   4096 Oct  8 11:55 tmp/
+drwxr-xr-x  14 root  root   4096 Nov 12  2024 usr/
+drwxr-xr-x  16 root  root   4096 Nov 28  2024 var/
+root@mum-reporters-i-09e23314bc22eca61:/#

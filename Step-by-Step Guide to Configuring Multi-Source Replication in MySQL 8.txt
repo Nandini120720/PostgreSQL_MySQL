@@ -1,0 +1,144 @@
+Step-by-Step Guide to Configuring Multi-Source Replication in MySQL 8
+
+
+Multi-source replication in MySQL allows you to replicate data from multiple master servers to a single slave server. This feature is especially useful in environments where data consolidation is required from different sources. In this guide, I’ll walk you through each step of setting up multi-source replication, from configuring the master servers to verifying replication on the slave server.
+
+1. Configure Master1 Server
+The first step in multi-source replication is configuring the first master server. Here’s how you can do it:
+
+vi /etc/my.cnf.d/mysql-server.cnf
+Add the following configuration to the file:
+
+bind-address = *
+server-id = 1
+log_bin = mysql-bin
+bind-address: This allows the MySQL server to listen on all available network interfaces.
+server-id: Each server in the replication setup must have a unique server ID.
+log_bin: Enables binary logging, which is essential for replication.
+2. Restart Master1 Server
+After editing the configuration file, restart the MySQL service to apply the changes:
+
+systemctl restart mysqld
+3. Create a Replication User on Master1
+A dedicated user is required for replication. Execute the following SQL commands:
+
+CREATE USER 'replica'@'10.10.10.10' IDENTIFIED BY 'replication';
+GRANT REPLICATION SLAVE ON *.* TO 'replica'@'10.10.10.10';
+This will create a user named replica with the necessary privileges to replicate data from Master1.
+
+4. Take a Full Backup of Master1
+Before starting replication, it’s a good practice to take a full backup of the master database:
+
+mysqldump -u root -p --all-databases > /backup/master1.sql
+This ensures that all data from the master server is replicated correctly.
+
+5. Check Master1 Log File and Position
+To set up replication, you need the log file and position from the master server:
+
+SHOW MASTER STATUS\G;
+This will display output similar to:
+
+File: binlog.000001
+Position: 157
+Binlog_Do_DB:
+Binlog_Ignore_DB:
+Executed_Gtid_Set:
+1 row in set (0.00 sec)
+Take note of these values, as they will be used when configuring the slave server.
+
+6. Configure Master2 Server
+The next step is configuring the second master server. Follow the same steps as for Master1:
+
+vi /etc/my.cnf.d/mysql-server.cnf
+Edit the file:
+
+bind-address = *
+server-id = 2
+log_bin = mysql-bin
+Each master server must have a unique server-id.
+
+7. Restart Master2 Server
+Apply the changes by restarting the MySQL service:
+
+systemctl restart mysqld
+8. Create a Replication User on Master2
+Create a separate replication user for Master2:
+
+CREATE USER 'replica2'@'10.10.10.10' IDENTIFIED BY 'replication';
+GRANT REPLICATION SLAVE ON *.* TO 'replica2'@'10.10.10.10';
+9. Take a Full Backup of Master2
+As with Master1, take a full backup of the second master server:
+
+mysqldump -u root -p --all-databases > /backup/master2.sql
+10. Check Master2 Log File and Position
+Get the log file and position for Master2:
+
+SHOW MASTER STATUS\G;
+This will give you the log file and position, similar to:
+
+File: binlog.000001
+Position: 1149
+Binlog_Do_DB:
+Binlog_Ignore_DB:
+Executed_Gtid_Set:
+1 row in set (0.00 sec)
+11. Configure Slave Server
+Now that both master servers are ready, it’s time to configure the slave server. First, stop the slave service and configure it for multi-source replication:
+
+STOP SLAVE;
+SET GLOBAL master_info_repository='TABLE';
+SET GLOBAL relay_log_info_repository='TABLE';
+You can also add these options in the configuration file for persistence:
+
+vi /etc/my.cnf.d/mysql-server.cnf
+bind-address = *
+server-id = 3
+log_bin = mysql-bin
+master_info_repository = 'TABLE'
+relay_log_info_repository = 'TABLE'
+Restart the MySQL service to apply these changes.
+
+12. Restore Backups on Slave Server
+You’ll need to restore the backups taken from both Master1 and Master2 onto the slave server.
+
+Become a member
+Restore the backup from Master1:
+
+mysql -u root -p -h 10.10.10.10 < /backup/master1.sql
+Restore the backup from Master2:
+
+mysql -u root -p -h 10.10.10.10 < /backup/master2.sql
+13. Configure Slave for Multi-Source Replication
+After restoring the backups, set up the slave to replicate from both master servers:
+
+Configure replication for Master1:
+
+CHANGE MASTER TO MASTER_HOST='10.10.10.11',
+MASTER_USER='replica',
+MASTER_PASSWORD='replication',
+MASTER_LOG_FILE='mysql-bin.000001',
+MASTER_LOG_POS=157
+FOR CHANNEL 'master1';
+Configure replication for Master2:
+
+CHANGE MASTER TO MASTER_HOST='10.10.10.12',
+MASTER_USER='replica2',
+MASTER_PASSWORD='replication',
+MASTER_LOG_FILE='mysql-bin.000002',
+MASTER_LOG_POS=157
+FOR CHANNEL 'master2';
+Start replication for both channels:
+
+START SLAVE FOR CHANNEL 'master1';
+START SLAVE FOR CHANNEL 'master2';
+14. Verify Replication
+Finally, verify that replication is working correctly by checking the slave status:
+
+SHOW SLAVE STATUS\G;
+You can also check the replication connection status:
+
+SELECT * FROM performance_schema.replication_connection_status\G;
+Conclusion
+Setting up multi-source replication in MySQL is a powerful way to console date data from multiple masters into a single slave server. By following these steps, you’ll ensure a smooth replication process, and by monitoring the slave status regularly, you can maintain a robust replication setup.
+
+For more tips on managing MySQL replication and performance, stay tuned for my next posts!

@@ -1,0 +1,195 @@
+Mysql commands :
+
+🔐 Login and Exit
+mysql -u [username] -p  :- Prompts for password and logs you into MySQL shell.
+
+mysql -u root -p        :- Login as root user.
+
+exit; or \q             :- Exit the MySQL shell.
+
+
+--1.🗄️ Database Commands :
+
+CREATE DATABASE dbname;  :- Create a new database
+
+SHOW DATABASES;  :- List all databases
+
+SHOW TABLES;  :- To list of tables
+
+USE DATABASES;  :- Switch to a database
+
+DROP DATABASE dbname;  :- Delete a database
+
+
+--2.📋 Table Commands
+										
+SHOW TABLES;  :- List all tables in the current database
+
+DESCRIBE tablename; or DESC tablename;  :- Show table structure (columns, types, etc.).
+
+CREATE TABLE tablename (...);  :- Create a new table
+
+DROP TABLE tablename;  :- Delete a table
+
+ALTER TABLE tablename ...;  :- Modify a table (e.g., add/remove columns)
+
+TRUNCATE TABLE tablename;  :- Delete all data but keep structure
+
+ALTER TABLE tablename ADD column_name DATATYPE;   :- Add a column to a table.
+
+ALTER TABLE tablename DROP COLUMN column_name;    :- Remove a column from a table.
+
+
+--3. 🔍 Data Manipulation (CRUD)
+
+SELECT * FROM tablename;  :- Get all data from a table
+
+SELECT col1, col2 FROM tablename WHERE ...;  :- Query specific data
+
+INSERT INTO tablename (col1, col2) VALUES (val1, val2);  :- Add data
+
+UPDATE tablename SET col = value WHERE condition;  :- Modify data
+
+DELETE FROM tablename WHERE condition;  :- Delete data
+
+
+--4. 👤 User & Privileges
+
+CREATE USER 'user'@'host' IDENTIFIED BY 'password';  :- Create a new user
+
+SELECT user, host FROM mysql.user;  :- Check user list ,host, password
+
+GRANT ALL PRIVILEGES ON db.* TO 'user'@'host';  :- Give user access
+
+REVOKE ALL PRIVILEGES ON db.* FROM 'user'@'host';  :- Remove access
+
+SHOW GRANTS FOR 'user'@'host';  :- Show user privileges
+
+DROP USER 'user'@'host';  :- Delete a user
+
+
+--5. 🔄 Backup & Restore (mysqldump)
+
+Full backup :- mysqldump -u root -p dbname > backup.sql , Ex : mysqldump -u root -p sample_db > sample_db_full.sql
+
+Structure only :- mysqldump -u root -p --no-data dbname > structure.sql , Ex : mysqldump -u root -p --no-data sample_db > structure_only.sql
+
+Data only :- mysqldump -u root -p --no-create-info dbname > data.sql , Ex : mysqldump -u root -p --no-create-info sample_db > data_only.sql
+
+Single table :-	mysqldump -u root -p dbname tablename > table.sql , Ex : mysqldump -u root -p sample_db users_partitioned > users_partitioned.sql
+
+Restore	:- mysql -u root -p dbname < backup.sql  , Ex : mysql -u root -p new_db < backup_file.sql
+
+
+--6. 📚 Stored Procedures / Functions
+
+SHOW PROCEDURE STATUS;  :- List stored procedures
+
+SHOW FUNCTION STATUS;  :- List stored functions
+
+SHOW CREATE PROCEDURE proc_name;  :- Show procedure code
+
+CALL proc_name(params);  :- Call a procedure
+
+DROP PROCEDURE proc_name;  :- Delete a procedure
+
+
+--7.🧩 Partitioning (Advanced)
+
+SHOW CREATE TABLE tablename;  :- See if table has partitioning
+
+EXPLAIN PARTITIONS SELECT ...;  :- Check which partition is used
+
+ALTER TABLE ... PARTITION BY RANGE (...)  :- Add partitioning
+
+
+--8. 🛠️ Misc
+
+STATUS;            :- Display server status and connection info.
+
+SHOW PROCESSLIST;  :- Show currently running threads/queries.
+
+
+mysql> SHOW VARIABLES LIKE 'log_bin%'; ------------check 'binlog' location
++---------------------------------+--------------------------+
+| Variable_name                   | Value                    |
++---------------------------------+--------------------------+
+| log_bin                         | ON                       |
+| log_bin_basename                | /Data/mysql/binlog       |
+| log_bin_index                   | /Data/mysql/binlog.index |
+| log_bin_trust_function_creators | OFF                      |
+| log_bin_use_v1_row_events       | OFF                      |
++---------------------------------+--------------------------+
+ 
+mysql> SHOW BINARY LOGS;
++---------------+-----------+-----------+
+| Log_name      | File_size | Encrypted |
++---------------+-----------+-----------+
+| binlog.000001 |       850 | No        |
+| binlog.000002 |       180 | No        |
+| binlog.000003 |       180 | No        |
+| binlog.000004 |       180 | No        |
+| binlog.000005 |       180 | No        |
+| binlog.000006 |       180 | No        |
+| binlog.000007 |       157 | No        |
+| binlog.000008 |       342 | No        |
+| binlog.000009 |       400 | No        |
+| binlog.000010 |       180 | No        |
+| binlog.000011 |     22802 | No        |
+| binlog.000012 |      4919 | No        |
++---------------+-----------+-----------+
+
+# To check or read the contents of binlog.000001, you use the mysqlbinlog utility, 
+	 mysqlbinlog binlog.000001 -----------command
+
+# Check the MySQL Configuration File (my.cnf or my.ini)
+Linux/macOS:
+
+cat /etc/my.cnf
+# or
+cat /etc/mysql/my.cnf
+# or
+cat /usr/local/mysql/my.cnf
+
+#
+mysql>  SHOW VARIABLES LIKE 'log%'; --------------- check log_error file location 
++----------------------------------------+----------------------------------------+
+| Variable_name                          | Value                                  |
++----------------------------------------+----------------------------------------+
+| log_bin                                | ON                                     |
+| log_bin_basename                       | /Data/mysql/binlog                     |
+| log_bin_index                          | /Data/mysql/binlog.index               |
+| log_bin_trust_function_creators        | OFF                                    |
+| log_bin_use_v1_row_events              | OFF                                    |
+| log_error                              | /Data/mysql/mysqld.log                 |
+| log_error_services                     | log_filter_internal; log_sink_internal |
+| log_error_suppression_list             |                                        |
+| log_error_verbosity                    | 2                                      |
+| log_output                             | FILE                                   |
+| log_queries_not_using_indexes          | OFF                                    |
+| log_raw                                | OFF                                    |
+| log_replica_updates                    | ON                                     |
+| log_slave_updates                      | ON                                     |
+| log_slow_admin_statements              | OFF                                    |
+| log_slow_extra                         | OFF                                    |
+| log_slow_replica_statements            | OFF                                    |
+| log_slow_slave_statements              | OFF                                    |
+| log_statements_unsafe_for_binlog       | ON                                     |
+| log_throttle_queries_not_using_indexes | 0                                      |
+| log_timestamps                         | UTC                                    |
++----------------------------------------+----------------------------------------+
+
+
+Default path: 
+
+datadir=/Data/mysql
+socket=/Data/mysql/mysql.sock
+
+
+general_log_file=/Data/mysql/tnmysqldb4.log
+slow_query_log_file=/Data/mysql/tnmysqldb4-slow.log
+
+log_error=/Data/mysql/mysqld.log
+pid-file=/Data/mysqld/mysqld.pid
+
+

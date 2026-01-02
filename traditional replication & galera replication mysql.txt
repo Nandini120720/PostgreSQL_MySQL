@@ -1,0 +1,66 @@
+what is galera replication and traditional replication 
+
+--Traditional MySQL replication is primarily "asynchronous",
+ meaning updates are made on a single master server and propagated to replicas. 
+ It does not support automatic failover or resynchronization, 
+ making it prone to data inconsistency in the event of a master failure. 
+
+ --Galera is a database 
+clustering solution that enables you to set up multi-master clusters 
+using synchronous replication. Galera automatically handles keeping the 
+data on different nodes in sync while allowing you to send read and 
+write queries to any of the nodes in the cluster.
+
+ Galera Cluster is a synchronous multi-master cluster for 
+MariaDB with support for XtraDB/InnoDB storage engines. It has the 
+following top features.
+ (1) It provides active-active multi-master topology
+ (2) You can read and write to any cluster node
+ (3) It has an automatic node joining
+ (4) Automatic membership control, failed nodes drop from the cluster
+ (5) Has true parallel replication, on row level
+ (6) Direct client connection
+
+
+
+Replication & High Availability
+Optimize your MySQL infrastructure with flexible, production-ready replication and HA options:
+
+• Asynchronous Replication – Simple and widely used; ideal for read scaling.
+• Semi-Synchronous Replication – Reduces data loss risk with minimal performance tradeoff.
+• Group Replication – Native MySQL high availability with built-in auto-failover and conflict handling.
+• Galera Cluster – Synchronous multi-primary replication for strong consistency and high availability.
+
+
+Supported Distributions
+Choose from top MySQL distributions and deployment sources to match your performance and scalability needs:
+
+• Oracle MySQL – Official upstream community distribution from Oracle
+• Percona Server – A drop-in replacement with enhanced performance and advanced diagnostics
+• Percona Server Pro – Percona’s enterprise distribution that supports the Federal Information Processing Standards (FIPS)
+
+ClusterControl also supports installations using official vendor repositories, operating system package managers 
+(e.g., APT, YUM), or custom repository binaries — giving you ultimate flexibility.
+
+
+--Conclusions
+In summary, Galera Cluster is superior if compared to MySQL master-master replication due to its synchronous replication support with strong consistency, plus more advanced features like automatic membership control, automatic node provisioning and multi-threaded slaves. Ultimately, this depends on how the application interacts with the database server. Some legacy applications built for a standalone database server may not work well on a clustered setup.
+
+To simplify our points above, the following reasons justify when to use MySQL master-master replication:
+
+Things that are not supported by Galera:
+Replication for non-InnoDB/XtraDB tables like MyISAM, Aria, MEMORY or ARCHIVE.
+XA transactions.
+Statement-based replication between masters (e.g, when bandwidth is very expensive).
+Relying on explicit locking like LOCK TABLES statement.
+The general query log and the slow query log must be directed to a table, instead of a file.
+Loosely coupled setup where the hardware specs, software version and connection speed are significantly different on every master.
+When you already have a MySQL replication chain and you want to add another active/backup master for redundancy to speed up failover and recovery time in case if one of the master is unavailable.
+If your application can’t be modified to work around Galera Cluster limitations and having a MySQL-aware load balancer like ProxySQL or MaxScale is not an option.
+Reasons to pick Galera Cluster over MySQL master-master replication:
+
+Ability to safely write to multiple masters.
+Data consistency automatically managed (and guaranteed) across databases.
+New database nodes easily introduced and synced.
+Failures or inconsistencies automatically detected.
+In general, more advanced and robust high availability features.

@@ -1,0 +1,68 @@
+
+Altius: 
+
+***below daily activity *** check on 'slave -prdwhsdb03'
+main MySQL all data stored in : /dbdata (use'df -kh' to check mount point ,in that you can see the /dbdata)
+all backups are stored inside /dbdata : check daily and weekly bkup(Friday)
+check file using : less file_name
+	cd /dbdata/backup/daily ----bkup location  , do 'ls -ltr' and check date ,that bkup has been done or not
+	cd /dbdata/backup/weekly ----weekly backup location 
+
+# Check 'slave' status : is on 'sync' or not 
+run : SHOW SLAVE STATUS; ---command on 'mysql workbench' and check 'seconds_behind_master' it should be in 'numbers' if 'no' is there ,then  'error' will be there.
+ if have any error then check 
+
+****to check user host, password : 
+SELECT user, host, password FROM mysql.user; ----commands
+
+SELECT user, host, plugin, authentication_string FROM mysql.user;  ----commands
+
+*authentication_string is the hashed password.
+*plugin tells you the auth method (e.g., mysql_native_password, caching_sha2_password).
+
+
+
+
+[root@localhost ~]# systemctl status mysqld.service  ----------------check status of db(if o/p came: Active: failed (Result: exit-code) since Wed 2025-08-20 11:52:22 IST; 9min ago)
+
+[root@localhost ~]# systemctl start mysqld.service  ----------------start MySQL server (o/p: Active: active (running) since Wed 2025-08-20 12:03:00 IST; 5s ago)
+
+mysql> show variables like '%data%';
++---------------------------------------+------------------------+
+| Variable_name                         | Value                  |
++---------------------------------------+------------------------+
+| binlog_row_metadata                   | MINIMAL                |
+| character_set_database                | utf8mb4                |
+| collation_database                    | utf8mb4_0900_ai_ci     |
+| datadir                               | /var/lib/mysql/        |
+| innodb_data_file_path                 | ibdata1:12M:autoextend |
+| innodb_data_home_dir                  |                        |
+| innodb_stats_on_metadata              | OFF                    |
+| innodb_temp_data_file_path            | ibtmp1:12M:autoextend  |
+| innodb_use_fdatasync                  | ON                     |
+| max_length_for_sort_data              | 4096                   |
+| myisam_data_pointer_size              | 6                      |
+| performance_schema_max_metadata_locks | -1                     |
+| resultset_metadata                    | FULL                   |
+| skip_show_database                    | OFF                    |
+| updatable_views_with_limit            | YES                    |
++---------------------------------------+------------------------+
+15 rows in set (0.04 sec)
+
+mysql> show variables like '%port%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| admin_port               | 33062 |
+| large_files_support      | ON    |
+| mysqlx_port              | 33060 |
+| mysqlx_port_open_timeout | 0     |
+| port                     | 3306  |
+| report_host              |       |
+| report_password          |       |
+| report_port              | 3306  |
+| report_user              |       |
+| require_secure_transport | OFF   |
++--------------------------+-------+
+10 rows in set (0.01 sec)
+

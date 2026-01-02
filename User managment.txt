@@ -1,0 +1,41 @@
+
+🔐 1. Create a New User
+CREATE USER 'username'@'host' IDENTIFIED BY 'password';
+
+'username' — the MySQL username
+'host' — usually 'localhost', or % for any host
+'password' — the user’s password
+
+Example:
+CREATE USER 'devuser'@'localhost' IDENTIFIED BY 'securePass123';
+
+✅ 2. Grant Privileges
+GRANT ALL PRIVILEGES ON database.table TO 'username'@'host';
+
+You can specify:
+ALL PRIVILEGES
+
+SELECT, INSERT, UPDATE, etc.
+*.* for all databases and tables
+Example:
+GRANT SELECT, INSERT ON mydb.* TO 'devuser'@'localhost';
+
+Always run FLUSH PRIVILEGES; after modifying privileges, though in modern MySQL versions it’s often not necessary.
+
+🔄 3. Modify User Password
+ALTER USER 'username'@'host' IDENTIFIED BY 'newpassword';
+
+Example:
+ALTER USER 'devuser'@'localhost' IDENTIFIED BY 'newPass456';
+
+🧾 4. Show Users
+SELECT user, host FROM mysql.user;
+
+❌ 5. Delete a User
+DROP USER 'username'@'host';
+
+Example:
+DROP USER 'devuser'@'localhost';
+
+🔍 6. Show User Privilege
+SHOW GRANTS FOR 'username'@'host';

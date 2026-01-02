@@ -1,0 +1,8 @@
+
+[root@localhost ~]# subscription-manager register --username VirajD1808 --password Pass@1234
+
+
+Registering to: subscription.rhsm.redhat.com:443/subscription
+The system has been registered with ID: d77763fb-5ae9-44c2-9782-af15ec785a4d
+The registered system name is: localhost.localdomain
+[root@localhost ~]#

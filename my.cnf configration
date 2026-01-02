@@ -1,0 +1,93 @@
+
+Configure below parameters in .cnf located at  (/etc/my.cnf or /etc/my.cnf.d/).
+
+[mysqld]
+
+# Basic settings
+user = mysql
+port = 3306
+bind-address = 0.0.0.0
+skip-name-resolve
+sql_mode = "STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+
+# Limit memory usage
+max_connections = 50
+thread_cache_size = 8
+table_open_cache = 1024
+table_definition_cache = 512
+open_files_limit = 2048
+
+# InnoDB settings (main memory consumer) (RAM = 2GB)
+innodb_buffer_pool_size = 600M
+innodb_log_buffer_size = 8M
+innodb_file_per_table = 1
+innodb_flush_method = O_DIRECT
+innodb_flush_log_at_trx_commit = 1
+innodb_read_io_threads = 2
+innodb_write_io_threads = 2
+
+# Query cache is removed in MySQL 8.4, so not included
+
+# Temporary tables and sort/join buffers
+tmp_table_size = 64M
+max_heap_table_size = 64M
+sort_buffer_size = 512K
+read_buffer_size = 512K
+join_buffer_size = 512K
+read_rnd_buffer_size = 512K
+
+# Logging
+log_error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# Safe for 2GB RAM
+performance_schema = OFF
+innodb_dedicated_server = 0
+
+
+
+
+
+✅ 1. General Optimization & Security
+
+Parameter												Why it’s used
+skip-name-resolve							Avoids DNS lookups for clients, which improves connection speed.
+local-infile = 0							Disables LOAD DATA LOCAL for security reasons.
+max_allowed_packet							Prevents errors when handling large queries or blobs.
+sql_mode									Enforces strict SQL compliance and catches data issues early.
+bind-address = 0.0.0.0						Allows remote connections if needed (be careful—only in secure environments).
+
+
+🗃️ 2. InnoDB Performance Tuning
+Parameter												Why it’s used
+innodb_dedicated_server = 1					Auto-tunes memory and I/O if MySQL is the main workload on the server.
+innodb_log_buffer_size						Increases write performance by buffering transactions.
+innodb_read_io_threads / write_io_threads	Improves parallel disk I/O.
+innodb_file_per_table						Better file management and space reclamation for each table.
+
+
+⚡ 3. Connections & Caching
+Parameter												Why it’s used
+max_connections								Defines how many users can connect concurrently.
+thread_cache_size							Speeds up new connections by caching old threads.
+table_open_cache & table_definition_cache	Reduces disk access by keeping table metadata in memory.
+
+
+⏱️ 4. Timeouts
+Parameter												Why it’s used
+wait_timeout, interactive_timeout			Closes idle connections quickly to free up resources.
+connect_timeout								Fails slow or stalled connection attempts.
+
+
+🧠 5. Memory Buffers
+Parameter												Why it’s used
+tmp_table_size, max_heap_table_size			Controls how big in-memory temporary tables can get.
+join_buffer_size, sort_buffer_size			Speeds up joins and sorts that don’t use indexes.
+
+
+📜 6. Logging
+Parameter												Why it’s used
+slow-query-log, long_query_time				Helps you find and fix performance bottlenecks.
+log-error									Keeps a record of crashes or other server problems.

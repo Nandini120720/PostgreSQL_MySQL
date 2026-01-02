@@ -1,0 +1,96 @@
+
+5.4 to upgrade  on 5.7 - done
+change data dir- /data/mysql
+
+AnyDesk id - 1306511322 --------connect any desk to this id
+password - Migration@2025
+
+
+OS level : Ndtv@12345678
+
+13.201.100.147 -mysql 5.7 ip
+
+Local hostname:- ubuntu
+Password:- ubuntu
+
+DB user:- root (mysql -u root -p)
+password:- 123456789
+
+
+/ - is full 
+/data/mysql  --changes datadir
+
+systemctl status mysql  ----check status of mysql
+===========================================================
+24/11/2025
+===========================================================
+# After updated linux version - trying to start mysql but getting an error
+
+--Disable AppArmor for MySQL
+	nano /etc/apparmor.d/local/usr.sbin.mysqld
+	
+--Add below in above cnf file :	
+/data/mysql/ r,
+/data/mysql/** rwk,
+/data/mysqld/ rw,
+/data/mysqld/** rwk,
+
+	systemctl restart mysql
+	
+# Reload AppArmor:	
+	apparmor_parser -r /etc/apparmor.d/usr.sbin.mysqld
+
+after above changes ,connected to db using root user and successfully resolved.
+
+
+
+
+
+
+
+
+
+
+# did below changes :-
+change directory -done
+(actual size of db is -5GB and the existed db size is-3GB so i did below )
+all tables are not present in 'reporter'(3GB) db
+so we have to drop this from current db
+and we have to import given db 'reporter'(5GB)
+
+-----------pending to upgrade 5.7 to 8.4    ----wip
+---backup are stored in /data/mysql_dumps 
+
+root@mum-reporters-i-09e23314bc22eca61:~# cd /data/
+root@mum-reporters-i-09e23314bc22eca61:/data# ll
+total 32
+drwxr-xr-x  8 mysql mysql 4096 Sep  8 18:05 ./
+drwxr-xr-x 21 root  root  4096 Jul 18 11:30 ../
+drwxr-x---  6 mysql mysql 4096 Sep 23 15:25 mysql/
+drwxr-xr-x  2 mysql mysql 4096 Nov 28  2024 mysql-files/
+drwxr-xr-x  2 mysql mysql 4096 Nov 28  2024 mysql-keyring/
+drwxr-xr-x  2 mysql mysql 4096 Sep 23 15:40 mysql_dumps/
+drwxr-x---  6 mysql mysql 4096 Sep  8 18:03 mysql_var.bak/
+drwxr-xr-x  2 mysql mysql 4096 Sep  8 17:51 mysqld/
+root@mum-reporters-i-09e23314bc22eca61:/data# ls -lrt mysql_dumps/
+total 1879632
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data# cd mysql_dumps/
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# mysqldump -u root -p --all-databases --single-transaction --routines --triggers > full_backup.sql
+Enter password:
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps# ll
+total 2475320
+drwxr-xr-x 2 mysql mysql      4096 Oct  8 11:28 ./
+drwxr-xr-x 8 mysql mysql      4096 Sep  8 18:05 ../
+-rw-r--r-- 1 root  root  609968736 Oct  8 11:29 full_backup.sql  ------this bckup toot while doing upgrade 5.7 to 8
+-rw-rw-r-- 1 mysql mysql 609384874 Jul 18 13:29 reporter1.sql
+-rw-r--r-- 1 root  root  609384593 Sep 23 15:40 reporter_5.7backup_23092025.sql  ----this is old backup that we took  
+-rw-rw-r-- 1 mysql mysql 352980213 Jul 23 23:52 reporter_57_dump.sql
+-rw-r--r-- 1 root  root  352980210 Sep 23 15:14 reporter_backup_23092025.sql
+root@mum-reporters-i-09e23314bc22eca61:/data/mysql_dumps#
+
+
+Mysql@123

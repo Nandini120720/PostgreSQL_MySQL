@@ -1,0 +1,122 @@
+
+# Single Table Restoration from Full Backup : Database backup file contains SQL statements only. (sed)
+
+--1. Using mysqldump & take full backup : This creates a .sql file that contains the full schema and data of the database.
+
+Basic Command:
+	mysqldump -u [username] -p sample_db > sample_db_backup.sql  ------- command
+	
+Ex : [root@localhost ~]# mysqldump -u root -p sample_db > sample_db_backup.sql
+
+-u [username]: your MySQL username (e.g., root)
+-p: prompts for the password
+sample_db: name of the database
+> sample_db_backup.sql: output file
+
+
+--2. Steps :
+
+-Find the Table Section in the Dump File
+
+-Use grep or a text editor to locate the table:
+	grep 'DROP TABLE.*table_name' full_backupp_file_name.sql    ----------- command
+
+Ex: grep 'DROP TABLE.*users' sample_db_backup.sql
+
+ 
+--3. Extract the Table's SQL :
+
+Suppose your table is 'users', you can extract it using sed or manually in a text editor:
+
+	sed -n -e '/DROP TABLE.*`table_name`/,/UNLOCK TABLES/p' full_backup_file_name.sql > table_name.sql   ----- command 
+
+Ex :  sed -n -e '/DROP TABLE.*`users`/,/UNLOCK TABLES/p' sample_db_backup.sql > users.sql
+
+Note: This might include part of the next table. You'll need to clean that part if needed.
+
+--4. Restore the Table
+
+If the table already exists, drop it first or truncate it, depending on your goal. (DROP TABLE table_name) ----------- Note
+
+Then import(restore) the table:
+	mysql -u username -p database_name < users_table.sql  ---------- command
+	
+
+Ex : mysql -u root -p sample_db < users_table.sql
+
+
+
+# SUMMARY : (in short all steps)
+ step 1. sed -n -e '/DROP TABLE.*`table_name`/,/UNLOCK TABLES/p' full_backup_file_name.sql > table_name.sql
+ step 2. mysql -u root -p sample_db < users.sql
+ step 3. grep 'DROP TABLE.*users' sample_db_backup.sql
+ 
+What it does : sed -n -e '/DROP TABLE.*`table_name`/,/UNLOCK TABLES/p' full_backup_file_name.sql > table_name.sql
+
+	sed : Stream editor for filtering and transforming text
+	-n : disables automatic printing (only explicitly printed lines are output).
+	-e ,--expression : Specifies the script to run.
+
+- '/DROP TABLE.*test_data/,/UNLOCK TABLES/p': This is a range pattern:
+- Starts at a line matching DROP TABLE.*\test_data`` (matches the drop statement for the test_data table).
+-  Ends at a line matching UNLOCK TABLES.
+- The p at the end tells sed to print all lines within this range.
+- table_name.sql: Input file.
+- > full_backup_file_name.sql: Redirects the output to a new file.
+
+
+
+# Practical :
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| new_db             |
+| performance_schema |
+| sample_db          |
+| sys                |
+| test               |
++--------------------+
+7 rows in set (0.01 sec)
+
+mysql> use sample_db;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++---------------------+
+| Tables_in_sample_db |
++---------------------+
+| users               |
+| users_partitioned   |
++---------------------+
+2 rows in set (0.00 sec)
+
+mysql> drop table users;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> show tables;
++---------------------+
+| Tables_in_sample_db |
++---------------------+
+| users_partitioned   |
++---------------------+
+1 row in set (0.00 sec)
+
+mysql> \q
+Bye
+[root@localhost ~]# sed -n -e '/DROP TABLE.*`users`/,/UNLOCK TABLES/p' sample_db_backup.sql > users.sql
+[root@localhost ~]# ls
+anaconda-ks.cfg                             sample_db_backup.sql  test.sql                      users_partitioned.sql        users.sql               users_table.sql
+mysql80-community-release-el9-1.noarch.rpm  sample_db_clean.sql   users_partitioned_backup.sql  users_partitioned_table.sql  users_table_backup.sql
+[root@localhost ~]#  mysql -u root -p sample_db < users.sql
+Enter password:
+[root@localhost ~]# less users.sql
+[root@localhost ~]#  grep 'DROP TABLE.*users' sample_db_backup.sql
+DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `users_partitioned`;
+[root@localhost ~]#
