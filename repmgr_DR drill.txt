@@ -1,0 +1,129 @@
+🔹 What is repmgr?
+
+repmgr = Replication Manager for PostgreSQL.
+
+It is an open-source tool that simplifies management of streaming replication clusters.
+
+It provides:
+
+Cluster setup and monitoring
+
+Failover and switchover automation
+
+Standby cloning
+
+Rejoin/rebuild of standby nodes
+
+DR (Disaster Recovery) drills
+
+Think of it as a management layer for PostgreSQL replication, making life easier for DBAs.
+
+🔹 Step 1: Install repmgr on RHEL 9 (Postgres 17)
+1. Enable PGDG repository
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+2. Install PostgreSQL 17 client/devel packages
+sudo dnf install -y postgresql17 postgresql17-server postgresql17-contrib postgresql17-devel
+
+3. Install repmgr (for PostgreSQL 17)
+sudo dnf install -y repmgr_17
+
+
+✅ Check installation:
+
+repmgr --version
+
+🔹 Step 2: Configure PostgreSQL for Replication
+
+On Primary (192.168.149.133:5434):
+
+Edit postgresql.conf:
+
+port = 5434
+listen_addresses = '*'
+
+wal_level = replica
+max_wal_senders = 10
+max_replication_slots = 10
+archive_mode = on
+archive_command = 'cp %p /var/lib/pgsql/17/archive/%f'   # adjust path
+
+
+Edit pg_hba.conf (add for repmgr user):
+
+host replication repmgr 192.168.149.0/24 md5
+host all repmgr 192.168.149.0/24 md5
+
+
+Reload config:
+
+systemctl restart postgresql-17
+
+🔹 Step 3: Create repmgr User and DB
+
+Login as postgres:
+
+psql -p 5434
+
+CREATE USER repmgr WITH REPLICATION LOGIN SUPERUSER PASSWORD 'repmgr_pass';
+CREATE DATABASE repmgr OWNER repmgr;
+
+🔹 Step 4: Configure repmgr.conf
+
+On Primary (example /etc/repmgr/17/repmgr.conf):
+
+node_id=1
+node_name=primary
+conninfo='host=192.168.149.133 user=repmgr dbname=repmgr port=5434 password=repmgr_pass'
+data_directory='/var/lib/pgsql/17/data'
+
+
+On Standby (adjust node_id, node_name, host IP):
+
+node_id=2
+node_name=standby1
+conninfo='host=192.168.149.133 user=postgres dbname=postgres port=5434'
+data_directory='/var/lib/pgsql/17/data'
+
+🔹 Step 5: Initialize with repmgr
+Register Primary
+repmgr -f /etc/repmgr/17/repmgr.conf -p 5434 primary register
+
+Clone and Register Standby
+repmgr -h 192.168.149.133 -p 5432 -U postgres -d postgres -f /etc/repmgr/17/repmgr.conf standby clone
+repmgr -f /etc/repmgr/17/repmgr.conf standby register
+
+Verify Cluster
+repmgr -f /etc/repmgr/17/repmgr.conf cluster show
+
+🔹 Step 6: DR Drill Activity (with repmgr)
+1. Planned Switchover (Zero Data Loss)
+
+Move primary role to standby:
+
+repmgr -f /etc/repmgr/17/repmgr.conf standby switchover
+
+2. Failover Test (Crash Simulation)
+
+Stop primary abruptly:
+
+systemctl stop postgresql-17
+
+
+Promote standby:
+
+repmgr -f /etc/repmgr/17/repmgr.conf standby promote
+
+3. Rejoin Old Primary
+
+When the old primary is back online:
+
+repmgr -f /etc/repmgr/17/repmgr.conf node rejoin -d 'host=192.168.149.134 user=repmgr dbname=repmgr port=5434'
+
+4. Health Check
+repmgr -f /etc/repmgr/17/repmgr.conf cluster show
+
+
+✅ After this, your PostgreSQL 17 cluster will be fully managed by repmgr and you can easily perform DR drills.
+
+Do you also want me to prepare a sample DR Drill Report format (with steps + expected output), so you can directly use it for monthly/quarterly DR drill activities in your project?

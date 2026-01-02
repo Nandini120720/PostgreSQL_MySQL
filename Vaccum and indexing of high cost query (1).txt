@@ -1,0 +1,207 @@
+ (check db and then connect to db and create table inside that db)
+
+🧪 Step 1: Create a Sample Table
+
+CREATE TABLE customer_orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_name TEXT,
+    order_date DATE,
+    product_name TEXT,
+    quantity INT,
+    price NUMERIC
+);
+
+2) INSERT INTO customer_orders (customer_name, order_date, product_name, quantity, price)
+SELECT
+    'Customer_' || floor(random() * 1000),
+    CURRENT_DATE - (random() * 365)::INT,
+    'Product_' || floor(random() * 100),
+    (random() * 10)::INT + 1,
+    (random() * 500)::NUMERIC
+FROM generate_series(1, 1000000);
+
+
+3) -- Insert large dataset to work with
+INSERT INTO customer_orders (customer_name, order_date, product_name, quantity, price)
+SELECT
+    'Customer_' || floor(random() * 10000),
+    CURRENT_DATE - (random() * 365)::INT,
+    'Product_' || floor(random() * 500),
+    (random() * 10)::INT + 1,
+    (random() * 500)::NUMERIC
+FROM generate_series(1, 10000000);
+
+Step 4: Simulate Bloat (Repeated DELETE and INSERT)
+This is the main bloating simulation step. It removes half the data and reinserts new rows repeatedly.
+
+DO $$
+BEGIN
+  FOR i IN 1..30 LOOP
+    -- Delete 50% randomly
+    DELETE FROM customer_orders WHERE random() < 0.5;
+
+    -- Re-insert same number of rows to keep total row count stable but increase dead tuples
+    INSERT INTO customer_orders (customer_name, order_date, product_name, quantity, price)
+    SELECT
+        'Customer_' || floor(random() * 10000),
+        CURRENT_DATE - (random() * 365)::INT,
+        'Product_' || floor(random() * 500),
+        (random() * 10)::INT + 1,
+        (random() * 500)::NUMERIC
+    FROM generate_series(1, 5000000);
+  END LOOP;
+END $$;
+
+
+
+
+[postgres@localhost ~]$ psql
+psql (13.20, server 16.8)
+WARNING: psql major version 13, server major version 16.
+         Some psql features might not work.
+Type "help" for help.
+
+postgres=# \l+
+                                                                    List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   |  Size   | Tablespace |                Description
+-----------+----------+----------+-------------+-------------+-----------------------+---------+------------+--------------------------------------------
+ kpi       | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 7857 MB | pg_default |
+ naan      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 7617 kB | pg_default |
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 7900 kB | pg_default | default administrative connection database
+ powa      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 18 MB   | pg_default |
+ shaa      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 7617 kB | pg_default |
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +| 7545 kB | pg_default | unmodifiable empty database
+           |          |          |             |             | postgres=CTc/postgres |         |            |
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +| 7617 kB | pg_default | default template for new databases
+           |          |          |             |             | postgres=CTc/postgres |         |            |
+ vj        | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |                       | 7617 kB | pg_default |
+(8 rows)
+
+
+postgres=# \c kpi
+psql (13.20, server 16.8)
+WARNING: psql major version 13, server major version 16.
+         Some psql features might not work.
+You are now connected to database "kpi" as user "postgres".
+kpi=# \dt
+              List of relations
+ Schema |      Name       | Type  |  Owner
+--------+-----------------+-------+----------
+ public | cpu_test        | table | postgres
+ public | customer_orders | table | postgres
+ public | example_table   | table | postgres
+ public | logged_table    | table | postgres
+ public | unlogged_table  | table | postgres
+(5 rows)
+
+kpi=# \dt+ customer_orders
+                                 List of relations
+ Schema |      Name       | Type  |  Owner   | Persistence |  Size   | Description
+--------+-----------------+-------+----------+-------------+---------+-------------
+ public | customer_orders | table | postgres | permanent   | 4511 MB |
+(1 row)
+
+kpi=# SELECT query, calls, total_exec_time, rows, mean_exec_time
+FROM pg_stat_statements
+WHERE query ILIKE '%customer_orders%'
+ORDER BY total_exec_time DESC
+LIMIT 5;  
+
+ERROR:  relation "pg_stat_statements" does not exist
+LINE 2: FROM pg_stat_statements
+             ^
+kpi=# CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+^CCancel request sent
+WARNING:  canceling wait for synchronous replication due to user request
+DETAIL:  The transaction has already committed locally, but might not have been replicated to the standby.
+CREATE EXTENSION
+kpi=# SELECT query, calls, total_exec_time, rows, mean_exec_time
+FROM pg_stat_statements
+WHERE query ILIKE '%customer_orders%'
+ORDER BY total_exec_time DESC
+LIMIT 5;
+ query | calls | total_exec_time | rows | mean_exec_time
+-------+-------+-----------------+------+----------------
+(0 rows)
+
+**below query for check bloat-
+kpi=# SELECT
+    schemaname || '.' || tablename AS table_full_name,
+    pg_size_pretty(table_size) AS total_size,
+    pg_size_pretty(total_size - (table_size - dead_tuple_len)) AS approx_bloat,
+    ROUND(100 * dead_tuple_len::NUMERIC / NULLIF(table_size, 0), 2) AS bloat_percent
+FROM (
+    SELECT *,
+           table_len AS table_size,
+           dead_tuple_len
+    FROM pgstattuple('public.customer_orders')
+) sub;
+ERROR:  function pgstattuple(unknown) does not exist
+LINE 10:     FROM pgstattuple('public.customer_orders')
+                  ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+kpi=# CREATE EXTENSION IF NOT EXISTS pgstattuple;
+^CCancel request sent
+WARNING:  canceling wait for synchronous replication due to user request
+DETAIL:  The transaction has already committed locally, but might not have been replicated to the standby.
+CREATE EXTENSION
+
+kpi=# SELECT
+    table_len AS total_bytes,
+    tuple_count AS row_count,
+    dead_tuple_count AS dead_rows,
+    dead_tuple_len AS dead_bytes,
+    ROUND(100.0 * dead_tuple_len / NULLIF(table_len, 0), 2) AS bloat_percentage
+FROM pgstattuple('public.customer_orders');
+ total_bytes | row_count | dead_rows | dead_bytes | bloat_percentage
+-------------+-----------+-----------+------------+------------------
+  4728922112 |  51000000 |   5000000 |  376597564 |             7.96
+(1 row)
+
+kpi=# EXPLAIN ANALYZE
+SELECT * FROM customer_orders
+WHERE product_name = 'Product_42';
+                                                                QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..875469.15 rows=55358 width=48) (actual time=2.214..107940.234 rows=59847 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   ->  Parallel Seq Scan on customer_orders  (cost=0.00..868933.35 rows=23066 width=48) (actual time=1.478..107894.420 rows=19949 loops=3)
+         Filter: (product_name = 'Product_42'::text)
+         Rows Removed by Filter: 16980051
+ Planning Time: 2.925 ms
+ Execution Time: 107954.650 ms
+(8 rows)
+
+kpi=# CREATE INDEX idx_product_name ON customer_orders(product_name);
+CREATE INDEX
+kyc=# set maintenance_work_mem to '1GB';  -------------it will support to fast process of maintenance 
+SET
+
+kpi=# VACUUM ANALYZE customer_orders;
+VACUUM
+kpi=# EXPLAIN ANALYZE
+SELECT * FROM customer_orders
+WHERE product_name = 'Product_42';
+                                                              QUERY PLAN
+--------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on customer_orders  (cost=567.62..150079.71 rows=50459 width=48) (actual time=54.068..19874.077 rows=59847 loops=1)
+   Recheck Cond: (product_name = 'Product_42'::text)
+   Heap Blocks: exact=53954
+   ->  Bitmap Index Scan on idx_product_name  (cost=0.00..555.01 rows=50459 width=0) (actual time=26.311..26.312 rows=59847 loops=1)
+         Index Cond: (product_name = 'Product_42'::text)
+ Planning Time: 0.315 ms
+ Execution Time: 19899.720 ms
+(7 rows)
+
+kpi=# \di
+                         List of relations
+ Schema |         Name         | Type  |  Owner   |      Table
+--------+----------------------+-------+----------+-----------------
+ public | cpu_test_pkey        | index | postgres | cpu_test
+ public | customer_orders_pkey | index | postgres | customer_orders
+ public | example_table_pkey   | index | postgres | example_table
+ public | idx_example_name_dob | index | postgres | example_table
+ public | idx_product_name     | index | postgres | customer_orders
+(5 rows)

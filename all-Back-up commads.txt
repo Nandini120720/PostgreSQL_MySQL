@@ -1,0 +1,26 @@
+Back-up commad
+ 
+("Full Database Backup",
+"/usr/pgsql-16/bin/pg_dump -h 127.0.0.1 -p 5432 -U postgres -d amit "
+"-f /var/lib/pgsql/amit_backup/backup.sql"),
+ 
+("Single Table Backup (Table: vodafone)",
+"/usr/pgsql-16/bin/pg_dump -h 192.168.118.128 -p 5433 -U postgres -d amit -t vodafone "
+"-f /var/lib/pgsql/amit_backup/tableBackup.sql"),
+ 
+("Single Table Under Specific Schema (Schema: amit1, Table: vois)",
+"/usr/pgsql-16/bin/pg_dump -h 127.0.0.1 -p 5433 -U postgres -d amit -t amit1.vois "
+"-f /var/lib/pgsql/amit_backup/tableSBackup.sql"),
+ 
+("Schema-Only Backup",
+"/usr/pgsql-16/bin/pg_dump -h 127.0.0.1 -p 5433 -U postgres -d amit -s "
+"-f /var/lib/pgsql/amit_backup/Schemabackup.sql"),
+ 
+("Roles Backup Only",
+"/usr/pgsql-16/bin/pg_dumpall -r -h 127.0.0.1 -p 5433 -U postgres "
+"> /var/lib/pgsql/amit_backup/rolesbackup.sql"),
+ 
+("Data-Only Backup (No Schema)",
+"/usr/pgsql-16/bin/pg_dump -h 127.0.0.1 -p 5433 -U postgres -d amit -a "
+"-f /var/lib/pgsql/amit_backup/databackup.sql"),
+]

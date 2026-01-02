@@ -1,0 +1,113 @@
+[postgres@localhost ~]$ sudo dnf install -y pgbackrest
+Updating Subscription Management repositories.
+Last metadata expiration check: 5:18:26 ago on Sun 15 Jun 2025 05:13:35 PM IST.
+Package pgbackrest-2.55.0-1PGDG.rhel9.x86_64 is already installed.
+Dependencies resolved.
+========================================================================================================================================================================
+ Package                                Architecture                       Version                                        Repository                               Size
+========================================================================================================================================================================
+Upgrading:
+ pgbackrest                             x86_64                             2.55.1-1PGDG.rhel9                             pgdg-common                             544 k
+
+Transaction Summary
+========================================================================================================================================================================
+Upgrade  1 Package
+
+Total download size: 544 k
+Downloading Packages:
+pgbackrest-2.55.1-1PGDG.rhel9.x86_64.rpm                                                                                                324 kB/s | 544 kB     00:01
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                   323 kB/s | 544 kB     00:01
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                1/1
+  Running scriptlet: pgbackrest-2.55.1-1PGDG.rhel9.x86_64                                                                                                           1/2
+  Upgrading        : pgbackrest-2.55.1-1PGDG.rhel9.x86_64                                                                                                           1/2
+warning: /etc/pgbackrest.conf created as /etc/pgbackrest.conf.rpmnew
+
+  Running scriptlet: pgbackrest-2.55.1-1PGDG.rhel9.x86_64                                                                                                           1/2
+  Running scriptlet: pgbackrest-2.55.0-1PGDG.rhel9.x86_64                                                                                                           2/2
+  Cleanup          : pgbackrest-2.55.0-1PGDG.rhel9.x86_64                                                                                                           2/2
+  Running scriptlet: pgbackrest-2.55.0-1PGDG.rhel9.x86_64                                                                                                           2/2
+  Verifying        : pgbackrest-2.55.1-1PGDG.rhel9.x86_64                                                                                                           1/2
+  Verifying        : pgbackrest-2.55.0-1PGDG.rhel9.x86_64                                                                                                           2/2
+Installed products updated.
+
+Upgraded:
+  pgbackrest-2.55.1-1PGDG.rhel9.x86_64
+
+Complete!
+[postgres@localhost ~]$ sudo mkdir -p /var/lib/pgbackrest
+[postgres@localhost ~]$ sudo mkdir -p /var/log/pgbackrest
+[postgres@localhost ~]$ sudo chown -R postgres:postgres /var/lib/pgbackrest /var/log/pgbackrest
+
+[postgres@localhost ~]$ sudo mkdir -p /etc/pgbackrest
+[postgres@localhost ~]$ sudo touch /etc/pgbackrest/pgbackrest.conf
+[postgres@localhost ~]$ sudo chown postgres:postgres /etc/pgbackrest/pgbackrest.conf
+[postgres@localhost ~]$ sudo vi /etc/pgbackrest/pgbackrest.conf
+
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+start-fast=y
+log-level-console=info
+log-level-file=debug
+log-path=/var/log/pgbackrest
+
+[pg16]
+pg1-path=/var/lib/pgsql/15/data
+pg1-port=5432
+
+[postgres@localhost ~]$ cd $PGDATA
+[postgres@localhost data]$ vi postgresql.conf
+
+archive_mode = on
+archive_command = 'pgbackrest --stanza=pg16 archive-push %p'
+wal_level = replica
+
+[postgres@localhost data]$ pg_ctl restart
+waiting for server to shut down.... done
+server stopped
+waiting for server to start....2025-06-15 22:56:09 IST [2748]: [1-1] user=,db=,app=,client= LOG:  Auto detecting pg_stat_kcache.linux_hz parameter...
+2025-06-15 22:56:09 IST [2748]: [2-1] user=,db=,app=,client= LOG:  pg_stat_kcache.linux_hz is set to 500000
+2025-06-15 22:56:09 IST [2748]: [3-1] user=,db=,app=,client= LOG:  redirecting log output to logging collector process
+2025-06-15 22:56:09 IST [2748]: [4-1] user=,db=,app=,client= HINT:  Future log output will appear in directory "log".
+ done
+server started
+[postgres@localhost data]$ sudo -i -u postgres  ----------redirect to postgres ,if you are in other directory/folder / usre
+[postgres@localhost ~]$ pgbackrest --stanza=pg16 stanza-create
+2025-06-15 22:57:02.768 P00   INFO: stanza-create command begin 2.55.1: --exec-id=2796-c11caf33 --log-level-console=info --log-level-file=debug --log-path=/var/log/pgbackrest --pg1-path=/var/lib/pgsql/16/data --pg1-port=5432 --repo1-path=/var/lib/pgbackrest --stanza=pg16
+2025-06-15 22:57:02.897 P00   INFO: stanza-create for stanza 'pg16' on repo1
+2025-06-15 22:57:02.916 P00   INFO: stanza-create command end: completed successfully (172ms)
+[postgres@localhost ~]$ pgbackrest --stanza=pg16 --type=full backup
+2025-06-15 22:57:22.328 P00   INFO: backup command begin 2.55.1: --exec-id=2802-7800d2ea --log-level-console=info --log-level-file=debug --log-path=/var/log/pgbackrest --pg1-path=/var/lib/pgsql/16/data --pg1-port=5432 --repo1-path=/var/lib/pgbackrest --repo1-retention-full=2 --stanza=pg16 --start-fast --type=full
+2025-06-15 22:57:22.389 P00   INFO: execute non-exclusive backup start: backup begins after the requested immediate checkpoint completes
+2025-06-15 22:57:22.608 P00   INFO: backup start archive = 0000000100000007000000BF, lsn = 7/BF000028
+2025-06-15 22:57:22.608 P00   INFO: check archive for prior segment 0000000100000007000000BE
+2025-06-15 23:14:59.565 P00   INFO: execute non-exclusive backup stop and wait for all WAL segments to archive
+2025-06-15 23:14:59.672 P00   INFO: backup stop archive = 0000000100000007000000C8, lsn = 7/C8000050
+2025-06-15 23:14:59.698 P00   INFO: check archive for segment(s) 0000000100000007000000BF:0000000100000007000000C8
+2025-06-15 23:15:00.110 P00   INFO: new backup label = 20250615-225722F
+2025-06-15 23:15:00.193 P00   INFO: full backup size = 7.7GB, file total = 3016
+2025-06-15 23:15:00.193 P00   INFO: backup command end: completed successfully (1057877ms)
+2025-06-15 23:15:00.194 P00   INFO: expire command begin 2.55.1: --exec-id=2802-7800d2ea --log-level-console=info --log-level-file=debug --log-path=/var/log/pgbackrest --repo1-path=/var/lib/pgbackrest --repo1-retention-full=2 --stanza=pg16
+2025-06-15 23:15:00.197 P00   INFO: expire command end: completed successfully (4ms)
+(if you want to check backup status or how much % backup done then run  "pgbackrest info" command)
+
+[postgres@localhost ~]$ pgbackrest --stanza=pg16 --type=incr backup
+2025-06-15 23:16:43.911 P00   INFO: backup command begin 2.55.1: --exec-id=3052-0f9e402c --log-level-console=info --log-level-file=debug --log-path=/var/log/pgbackrest --pg1-path=/var/lib/pgsql/16/data --pg1-port=5432 --repo1-path=/var/lib/pgbackrest --repo1-retention-full=2 --stanza=pg16 --start-fast --type=incr
+2025-06-15 23:16:43.970 P00   INFO: last backup label = 20250615-225722F, version = 2.55.1
+2025-06-15 23:16:43.970 P00   INFO: execute non-exclusive backup start: backup begins after the requested immediate checkpoint completes
+2025-06-15 23:16:44.159 P00   INFO: backup start archive = 0000000100000007000000CA, lsn = 7/CA000028
+2025-06-15 23:16:44.159 P00   INFO: check archive for prior segment 0000000100000007000000C9
+2025-06-15 23:16:45.454 P00   INFO: execute non-exclusive backup stop and wait for all WAL segments to archive
+2025-06-15 23:16:45.537 P00   INFO: backup stop archive = 0000000100000007000000CA, lsn = 7/CA000100
+2025-06-15 23:16:45.544 P00   INFO: check archive for segment(s) 0000000100000007000000CA:0000000100000007000000CA
+2025-06-15 23:16:45.987 P00   INFO: new backup label = 20250615-225722F_20250615-231643I
+2025-06-15 23:16:46.071 P00   INFO: incr backup size = 4.6MB, file total = 3020
+2025-06-15 23:16:46.072 P00   INFO: backup command end: completed successfully (2172ms)
+2025-06-15 23:16:46.072 P00   INFO: expire command begin 2.55.1: --exec-id=3052-0f9e402c --log-level-console=info --log-level-file=debug --log-path=/var/log/pgbackrest --repo1-path=/var/lib/pgbackrest --repo1-retention-full=2 --stanza=pg16
+2025-06-15 23:16:46.075 P00   INFO: expire command end: completed successfully (3ms)

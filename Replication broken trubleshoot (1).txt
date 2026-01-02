@@ -1,0 +1,143 @@
+[pathan@localhost ~]$ su - postgres
+Password: 
+[postgres@localhost ~]$ psql
+psql (16.8)
+Type "help" for help.
+
+postgres=# select * from pg_stat_wal_receiver ;
+ pid | status | receive_start_lsn | receive_start_tli | written_lsn | flushed_ls
+n | received_tli | last_msg_send_time | last_msg_receipt_time | latest_end_lsn |
+ latest_end_time | slot_name | sender_host | sender_port | conninfo 
+-----+--------+-------------------+-------------------+-------------+-----------
+--+--------------+--------------------+-----------------------+----------------+
+-----------------+-----------+-------------+-------------+----------
+(0 rows)
+
+postgres=# \l+
+                                                                                
+         List of databases
+   Name    |  Owner   | Encoding | Locale Provider |   Collate   |    Ctype    |
+ ICU Locale | ICU Rules |   Access privileges   |  Size   | Tablespace |        
+        Description                 
+-----------+----------+----------+-----------------+-------------+-------------+
+------------+-----------+-----------------------+---------+------------+--------
+------------------------------------
+ kpi       | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 7347 MB | pg_default | 
+ naan      | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 7617 kB | pg_default | 
+ postgres  | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 7900 kB | pg_default | default
+ administrative connection database
+ powa      | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 18 MB   | pg_default | 
+ shaa      | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 7617 kB | pg_default | 
+ template0 | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           | =c/postgres          +| 7545 kB | pg_default | unmodif
+iable empty database
+           |          |          |                 |             |             |
+            |           | postgres=CTc/postgres |         |            | 
+ template1 | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           | =c/postgres          +| 7617 kB | pg_default | default
+ template for new databases
+           |          |          |                 |             |             |
+            |           | postgres=CTc/postgres |         |            | 
+ vj        | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |
+            |           |                       | 7617 kB | pg_default | 
+
+
+
+postgres=# \q
+[postgres@localhost ~]$ pg_basebackup -h 192.168.149.133 -U repuser -D /var/lib/pgsql/16/data -Fp -Xs -P -R -W
+Password: 
+pg_basebackup: error: connection to server at "192.168.149.133", port 5432 failed: FATAL:  role "repuser" does not exist
+[postgres@localhost ~]$ pg_basebackup -h 192.168.149.133 -U postgres -D /var/lib/pgsql/16/data -Fp -Xs -P -R -W
+Password: 
+pg_basebackup: error: directory "/var/lib/pgsql/16/data" exists but is not empty
+[postgres@localhost ~]$ hostname -I
+192.168.149.132 
+[postgres@localhost ~]$ sudo systemctl stop postgresql-16
+sudo rm -rf /var/lib/pgsql/16/data/*
+[sudo] password for postgres: 
+[postgres@localhost ~]$ 
+[postgres@localhost ~]$ 
+[postgres@localhost ~]$ pg_basebackup -h 192.168.149.133 -U postgres -D /var/lib/pgsql/16/data -Fp -Xs -P -R -W
+Password: 
+8463350/8463350 kB (100%), 1/1 tablespaceace
+[postgres@localhost ~]$ psql 
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+	Is the server running locally and accepting connections on that socket?
+[postgres@localhost ~]$ sudo systemctl start postgresql-16
+^C
+[postgres@localhost ~]$ pg_ctl start
+pg_ctl: another server might be running; trying to start server anyway
+waiting for server to start....2025-06-12 13:39:28.823 IST [5744] FATAL:  lock file "postmaster.pid" already exists
+2025-06-12 13:39:28.823 IST [5744] HINT:  Is another postmaster (PID 5725) running in data directory "/var/lib/pgsql/16/data"?
+ stopped waiting
+pg_ctl: could not start server
+Examine the log output.
+[postgres@localhost ~]$ rm -f /var/lib/pgsql/16/data/postmaster.pid
+[postgres@localhost ~]$ pg_ctl start -D /var/lib/pgsql/16/data
+waiting for server to start....2025-06-12 13:40:27.815 IST [5761] LOG:  Auto detecting pg_stat_kcache.linux_hz parameter...
+2025-06-12 13:40:27.819 IST [5761] LOG:  pg_stat_kcache.linux_hz is set to 1000000
+2025-06-12 13:40:27.825 IST [5761] FATAL:  pre-existing shared memory block (key 35553813, ID 7) is still in use
+2025-06-12 13:40:27.825 IST [5761] HINT:  Terminate any old server processes associated with data directory "/var/lib/pgsql/16/data".
+2025-06-12 13:40:27.825 IST [5761] LOG:  database system is shut down
+ stopped waiting
+pg_ctl: could not start server
+Examine the log output.
+[postgres@localhost ~]$ sudo systemctl start postgresql-16
+[postgres@localhost ~]$ 
+[postgres@localhost ~]$ psql 
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+[postgres@localhost ~]$ chown -R postgres:postgres /var/lib/pgsql/16/data
+chmod 700 /var/lib/pgsql/16/data
+[postgres@localhost ~]$ 
+[postgres@localhost ~]$ 
+[postgres@localhost ~]$ pg_ctl start -D /var/lib/pgsql/16/data -l /var/lib/pgsql/16/pg.log
+waiting for server to start........................................................ done
+server started
+[postgres@localhost ~]$ psql 
+psql (16.8)
+Type "help" for help.
+
+postgres=# select * from pg_stat_wal_receiver ;
+ pid  |  status   | receive_start_lsn | receive_start_tli | written_lsn | flushed_lsn | received_tli |        last_msg_send_time        |      last_msg_receip
+t_time       | latest_end_lsn |         latest_end_time          | slot_name |   sender_host   | sender_port |                                                
+                                                                                                                       conninfo                               
+                                                                                                                                        
+------+-----------+-------------------+-------------------+-------------+-------------+--------------+----------------------------------+---------------------
+-------------+----------------+----------------------------------+-----------+-----------------+-------------+------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+ 5868 | streaming | 7/7B000000        |                 1 | 7/80006B80  | 7/80006B80  |            1 | 2025-06-12 13:51:36.328138+05:30 | 2025-06-12 13:51:36.
+336845+05:30 | 7/80006B80     | 2025-06-12 13:51:36.328138+05:30 |           | 192.168.149.133 |        5432 | user=postgres password=******** channel_binding
+=prefer dbname=replication host=192.168.149.133 port=5432 fallback_application_name=walreceiver sslmode=prefer sslcompression=0 sslcertmode=allow sslsni=1 ssl
+_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+(1 row)
+
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_wal_receiver ;
+-[ RECORD 1 ]---------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+pid                   | 5868
+status                | streaming
+receive_start_lsn     | 7/7B000000
+receive_start_tli     | 1
+written_lsn           | 7/80006BB8
+flushed_lsn           | 7/80006BB8
+received_tli          | 1
+last_msg_send_time    | 2025-06-12 13:51:57.282401+05:30
+last_msg_receipt_time | 2025-06-12 13:51:57.283677+05:30
+latest_end_lsn        | 7/80006BB8
+latest_end_time       | 2025-06-12 13:51:57.282401+05:30
+slot_name             | 
+sender_host           | 192.168.149.133
+sender_port           | 5432
+conninfo              | user=postgres password=******** channel_binding=prefer dbname=replication host=192.168.149.133 port=5432 fallback_application_name=walreceiver sslmode=prefer sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+
+postgres=# 
+

@@ -1,0 +1,371 @@
+login as: postgres
+postgres@192.168.130.132's password:
+Register this system with Red Hat Insights: rhc connect
+
+Example:
+# rhc connect --activation-key <key> --organization <org>
+
+The rhc client and Red Hat Insights will enable analytics and additional
+management capabilities on your system.
+View your connected systems at https://console.redhat.com/insights
+
+You can learn more about how to register your system
+using rhc at https://red.ht/registration
+Last login: Thu Jun 12 00:01:03 2025 from 192.168.130.1
+[postgres@localhost ~]$ psql
+psql (15.13)
+Type "help" for help.
+
+postgres=# \q
+[postgres@localhost ~]$ top -c
+top - 00:24:12 up 54 min,  3 users,  load average: 3.05, 2.62, 1.56
+Tasks: 332 total,   4 running, 328 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 85.7 us, 14.3 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   1741.4 total,    170.3 free,    996.7 used,    877.4 buff/cache
+MiB Swap:   2048.0 total,   1563.7 free,    484.2 used.    744.7 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   6810 postgres  20   0  435872  34372  31620 R  66.7   1.9   0:00.40 postgres: parallel worker for PID 6039
+   6039 postgres  20   0  437740 150592 146052 R  61.1   8.4   8:04.94 postgres: postgres kyc [local] DO
+   6811 postgres  20   0  435872  32196  29444 R  50.0   1.8   0:00.34 postgres: parallel worker for PID 6039
+   6812 postgres  20   0  226204   4480   3456 R  11.1   0.3   0:00.03 top -c
+   2619 nandini+  20   0  388820  19208  16500 S   5.6   1.1   0:03.70 /usr/bin/vmtoolsd -n vmusr --blockFd 3 --uinputFd 4
+      1 root      20   0  174176  10332   6976 S   0.0   0.6   0:02.39 /usr/lib/systemd/systemd rhgb --switched-root --system --deserialize 31
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.03 [kthreadd]
+      3 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [pool_workqueue_]
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-rcu_g]
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-rcu_p]
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-slub_]
+      7 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-netns]
+      9 root       0 -20       0      0      0 I   0.0   0.0   0:00.03 [kworker/0:0H-kblockd]
+     10 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [kworker/u512:0-events_unbound]
+     11 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-mm_pe]
+     12 root      20   0       0      0      0 I   0.0   0.0   0:00.05 [kworker/u512:1-netns]
+     13 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_kthre]
+     14 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_rude_]
+     15 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_trace]
+     16 root      20   0       0      0      0 S   0.0   0.0   0:00.12 [ksoftirqd/0]
+     17 root      20   0       0      0      0 I   0.0   0.0   0:00.36 [rcu_preempt]
+     18 root      rt   0       0      0      0 S   0.0   0.0   0:00.00 [migration/0]
+     19 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 [idle_inject/0]
+     21 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [cpuhp/0]
+     22 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [cpuhp/1]
+     23 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 [idle_inject/1]
+     24 root      rt   0       0      0      0 S   0.0   0.0   0:00.23 [migration/1]
+     25 root      20   0       0      0      0 S   0.0   0.0   0:00.40 [ksoftirqd/1]
+     27 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/1:0H-events_highpri]
+     32 root      20   0       0      0      0 S   0.0   0.0   0:00.01 [kdevtmpfs]
+     33 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-inet_]
+     34 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [kauditd]
+     36 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [khungtaskd]
+     38 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [oom_reaper]
+     39 root      20   0       0      0      0 I   0.0   0.0   0:00.16 [kworker/u513:2-events_unbound]
+     40 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-write]
+     41 root      20   0       0      0      0 S   0.0   0.0   0:01.20 [kcompactd0]
+     42 root      25   5       0      0      0 S   0.0   0.0   0:00.00 [ksmd]
+     43 root      39  19       0      0      0 S   0.0   0.0   0:00.17 [khugepaged]
+     44 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-crypt]
+     45 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-kinte]
+     46 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-kbloc]
+[postgres@localhost ~]$ select * from pg_stat_activity where state='active';
+-bash: syntax error near unexpected token `from'
+[postgres@localhost ~]$ psql
+psql (15.13)
+Type "help" for help.
+
+postgres=# select * from pg_stat_activity where state='active';
+ datid | datname  | pid  | leader_pid | usesysid | usename  | application_name | client_addr | client_hostname | client_port |          backend_start           |            xact_start
+      |           query_start            |           state_change           | wait_event_type | wait_event | state  | backend_xid | backend_xmin |       query_id       |
+        query                            |  backend_type
+-------+----------+------+------------+----------+----------+------------------+-------------+-----------------+-------------+----------------------------------+----------------------------
+------+----------------------------------+----------------------------------+-----------------+------------+--------+-------------+--------------+----------------------+--------------------
+-----------------------------------------+-----------------
+     5 | postgres | 6835 |            |       10 | postgres | psql             |             |                 |          -1 | 2025-06-12 00:24:37.333587+05:30 | 2025-06-12 00:24:42.216035+
+05:30 | 2025-06-12 00:24:42.216035+05:30 | 2025-06-12 00:24:42.216038+05:30 |                 |            | active |             |         1824 |  4178439020691869218 | select * from pg_st
+at_activity where state='active';        | client backend
+ 32775 | kyc      | 6039 |            |       10 | postgres | psql             |             |                 |          -1 | 2025-06-12 00:03:47.116827+05:30 | 2025-06-12 00:12:17.557694+
+05:30 | 2025-06-12 00:12:17.557694+05:30 | 2025-06-12 00:12:17.557697+05:30 |                 |            | active |             |         1768 | -1129857359043207847 | DO $$
+                                        +| client backend
+       |          |      |            |          |          |                  |             |                 |             |                                  |
+      |                                  |                                  |                 |            |        |             |              |                      | BEGIN
+                                        +|
+       |          |      |            |          |          |                  |             |                 |             |                                  |
+      |                                  |                                  |                 |            |        |             |              |                      |   FOR i IN 1..10000
+0 LOOP                                  +|
+       |          |      |            |          |          |                  |             |                 |             |                                  |
+      |                                  |                                  |                 |            |        |             |              |                      |     PERFORM count(*
+) FROM cpu_test WHERE data LIKE '%abc%';+|
+       |          |      |            |          |          |                  |             |                 |             |                                  |
+      |                                  |                                  |                 |            |        |             |              |                      |   END LOOP;
+                                        +|
+       |          |      |            |          |          |                  |             |                 |             |                                  |
+      |                                  |                                  |                 |            |        |             |              |                      | END$$;
+                                         |
+ 32775 | kyc      | 6838 |       6039 |       10 | postgres | psql             |             |                 |             | 2025-06-12 00:24:40.675343+05:30 | 2025-06-12 00:12:17.557694+
+05:30 | 2025-06-12 00:12:17.557694+05:30 | 2025-06-12 00:24:40.678767+05:30 |                 |            | active |             |         1824 | -1129857359043207847 | SELECT count(*) FRO
+M cpu_test WHERE data LIKE '%abc%'       | parallel worker
+ 32775 | kyc      | 6839 |       6039 |       10 | postgres | psql             |             |                 |             | 2025-06-12 00:24:40.662295+05:30 | 2025-06-12 00:12:17.557694+
+05:30 | 2025-06-12 00:12:17.557694+05:30 | 2025-06-12 00:24:40.665813+05:30 |                 |            | active |             |         1824 | -1129857359043207847 | SELECT count(*) FRO
+M cpu_test WHERE data LIKE '%abc%'       | parallel worker
+(4 rows)
+
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_activity where state='active';
+-[ RECORD 1 ]----+------------------------------------------------------------
+datid            | 5
+datname          | postgres
+pid              | 6835
+leader_pid       |
+usesysid         | 10
+usename          | postgres
+application_name | psql
+client_addr      |
+client_hostname  |
+client_port      | -1
+backend_start    | 2025-06-12 00:24:37.333587+05:30
+xact_start       | 2025-06-12 00:24:47.317307+05:30
+query_start      | 2025-06-12 00:24:47.317307+05:30
+state_change     | 2025-06-12 00:24:47.317309+05:30
+wait_event_type  |
+wait_event       |
+state            | active
+backend_xid      |
+backend_xmin     | 1824
+query_id         | 4178439020691869218
+query            | select * from pg_stat_activity where state='active';
+backend_type     | client backend
+-[ RECORD 2 ]----+------------------------------------------------------------
+datid            | 32775
+datname          | kyc
+pid              | 6039
+leader_pid       |
+usesysid         | 10
+usename          | postgres
+application_name | psql
+client_addr      |
+client_hostname  |
+client_port      | -1
+backend_start    | 2025-06-12 00:03:47.116827+05:30
+xact_start       | 2025-06-12 00:12:17.557694+05:30
+query_start      | 2025-06-12 00:12:17.557694+05:30
+state_change     | 2025-06-12 00:12:17.557697+05:30
+wait_event_type  |
+wait_event       |
+state            | active
+backend_xid      |
+backend_xmin     | 1768
+query_id         | -1129857359043207847
+query            | DO $$                                                      +
+                 | BEGIN                                                      +
+                 |   FOR i IN 1..100000 LOOP                                  +
+                 |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';+
+Cancel request sent
+postgres=# \c kyc
+You are now connected to database "kyc" as user "postgres".
+kyc=# EXPLAIN (ANALYZE, BUFFERS) SELECT count(*) FROM cpu_test WHERE data LIKE '%abc%';
+-[ RECORD 1 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN | Finalize Aggregate  (cost=18583.22..18583.22 rows=1 width=8) (actual time=5259.924..5266.092 rows=1 loops=1)
+-[ RECORD 2 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |   Buffers: shared hit=12858
+-[ RECORD 3 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |   ->  Gather  (cost=18583.00..18583.21 rows=2 width=8) (actual time=5251.189..5266.080 rows=3 loops=1)
+-[ RECORD 4 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |         Workers Planned: 2
+-[ RECORD 5 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |         Workers Launched: 2
+-[ RECORD 6 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |         Buffers: shared hit=12858
+-[ RECORD 7 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |         ->  Partial Aggregate  (cost=17583.00..17583.01 rows=1 width=8) (actual time=5236.799..5236.800 rows=1 loops=3)
+-[ RECORD 8 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |               Buffers: shared hit=12858
+-[ RECORD 9 ]-----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |               ->  Parallel Seq Scan on cpu_test  (cost=0.00..17545.50 rows=15000 width=0) (actual time=1.517..5236.127 rows=2368 loops=3)
+-[ RECORD 10 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |                     Filter: (data ~~ '%abc%'::text)
+-[ RECORD 11 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |                     Rows Removed by Filter: 297632
+-[ RECORD 12 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |                     Buffers: shared hit=12858
+-[ RECORD 13 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN | Planning:
+-[ RECORD 14 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN |   Buffers: shared hit=57
+-[ RECORD 15 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN | Planning Time: 0.291 ms
+-[ RECORD 16 ]----------------------------------------------------------------------------------------------------------------------------------------
+QUERY PLAN | Execution Time: 5266.279 ms
+
+kyc=#  SELECT blocked.pid AS blocked_pid,
+       blocking.pid AS blocking_pid,
+       blocked.query AS blocked_query
+FROM pg_locks blocked_locks
+JOIN pg_stat_activity blocked ON blocked.pid = blocked_locks.pid
+JOIN pg_locks blocking_locks ON blocking_locks.locktype = blocked_locks.locktype
+AND blocked_locks.database IS NOT DISTINCT FROM blocking_locks.database
+AND blocked_locks.relation IS NOT DISTINCT FROM blocking_locks.relation
+AND blocked_locks.page IS NOT DISTINCT FROM blocking_locks.page
+AND blocked_locks.tuple IS NOT DISTINCT FROM blocking_locks.tuple
+AND blocked_locks.pid != blocking_locks.pid
+JOIN pg_stat_activity blocking ON blocking.pid = blocking_locks.pid;
+-[ RECORD 1 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6039
+blocking_pid  | 6919
+blocked_query | DO $$                                                                           +
+              | BEGIN                                                                           +
+              |   FOR i IN 1..100000 LOOP                                                       +
+              |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';                     +
+              |   END LOOP;                                                                     +
+              | END$$;
+-[ RECORD 2 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6039
+blocking_pid  | 6920
+blocked_query | DO $$                                                                           +
+              | BEGIN                                                                           +
+              |   FOR i IN 1..100000 LOOP                                                       +
+              |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';                     +
+              |   END LOOP;                                                                     +
+              | END$$;
+-[ RECORD 3 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6039
+blocking_pid  | 6919
+blocked_query | DO $$                                                                           +
+              | BEGIN                                                                           +
+              |   FOR i IN 1..100000 LOOP                                                       +
+              |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';                     +
+              |   END LOOP;                                                                     +
+              | END$$;
+-[ RECORD 4 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6039
+blocking_pid  | 6920
+blocked_query | DO $$                                                                           +
+              | BEGIN                                                                           +
+              |   FOR i IN 1..100000 LOOP                                                       +
+              |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';                     +
+              |   END LOOP;                                                                     +
+              | END$$;
+-[ RECORD 5 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6039
+blocking_pid  | 6884
+blocked_query | DO $$                                                                           +
+              | BEGIN                                                                           +
+              |   FOR i IN 1..100000 LOOP                                                       +
+              |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';                     +
+              |   END LOOP;                                                                     +
+              | END$$;
+-[ RECORD 6 ]-+---------------------------------------------------------------------------------
+blocked_pid   | 6884
+blocking_pid  | 6919
+Cancel request sent
+kyc=#  SELECT pg_terminate_backend(2377);
+WARNING:  PID 2377 is not a PostgreSQL backend process
+-[ RECORD 1 ]--------+--
+pg_terminate_backend | f
+
+kyc=# select * from pg_stat_activity where state='active';
+-[ RECORD 1 ]----+------------------------------------------------------------
+datid            | 32775
+datname          | kyc
+pid              | 6884
+leader_pid       |
+usesysid         | 10
+usename          | postgres
+application_name | psql
+client_addr      |
+client_hostname  |
+client_port      | -1
+backend_start    | 2025-06-12 00:25:33.170735+05:30
+xact_start       | 2025-06-12 00:26:55.28475+05:30
+query_start      | 2025-06-12 00:26:55.28475+05:30
+state_change     | 2025-06-12 00:26:55.284754+05:30
+wait_event_type  |
+wait_event       |
+state            | active
+backend_xid      |
+backend_xmin     | 1824
+query_id         | 4178439020691869218
+query            | select * from pg_stat_activity where state='active';
+backend_type     | client backend
+-[ RECORD 2 ]----+------------------------------------------------------------
+datid            | 32775
+datname          | kyc
+pid              | 6039
+leader_pid       |
+usesysid         | 10
+usename          | postgres
+application_name | psql
+client_addr      |
+client_hostname  |
+client_port      | -1
+backend_start    | 2025-06-12 00:03:47.116827+05:30
+xact_start       | 2025-06-12 00:12:17.557694+05:30
+query_start      | 2025-06-12 00:12:17.557694+05:30
+state_change     | 2025-06-12 00:12:17.557697+05:30
+wait_event_type  |
+wait_event       |
+state            | active
+backend_xid      |
+backend_xmin     | 1768
+query_id         | -1129857359043207847
+query            | DO $$                                                      +
+                 | BEGIN                                                      +
+                 |   FOR i IN 1..100000 LOOP                                  +
+                 |     PERFORM count(*) FROM cpu_test WHERE data LIKE '%abc%';+
+Cancel request sent
+kyc=# SELECT pg_terminate_backend(2224);
+WARNING:  PID 2224 is not a PostgreSQL backend process
+-[ RECORD 1 ]--------+--
+pg_terminate_backend | f
+
+kyc=# \q
+[postgres@localhost ~]$ top -c
+top - 00:28:56 up 59 min,  3 users,  load average: 2.92, 2.95, 2.01
+Tasks: 329 total,   4 running, 325 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 97.3 us,  1.4 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.9 hi,  0.5 si,  0.0 st
+MiB Mem :   1741.4 total,    168.5 free,    997.7 used,    878.2 buff/cache
+MiB Swap:   2048.0 total,   1563.7 free,    484.2 used.    743.7 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   6039 postgres  20   0  437740 150460 145920 R  63.0   8.4  11:10.40 postgres: postgres kyc [local] DO
+   7057 postgres  20   0  435872  50116  47364 R  29.7   2.8   0:00.90 postgres: parallel worker for PID 6039
+   7056 postgres  20   0  435872  48196  45444 R  28.1   2.7   0:00.85 postgres: parallel worker for PID 6039
+   2344 nandini+  20   0 3863488 114040  58796 S   0.3   6.4   0:13.11 /usr/bin/gnome-shell
+   5887 postgres  20   0  433788   8772   6532 S   0.3   0.5   0:04.44 postgres: pg_wait_sampling collector
+   6745 postgres  20   0   20560   6772   4864 S   0.3   0.4   0:00.12 sshd: postgres@pts/1
+   6980 postgres  20   0  226204   4480   3456 R   0.3   0.3   0:00.35 top -c
+      1 root      20   0  174176  10332   6976 S   0.0   0.6   0:02.40 /usr/lib/systemd/systemd rhgb --switched-root --system --deserialize 31
+      2 root      20   0       0      0      0 S   0.0   0.0   0:00.03 [kthreadd]
+      3 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [pool_workqueue_]
+      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-rcu_g]
+      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-rcu_p]
+      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-slub_]
+      7 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-netns]
+      9 root       0 -20       0      0      0 I   0.0   0.0   0:00.03 [kworker/0:0H-xfs-log/dm-0]
+     10 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [kworker/u512:0-events_unbound]
+     11 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-mm_pe]
+     12 root      20   0       0      0      0 I   0.0   0.0   0:00.06 [kworker/u512:1-netns]
+     13 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_kthre]
+     14 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_rude_]
+     15 root      20   0       0      0      0 I   0.0   0.0   0:00.00 [rcu_tasks_trace]
+     16 root      20   0       0      0      0 S   0.0   0.0   0:00.12 [ksoftirqd/0]
+     17 root      20   0       0      0      0 I   0.0   0.0   0:00.37 [rcu_preempt]
+     18 root      rt   0       0      0      0 S   0.0   0.0   0:00.00 [migration/0]
+     19 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 [idle_inject/0]
+     21 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [cpuhp/0]
+     22 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [cpuhp/1]
+     23 root     -51   0       0      0      0 S   0.0   0.0   0:00.00 [idle_inject/1]
+     24 root      rt   0       0      0      0 S   0.0   0.0   0:00.23 [migration/1]
+     25 root      20   0       0      0      0 S   0.0   0.0   0:00.41 [ksoftirqd/1]
+     27 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/1:0H-events_highpri]
+     32 root      20   0       0      0      0 S   0.0   0.0   0:00.01 [kdevtmpfs]
+     33 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-inet_]
+     34 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [kauditd]
+     36 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [khungtaskd]
+     38 root      20   0       0      0      0 S   0.0   0.0   0:00.00 [oom_reaper]
+     39 root      20   0       0      0      0 I   0.0   0.0   0:00.16 [kworker/u513:2-events_unbound]
+     40 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-write]
+     41 root      20   0       0      0      0 S   0.0   0.0   0:01.20 [kcompactd0]
+     42 root      25   5       0      0      0 S   0.0   0.0   0:00.00 [ksmd]
+     43 root      39  19       0      0      0 S   0.0   0.0   0:00.17 [khugepaged]
+     44 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 [kworker/R-crypt]

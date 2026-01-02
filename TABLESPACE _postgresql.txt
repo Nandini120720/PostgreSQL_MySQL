@@ -1,0 +1,110 @@
+TABLESPACE : A tablespace is a location on disk where PostgreSQL stores database objects (tables, indexes).
+By default, everything goes into the pg_default tablespace inside the PostgreSQL data directory.
+But as a DBA, you can create your own tablespaces (for performance, storage management, separating data by disk, etc.).
+
+
+Default Tablespaces in PostgreSQL
+
+pg_default
+
+Used for user-created objects (tables, indexes, etc.) unless you specify otherwise.
+
+Physically stored inside your PostgreSQL data directory:
+
+/var/lib/pgsql/15/data/base/
+
+
+Example:
+
+CREATE TABLE employees (id INT, name TEXT);
+
+
+👉 Stored in pg_default.
+
+pg_global
+
+Used for shared system catalogs across databases.
+
+Example: roles, databases list, and other cluster-wide metadata.
+
+Physically stored in:
+
+/var/lib/pgsql/15/data/global/
+
+🔹 Verify Current Default Tablespace
+SHOW default_tablespace;
+
+
+✅ Output:
+
+ default_tablespace 
+--------------------
+ 
+
+
+(Empty means it will use pg_default).
+
+🔹 Example: Create Table with Explicit Tablespace
+CREATE TABLE hr_data (
+    emp_id SERIAL,
+    name TEXT
+) TABLESPACE pg_default;
+
+
+👉 Even if you don’t write TABLESPACE pg_default, it will still go there by default.
+
+🔹 List All Tablespaces
+\db    -- in psql
+
+
+or
+
+SELECT spcname, pg_tablespace_location(oid)
+FROM pg_tablespace;
+
+
+✅ Example Output:
+
+  spcname   |         pg_tablespace_location         
+------------+---------------------------------------
+ pg_default | 
+ pg_global  | 
+ hr_ts      | /var/lib/pgsql/tablespaces/hr_data
+
+
+✅ Summary:
+
+Default tablespace for user objects → pg_default
+
+Default tablespace for global catalogs → pg_global
+
+You can override with CREATE TABLE ... TABLESPACE xyz;
+
+
+
+***********Practical as below:-
+
+
+
+postgres@localhost ~]$ mkdir -p /var/lib/pgsql/tablespaces/hr_data
+[postgres@localhost ~]$ chown postgres:postgres /var/lib/pgsql/tablespaces/hr_data
+[postgres@localhost ~]$ chmod 700 /var/lib/pgsql/tablespaces/hr_data
+[postgres@localhost ~]$ psql
+psql (15.13)
+Type "help" for help.
+
+
+
+postgres=# CREATE TABLESPACE hr_ts
+OWNER postgres
+LOCATION '/var/lib/pgsql/tablespaces/hr_data';
+CREATE TABLESPACE
+postgres=# SELECT spcname, pg_tablespace_location(oid)
+FROM pg_tablespace;
+  spcname   |       pg_tablespace_location       
+------------+------------------------------------
+pg_default | 
+pg_global  | 
+hr_ts      | /var/lib/pgsql/tablespaces/hr_data
+(3 rows)
+

@@ -1,0 +1,398 @@
+login as: postgres
+postgres@192.168.142.132's password:
+Register this system with Red Hat Insights: rhc connect
+
+Example:
+# rhc connect --activation-key <key> --organization <org>
+
+The rhc client and Red Hat Insights will enable analytics and additional
+management capabilities on your system.
+View your connected systems at https://console.redhat.com/insights
+
+You can learn more about how to register your system
+using rhc at https://red.ht/registration
+Last login: Wed Jul 23 18:40:16 2025
+[postgres@localhost ~]$ su - postgres
+Password:
+[postgres@localhost ~]$ psql
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost ~]$ psql -p 5433
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5433" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost ~]$ psql -p 5432
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost ~]$ su -
+Password:
+[root@localhost ~]# su - postgres
+[postgres@localhost ~]$ psql
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost ~]$ pg_ctl restart
+pg_ctl: no database directory specified and environment variable PGDATA unset
+Try "pg_ctl --help" for more information.
+[postgres@localhost ~]$ export PGDATA=/var/lib/pgsql/17/data
+pg_ctl start
+pg_ctl: another server might be running; trying to start server anyway
+waiting for server to start....2025-07-25 16:20:44.526 IST [2263] LOG:  redirecting log output to logging collector process
+2025-07-25 16:20:44.526 IST [2263] HINT:  Future log output will appear in directory "log".
+ done
+server started
+[postgres@localhost ~]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# select * from pg_stat_wal_receiver ;
+ pid  |  status   | receive_start_lsn | receive_start_tli | written_lsn | flushed_lsn | received_tli |        last_msg_send_time        |      last_msg_receipt_time       | latest_end_lsn |
+         latest_end_time          |   slot_name   |   sender_host   | sender_port |
+                                                                                                    conninfo
+
+------+-----------+-------------------+-------------------+-------------+-------------+--------------+----------------------------------+----------------------------------+----------------+
+----------------------------------+---------------+-----------------+-------------+----------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+ 2268 | streaming | 0/13000000        |                 1 | 0/13000920  | 0/13000920  |            1 | 2025-07-25 16:20:44.798041+05:30 | 2025-07-25 16:20:44.868844+05:30 | 0/13000920     |
+ 2025-07-25 16:20:44.798041+05:30 | repmgr_slot_2 | 192.168.142.129 |        5432 | user=repmgr passfile=/home/postgres/.pgpass channel_binding=prefer connect_timeout=2 dbname=replication h
+ost=192.168.142.129 port=5432 application_name=standby fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_proto
+col_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+(1 row)
+
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_wal_receiver ;
+-[ RECORD 1 ]---------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+pid                   | 2268
+status                | streaming
+receive_start_lsn     | 0/13000000
+receive_start_tli     | 1
+written_lsn           | 0/13000920
+flushed_lsn           | 0/13000920
+received_tli          | 1
+last_msg_send_time    | 2025-07-25 16:20:44.798041+05:30
+last_msg_receipt_time | 2025-07-25 16:20:44.868844+05:30
+latest_end_lsn        | 0/13000920
+latest_end_time       | 2025-07-25 16:20:44.798041+05:30
+slot_name             | repmgr_slot_2
+sender_host           | 192.168.142.129
+sender_port           | 5432
+conninfo              | user=repmgr passfile=/home/postgres/.pgpass channel_binding=prefer connect_timeout=2 dbname=replication host=192.168.142.129 port=5432 application_name=standby fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+
+postgres=# \q
+[postgres@localhost ~]$ pg_basebackup -h 192.168.142.129 -p 5432 -D /var/lib/pgsql/17/data -Xs -R -Fp
+pg_basebackup: error: directory "/var/lib/pgsql/17/data" exists but is not empty
+[postgres@localhost ~]$ cd $PGDATA
+[postgres@localhost data]$ ll
+total 472
+-rw-------.  1 postgres postgres    220 Jul 23 18:38 backup_label.old
+-rw-------.  1 postgres postgres 402505 Jul 23 18:38 backup_manifest
+drwx------. 11 postgres postgres    111 Jul 23 18:38 base
+-rw-------.  1 postgres postgres     30 Jul 25 16:20 current_logfiles
+drwx------.  2 postgres postgres   4096 Jul 25 16:22 global
+drwx------.  2 postgres postgres     58 Jul 25 16:20 log
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_commit_ts
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_dynshmem
+-rw-------.  1 postgres postgres   5644 Jul 23 18:38 pg_hba.conf
+-rw-------.  1 postgres postgres   2640 Jul 23 18:38 pg_ident.conf
+drwx------.  4 postgres postgres     68 Jul 25 17:15 pg_logical
+drwx------.  4 postgres postgres     36 Jul 23 18:38 pg_multixact
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_notify
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_replslot
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_serial
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_snapshots
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_stat
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_stat_tmp
+drwx------.  2 postgres postgres     18 Jul 23 18:44 pg_subtrans
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_tblspc
+drwx------.  2 postgres postgres      6 Jul 23 18:38 pg_twophase
+drwx------.  6 postgres postgres    114 Jul 23 18:38 pg_upgrade_output.d
+-rw-------.  1 postgres postgres      3 Jul 23 18:38 PG_VERSION
+drwx------.  4 postgres postgres    109 Jul 23 18:44 pg_wal
+drwx------.  2 postgres postgres     18 Jul 23 18:38 pg_xact
+-rw-------.  1 postgres postgres    221 Jul 23 18:38 postgresql.auto.conf
+-rw-------.  1 postgres postgres  30716 Jul 23 18:38 postgresql.conf
+-rw-------.  1 postgres postgres     27 Jul 25 16:20 postmaster.opts
+-rw-------.  1 postgres postgres     91 Jul 25 16:20 postmaster.pid
+-rw-------.  1 postgres postgres     20 Jul 23 18:38 standby.signal
+[postgres@localhost data]$ pwd
+/var/lib/pgsql/17/data
+[postgres@localhost data]$ rm -rf /var/lib/pgsql/17/data
+[postgres@localhost data]$ ll
+total 0
+[postgres@localhost data]$ cd
+[postgres@localhost ~]$ pg_basebackup -h 192.168.142.129 -p 5432 -D /var/lib/pgsql/17/data -Xs -R -Fp
+[postgres@localhost ~]$ cd $PGDATA
+[postgres@localhost data]$ ll
+total 464
+-rw-------.  1 postgres postgres    227 Jul 25 17:19 backup_label
+-rw-------.  1 postgres postgres 405879 Jul 25 17:19 backup_manifest
+drwx------. 11 postgres postgres    111 Jul 25 17:19 base
+-rw-------.  1 postgres postgres     30 Jul 25 17:19 current_logfiles
+drwx------.  2 postgres postgres   4096 Jul 25 17:19 global
+drwx------.  2 postgres postgres     58 Jul 25 17:19 log
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_commit_ts
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_dynshmem
+-rw-------.  1 postgres postgres   5644 Jul 25 17:19 pg_hba.conf
+-rw-------.  1 postgres postgres   2640 Jul 25 17:19 pg_ident.conf
+drwx------.  4 postgres postgres     68 Jul 25 17:19 pg_logical
+drwx------.  4 postgres postgres     36 Jul 25 17:19 pg_multixact
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_notify
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_replslot
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_serial
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_snapshots
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_stat
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_stat_tmp
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_subtrans
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_tblspc
+drwx------.  2 postgres postgres      6 Jul 25 17:19 pg_twophase
+drwx------.  6 postgres postgres    114 Jul 25 17:19 pg_upgrade_output.d
+-rw-------.  1 postgres postgres      3 Jul 25 17:19 PG_VERSION
+drwx------.  4 postgres postgres     77 Jul 25 17:19 pg_wal
+drwx------.  2 postgres postgres     18 Jul 25 17:19 pg_xact
+-rw-------.  1 postgres postgres    435 Jul 25 17:19 postgresql.auto.conf
+-rw-------.  1 postgres postgres  30716 Jul 25 17:19 postgresql.conf
+-rw-------.  1 postgres postgres      0 Jul 25 17:19 standby.signal
+[postgres@localhost data]$ psql
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost data]$ export PGDATA=/var/lib/pgsql/17/data
+[postgres@localhost data]$ pg_ctl start
+waiting for server to start....2025-07-25 17:21:15.340 IST [2533] LOG:  redirecting log output to logging collector process
+2025-07-25 17:21:15.340 IST [2533] HINT:  Future log output will appear in directory "log".
+ done
+server started
+[postgres@localhost data]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# select * from pg_stat_wal_receiver ;
+ pid  |  status   | receive_start_lsn | receive_start_tli | written_lsn | flushed_lsn | received_tli |        last_msg_send_time        |      last_msg_receipt_time       | latest_end_lsn |
+         latest_end_time          | slot_name |   sender_host   | sender_port |
+                                                                            conninfo
+
+------+-----------+-------------------+-------------------+-------------+-------------+--------------+----------------------------------+----------------------------------+----------------+
+----------------------------------+-----------+-----------------+-------------+--------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+ 2538 | streaming | 0/15000000        |                 1 | 0/15000060  | 0/15000060  |            1 | 2025-07-25 17:21:15.409162+05:30 | 2025-07-25 17:21:15.401523+05:30 | 0/15000060     |
+ 2025-07-25 17:21:15.409162+05:30 |           | 192.168.142.129 |        5432 | user=postgres passfile=/home/postgres/.pgpass channel_binding=prefer dbname=replication host=192.168.142.129
+port=5432 fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvn
+ame=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+(1 row)
+
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_wal_receiver ;
+-[ RECORD 1 ]---------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+pid                   | 2538
+status                | streaming
+receive_start_lsn     | 0/15000000
+receive_start_tli     | 1
+written_lsn           | 0/15000060
+flushed_lsn           | 0/15000060
+received_tli          | 1
+last_msg_send_time    | 2025-07-25 17:21:15.409162+05:30
+last_msg_receipt_time | 2025-07-25 17:21:15.401523+05:30
+latest_end_lsn        | 0/15000060
+latest_end_time       | 2025-07-25 17:21:15.409162+05:30
+slot_name             |
+sender_host           | 192.168.142.129
+sender_port           | 5432
+conninfo              | user=postgres passfile=/home/postgres/.pgpass channel_binding=prefer dbname=replication host=192.168.142.129 port=5432 fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+
+postgres=# \q
+[postgres@localhost data]$ rm -rf /var/lib/pgsql/17/data
+[postgres@localhost data]$ psql
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: FATAL:  could not open file "global/pg_filenode.map": No such file or directory
+[postgres@localhost data]$ pg_basebackup -h 192.168.142.129 -p 5432 -D /var/lib/pgsql/17/data -Xs -R -Fp
+[postgres@localhost data]$ psql
+psql: error: connection to server on socket "/run/postgresql/.s.PGSQL.5432" failed: No such file or directory
+        Is the server running locally and accepting connections on that socket?
+[postgres@localhost data]$ export PGDATA=/var/lib/pgsql/17/data
+[postgres@localhost data]$ pg_ctl start
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+waiting for server to start....shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+2025-07-25 17:25:08.631 IST [2550] LOG:  redirecting log output to logging collector process
+2025-07-25 17:25:08.631 IST [2550] HINT:  Future log output will appear in directory "log".
+ done
+server started
+[postgres@localhost data]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# select * from pg_stat_wal_receiver ;
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+ pid  |  status   | receive_start_lsn | receive_start_tli | written_lsn | flushed_lsn | received_tli |        last_msg_send_time        |      last_msg_receipt_time      | latest_end_lsn |
+        latest_end_time          | slot_name |   sender_host   | sender_port |
+                                                                           conninfo
+
+------+-----------+-------------------+-------------------+-------------+-------------+--------------+----------------------------------+---------------------------------+----------------+-
+---------------------------------+-----------+-----------------+-------------+---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ 2555 | streaming | 0/17000000        |                 1 | 0/17000060  | 0/17000060  |            1 | 2025-07-25 17:25:08.691051+05:30 | 2025-07-25 17:25:08.68281+05:30 | 0/17000060     |
+2025-07-25 17:25:08.691051+05:30 |           | 192.168.142.129 |        5432 | user=postgres passfile=/home/postgres/.pgpass channel_binding=prefer dbname=replication host=192.168.142.129 p
+ort=5432 fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvna
+me=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+(1 row)
+
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_wal_receiver ;
+-[ RECORD 1 ]---------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+pid                   | 2555
+status                | streaming
+receive_start_lsn     | 0/17000000
+receive_start_tli     | 1
+written_lsn           | 0/17000060
+flushed_lsn           | 0/17000060
+received_tli          | 1
+last_msg_send_time    | 2025-07-25 17:25:08.691051+05:30
+last_msg_receipt_time | 2025-07-25 17:25:08.68281+05:30
+latest_end_lsn        | 0/17000060
+latest_end_time       | 2025-07-25 17:25:08.691051+05:30
+slot_name             |
+sender_host           | 192.168.142.129
+sender_port           | 5432
+conninfo              | user=postgres passfile=/home/postgres/.pgpass channel_binding=prefer dbname=replication host=192.168.142.129 port=5432 fallback_application_name=walreceiver sslmode=prefer sslnegotiation=postgres sslcompression=0 sslcertmode=allow sslsni=1 ssl_min_protocol_version=TLSv1.2 gssencmode=prefer krbsrvname=postgres gssdelegation=0 target_session_attrs=any load_balance_hosts=disable
+
+postgres=# \l
+shell-init: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory
+List of databases
+-[ RECORD 1 ]-----+------------------------
+Name              | interactive_forum
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 2 ]-----+------------------------
+Name              | merchant_service
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 3 ]-----+------------------------
+Name              | postgres
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 4 ]-----+------------------------
+Name              | repmgr
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 5 ]-----+------------------------
+Name              | salesone_dp
+Owner             | dailyplanner_deployment
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 6 ]-----+------------------------
+Name              | salesone_lms
+Owner             | dailyplanner_deployment
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 7 ]-----+------------------------
+Name              | sqlmonitor
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges |
+-[ RECORD 8 ]-----+------------------------
+Name              | template0
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges | =c/postgres            +
+                  | postgres=CTc/postgres
+-[ RECORD 9 ]-----+------------------------
+Name              | template1
+Owner             | postgres
+Encoding          | UTF8
+Locale Provider   | libc
+Collate           | en_IN.UTF-8
+Ctype             | en_IN.UTF-8
+Locale            |
+ICU Rules         |
+Access privileges | postgres=CTc/postgres  +
+                  | =c/postgres
+
+postgres=# \x
+Expanded display is off.
+postgres=# \l
+                                                                 List of databases
+       Name        |          Owner          | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |   Access privileges
+-------------------+-------------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------
+ interactive_forum | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ merchant_service  | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ postgres          | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ repmgr            | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_dp       | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_lms      | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ sqlmonitor        | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ template0         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | =c/postgres          +
+                   |                         |          |                 |             |             |        |           | postgres=CTc/postgres
+ template1         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | postgres=CTc/postgres+
+                   |                         |          |                 |             |             |        |           | =c/postgres
+(9 rows)
+
+postgres=# \c interactive_forum
+You are now connected to database "interactive_forum" as user "postgres".
+interactive_forum=# \dn
+      List of schemas
+  Name  |       Owner
+--------+-------------------
+ chetu  | postgres
+ public | pg_database_owner
+(2 rows)
+
+interactive_forum=# set search_path to chetu ;
+SET
+interactive_forum=# \dt
+            List of relations
+ Schema |    Name     | Type  |  Owner
+--------+-------------+-------+----------
+ chetu  | departments | table | postgres
+ chetu  | employee    | table | postgres
+ chetu  | employees   | table | postgres
+ chetu  | payroll     | table | postgres
+(4 rows)
+
+interactive_forum=# \q
+[postgres@localhost data]$ ^C
+[postgres@localhost data]$

@@ -1,0 +1,955 @@
+login as: chetan
+chetan@192.168.142.129's password:
+Register this system with Red Hat Insights: rhc connect
+
+Example:
+# rhc connect --activation-key <key> --organization <org>
+
+The rhc client and Red Hat Insights will enable analytics and additional
+management capabilities on your system.
+View your connected systems at https://console.redhat.com/insights
+
+You can learn more about how to register your system
+using rhc at https://red.ht/registration
+Last login: Wed Jul 23 14:50:51 2025 from 192.168.142.1
+[chetan@localhost ~]$ su -
+Password:
+[root@localhost ~]# su - postgres
+[postgres@localhost ~]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# select * from pg_stat_replication;
+ pid  | usesysid | usename | application_name |   client_addr   | client_hostname | client_port |          backend_start           | backend_xmin |   state   |  sent_lsn  | write_lsn  | flu
+sh_lsn  | replay_lsn | write_lag | flush_lag | replay_lag | sync_priority | sync_state |            reply_time
+------+----------+---------+------------------+-----------------+-----------------+-------------+----------------------------------+--------------+-----------+------------+------------+----
+--------+------------+-----------+-----------+------------+---------------+------------+----------------------------------
+ 2287 |    16457 | repmgr  | standby          | 192.168.142.132 |                 |       42662 | 2025-07-25 16:20:44.787659+05:30 |              | streaming | 0/13000920 | 0/13000920 | 0/1
+3000920 | 0/13000920 |           |           |            |             0 | async      | 2025-07-25 16:21:04.887563+05:30
+(1 row)
+
+postgres=# \x
+Expanded display is on.
+postgres=# \x
+Expanded display is off.
+postgres=# \x
+Expanded display is on.
+postgres=# select * from pg_stat_replication;
+-[ RECORD 1 ]----+---------------------------------
+pid              | 2287
+usesysid         | 16457
+usename          | repmgr
+application_name | standby
+client_addr      | 192.168.142.132
+client_hostname  |
+client_port      | 42662
+backend_start    | 2025-07-25 16:20:44.787659+05:30
+backend_xmin     |
+state            | streaming
+sent_lsn         | 0/13000920
+write_lsn        | 0/13000920
+flush_lsn        | 0/13000920
+replay_lsn       | 0/13000920
+write_lag        |
+flush_lag        |
+replay_lag       |
+sync_priority    | 0
+sync_state       | async
+reply_time       | 2025-07-25 16:21:14.871314+05:30
+
+postgres=# \q
+[postgres@localhost ~]$
+[postgres@localhost ~]$ repmgr cluster croscheck ;
+The following command line errors were encountered:
+  unknown repmgr action 'cluster croscheck'
+Try "repmgr --help" or "repmgr cluster --help" for more information.
+[postgres@localhost ~]$ history | grep repmgr
+   15  repmgr -f /etc/repmgr/17/repmgr.conf primary register
+   16  which repmgr
+   17  repmgr -f /etc/repmgr/17/repmgr.conf primary register
+   28  repmgr -h 192.168.142.129 -U repmgr -d repmgr -f /etc/repmgr/17/repmgr.conf standby clone
+   33  repmgr cluster croscheck ;
+   34  history | grep repmgr
+[postgres@localhost ~]$  repmgr cluster croscheck
+The following command line errors were encountered:
+  unknown repmgr action 'cluster croscheck'
+Try "repmgr --help" or "repmgr cluster --help" for more information.
+[postgres@localhost ~]$ repmgr cluster show
+ ID | Name    | Role    | Status    | Upstream | Location | Priority | Timeline | Connection string
+----+---------+---------+-----------+----------+----------+----------+----------+------------------------------------------------------------------
+ 1  | primary | primary | * running |          | default  | 100      | 1        | host=192.168.142.129 user=repmgr dbname=repmgr connect_timeout=2
+ 2  | standby | standby |   running | primary  | default  | 100      | 1        | host=192.168.142.132 user=repmgr dbname=repmgr
+[postgres@localhost ~]$ repmgr cluster crosschcek
+The following command line errors were encountered:
+  unknown repmgr action 'cluster crosschcek'
+Try "repmgr --help" or "repmgr cluster --help" for more information.
+[postgres@localhost ~]$ repmgr cluster croschcek
+The following command line errors were encountered:
+  unknown repmgr action 'cluster croschcek'
+Try "repmgr --help" or "repmgr cluster --help" for more information.
+[postgres@localhost ~]$ repmgr cluster croschcek
+The following command line errors were encountered:
+  unknown repmgr action 'cluster croschcek'
+Try "repmgr --help" or "repmgr cluster --help" for more information.
+[postgres@localhost ~]$ repmgr cluster --help
+repmgr: replication management tool for PostgreSQL
+
+Usage:
+    repmgr [OPTIONS] cluster show
+    repmgr [OPTIONS] cluster matrix
+    repmgr [OPTIONS] cluster crosscheck
+    repmgr [OPTIONS] cluster event
+    repmgr [OPTIONS] cluster cleanup
+
+CLUSTER SHOW
+
+  "cluster show" displays a list showing the status of each node in the cluster.
+
+  Configuration file or database connection required.
+
+    --csv                     emit output as CSV (with a subset of fields)
+    --compact                 display only a subset of fields
+
+CLUSTER MATRIX
+
+  "cluster matrix" displays a matrix showing connectivity between nodes, seen from this node.
+
+  Configuration file or database connection required.
+
+    --csv                     emit output as CSV
+
+CLUSTER CROSSCHECK
+
+  "cluster crosscheck" displays a matrix showing connectivity between nodes, seen from all nodes.
+
+  Configuration file or database connection required.
+
+    --csv                     emit output as CSV
+
+CLUSTER EVENT
+
+  "cluster event" lists recent events logged in the "repmgr.events" table.
+
+    --limit                   maximum number of events to display (default: 20)
+    --all                     display all events (overrides --limit)
+    --event                   filter specific event
+    --node-id                 restrict entries to node with this ID
+    --node-name               restrict entries to node with this name
+    --compact                 omit "Details" column    --csv                     emit output as CSV
+
+CLUSTER CLEANUP
+
+  "cluster cleanup" purges records from the "repmgr.monitoring_history" table.
+
+    -k, --keep-history=VALUE  retain indicated number of days of history (default: 0)
+
+repmgr home page: <https://repmgr.org/>
+[postgres@localhost ~]$  repmgr  cluster crosscheck
+INFO: connecting to database
+ Name    | ID | 1 | 2
+---------+----+---+---
+ primary | 1  | * | *
+ standby | 2  | ? | ?
+WARNING: following problems detected:
+  node 2 inaccessible via SSH
+[postgres@localhost ~]$  repmgr  cluster crosscheck
+INFO: connecting to database
+ Name    | ID | 1 | 2
+---------+----+---+---
+ primary | 1  | * | *
+ standby | 2  | ? | ?
+WARNING: following problems detected:
+  node 2 inaccessible via SSH
+[postgres@localhost ~]$ df -kh
+Filesystem             Size  Used Avail Use% Mounted on
+devtmpfs               4.0M     0  4.0M   0% /dev
+tmpfs                  870M  1.1M  869M   1% /dev/shm
+tmpfs                  348M  7.1M  341M   3% /run
+efivarfs               256K   57K  195K  23% /sys/firmware/efi/efivars
+/dev/mapper/rhel-root   17G  4.9G   12G  30% /
+/dev/nvme0n1p2         960M  357M  604M  38% /boot
+/dev/nvme0n1p1         599M  7.1M  592M   2% /boot/efi
+tmpfs                  174M   52K  174M   1% /run/user/42
+tmpfs                  174M   36K  174M   1% /run/user/1000
+[postgres@localhost ~]$ free-h
+bash: free-h: command not found...
+fre[postgres@localhost ~]$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           1.7Gi       911Mi       413Mi        27Mi       602Mi       826Mi
+Swap:          2.0Gi          0B       2.0Gi
+[postgres@localhost ~]$ \l
+bash: l: command not found...
+[postgres@localhost ~]$ \c
+bash: c: command not found...
+[postgres@localhost ~]$
+[postgres@localhost ~]$
+[postgres@localhost ~]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# \l
+                                                                 List of databases
+       Name        |          Owner          | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |   Access privileges
+-------------------+-------------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------
+ interactive_forum | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ merchant_service  | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ postgres          | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ repmgr            | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_dp       | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_lms      | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ sqlmonitor        | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ template0         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | =c/postgres          +
+                   |                         |          |                 |             |             |        |           | postgres=CTc/postgres
+ template1         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | postgres=CTc/postgres+
+                   |                         |          |                 |             |             |        |           | =c/postgres
+(9 rows)
+
+postgres=# \c interactive_forum
+You are now connected to database "interactive_forum" as user "postgres".
+interactive_forum=# \dn
+      List of schemas
+  Name  |       Owner
+--------+-------------------
+ public | pg_database_owner
+(1 row)
+
+interactive_forum=# create schema chetu;
+CREATE SCHEMA
+interactive_forum=# \dn
+      List of schemas
+  Name  |       Owner
+--------+-------------------
+ chetu  | postgres
+ public | pg_database_owner
+(2 rows)
+
+interactive_forum=# set search_path to chetu ;
+SET
+interactive_forum=# CREATE TABLE employee (
+    emp_id SERIAL PRIMARY KEY,
+    emp_name TEXT NOT NULL,
+    department TEXT,
+    salary NUMERIC(10,2),
+    joining_date DATE
+);
+CREATE TABLE
+interactive_forum=# INSERT INTO employee (emp_name, department, salary, joining_date) VALUES
+('Chetan Salunkhe', 'DevOps', 75000.00, '2024-07-01'),
+('Priya Sharma', 'Data', 68000.50, '2024-06-20'),
+('Rohit Mehta', 'Support', 50000.00, '2024-05-15');
+INSERT 0 3
+interactive_forum=# CREATE TABLE departments (
+    dept_id SERIAL PRIMARY KEY,
+    dept_name TEXT NOT NULL UNIQUE
+);
+CREATE TABLE
+interactive_forum=# CREATE TABLE employees (
+    emp_id SERIAL PRIMARY KEY,
+    emp_name TEXT NOT NULL,
+    dept_id INT REFERENCES departments(dept_id),
+    salary NUMERIC(10,2),
+    joining_date DATE DEFAULT CURRENT_DATE
+);
+CREATE TABLE
+interactive_forum=# CREATE TABLE payroll (
+    payroll_id SERIAL PRIMARY KEY,
+    emp_id INT REFERENCES employees(emp_id),
+    month TEXT,
+    salary_paid NUMERIC(10,2),
+    paid_on TIMESTAMP DEFAULT NOW()
+);
+CREATE TABLE
+interactive_forum=# -- Insert departments
+INSERT INTO departments (dept_name) VALUES ('HR'), ('IT'), ('Finance');
+
+-- Insert employees
+INSERT INTO employees (emp_name, dept_id, salary) VALUES
+('Chetan Salunkhe', 2, 75000),
+('Priya Sharma', 1, 50000),
+('Ravi Desai', 3, 60000);
+
+-- Insert payroll
+INSERT INTO payroll (emp_id, month, salary_paid) VALUES
+(1, 'June', 75000), (2, 'June', 50000), (3, 'June', 60000);
+INSERT 0 3
+INSERT 0 3
+INSERT 0 3
+interactive_forum=# CREATE VIEW emp_details AS
+SELECT e.emp_id, e.emp_name, d.dept_name, e.salary, e.joining_date
+FROM employees e
+JOIN departments d ON e.dept_id = d.dept_id;
+CREATE VIEW
+interactive_forum=# CREATE INDEX idx_emp_dept ON employees(dept_id);
+CREATE INDEX
+interactive_forum=# INSERT INTO employees (emp_id, emp_name, dept_id, salary)
+VALUES (nextval('emp_seq'), 'New Emp', 2, 70000);
+ERROR:  relation "emp_seq" does not exist
+LINE 2: VALUES (nextval('emp_seq'), 'New Emp', 2, 70000);
+                        ^
+interactive_forum=# CREATE OR REPLACE FUNCTION get_employee_salary(emp INT)
+RETURNS NUMERIC AS $$
+BEGIN
+    RETURN (SELECT salary FROM employees WHERE emp_id = emp);
+END;
+$$ LANGUAGE plpgsql;
+CREATE FUNCTION
+interactive_forum=# CREATE OR REPLACE FUNCTION log_salary_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE NOTICE 'Salary of employee % paid: %', NEW.emp_id, NEW.salary_paid;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_payroll_insert
+AFTER INSERT ON payroll
+FOR EACH ROW
+EXECUTE FUNCTION log_salary_trigger();
+CREATE FUNCTION
+CREATE TRIGGER
+interactive_forum=# \q
+[postgres@localhost ~]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# \l+
+                                                                                                   List of databases
+       Name        |          Owner          | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |   Access privileges   |  Size   | Tablespace |                De
+scription
+-------------------+-------------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------+---------+------------+------------------
+--------------------------
+ interactive_forum | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 8219 kB | pg_default |
+ merchant_service  | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 7745 kB | pg_default |
+ postgres          | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 7915 kB | pg_default | default administr
+ative connection database
+ repmgr            | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 8091 kB | pg_default |
+ salesone_dp       | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 7753 kB | pg_default |
+ salesone_lms      | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 7753 kB | pg_default |
+ sqlmonitor        | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |                       | 7753 kB | pg_default |
+ template0         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | =c/postgres          +| 7569 kB | pg_default | unmodifiable empt
+y database
+                   |                         |          |                 |             |             |        |           | postgres=CTc/postgres |         |            |
+ template1         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | postgres=CTc/postgres+| 7753 kB | pg_default | default template
+for new databases
+                   |                         |          |                 |             |             |        |           | =c/postgres           |         |            |
+(9 rows)
+
+postgres=# \q
+[postgres@localhost ~]$ ll
+total 4
+drwx------. 4 postgres postgres 51 Jul 21 17:46 16
+drwx------. 4 postgres postgres 51 Jul 23 15:13 17
+-rwx------. 1 postgres postgres 43 Jul 23 15:33 delete_old_cluster.sh
+[postgres@localhost ~]$ mkdir backup
+[postgres@localhost ~]$ chown postgres:postgres backup
+[postgres@localhost ~]$ ll
+total 4
+drwx------. 4 postgres postgres 51 Jul 21 17:46 16
+drwx------. 4 postgres postgres 51 Jul 23 15:13 17
+drwxr-xr-x. 2 postgres postgres  6 Jul 25 17:08 backup
+-rwx------. 1 postgres postgres 43 Jul 23 15:33 delete_old_cluster.sh
+[postgres@localhost ~]$ cd backup
+[postgres@localhost backup]$ pwd
+/var/lib/pgsql/backup
+[postgres@localhost backup]$ df -kh
+Filesystem             Size  Used Avail Use% Mounted on
+devtmpfs               4.0M     0  4.0M   0% /dev
+tmpfs                  870M  1.1M  869M   1% /dev/shm
+tmpfs                  348M  7.1M  341M   3% /run
+efivarfs               256K   57K  195K  23% /sys/firmware/efi/efivars
+/dev/mapper/rhel-root   17G  4.9G   12G  30% /
+/dev/nvme0n1p2         960M  357M  604M  38% /boot
+/dev/nvme0n1p1         599M  7.1M  592M   2% /boot/efi
+tmpfs                  174M   52K  174M   1% /run/user/42
+tmpfs                  174M   36K  174M   1% /run/user/1000
+[postgres@localhost backup]$ hostname -I
+192.168.142.129
+[postgres@localhost backup]$ cd
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -f /var/lib/pgsql/backup/interactive_forum_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &
+[1] 2894
+[postgres@localhost ~]$
+[1]+  Done                    pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -f /var/lib/pgsql/backup/interactive_forum_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log
+[postgres@localhost ~]$ cd /var/lib/pgsql/backup
+[postgres@localhost backup]$ ll
+total 12
+-rw-r--r--. 1 postgres postgres    0 Jul 25 17:12 interactive_forum_bkp_log.log
+-rw-r--r--. 1 postgres postgres 8946 Jul 25 17:12 interactive_forum_bkp.sql
+[postgres@localhost backup]$ cat interactive_forum_bkp.sql
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: chetu; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA chetu;
+
+
+ALTER SCHEMA chetu OWNER TO postgres;
+
+--
+-- Name: get_employee_salary(integer); Type: FUNCTION; Schema: chetu; Owner: postgres
+--
+
+CREATE FUNCTION chetu.get_employee_salary(emp integer) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN (SELECT salary FROM employees WHERE emp_id = emp);
+END;
+$$;
+
+
+ALTER FUNCTION chetu.get_employee_salary(emp integer) OWNER TO postgres;
+
+--
+-- Name: log_salary_trigger(); Type: FUNCTION; Schema: chetu; Owner: postgres
+--
+
+CREATE FUNCTION chetu.log_salary_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RAISE NOTICE 'Salary of employee % paid: %', NEW.emp_id, NEW.salary_paid;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION chetu.log_salary_trigger() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: departments; Type: TABLE; Schema: chetu; Owner: postgres
+--
+
+CREATE TABLE chetu.departments (
+    dept_id integer NOT NULL,
+    dept_name text NOT NULL
+);
+
+
+ALTER TABLE chetu.departments OWNER TO postgres;
+
+--
+-- Name: departments_dept_id_seq; Type: SEQUENCE; Schema: chetu; Owner: postgres
+--
+
+CREATE SEQUENCE chetu.departments_dept_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE chetu.departments_dept_id_seq OWNER TO postgres;
+
+--
+-- Name: departments_dept_id_seq; Type: SEQUENCE OWNED BY; Schema: chetu; Owner: postgres
+--
+
+ALTER SEQUENCE chetu.departments_dept_id_seq OWNED BY chetu.departments.dept_id;
+
+
+--
+-- Name: employees; Type: TABLE; Schema: chetu; Owner: postgres
+--
+
+CREATE TABLE chetu.employees (
+    emp_id integer NOT NULL,
+    emp_name text NOT NULL,
+    dept_id integer,
+    salary numeric(10,2),
+    joining_date date DEFAULT CURRENT_DATE
+);
+
+
+ALTER TABLE chetu.employees OWNER TO postgres;
+
+--
+-- Name: emp_details; Type: VIEW; Schema: chetu; Owner: postgres
+--
+
+CREATE VIEW chetu.emp_details AS
+ SELECT e.emp_id,
+    e.emp_name,
+    d.dept_name,
+    e.salary,
+    e.joining_date
+   FROM (chetu.employees e
+     JOIN chetu.departments d ON ((e.dept_id = d.dept_id)));
+
+
+ALTER VIEW chetu.emp_details OWNER TO postgres;
+
+--
+-- Name: employee; Type: TABLE; Schema: chetu; Owner: postgres
+--
+
+CREATE TABLE chetu.employee (
+    emp_id integer NOT NULL,
+    emp_name text NOT NULL,
+    department text,
+    salary numeric(10,2),
+    joining_date date
+);
+
+
+ALTER TABLE chetu.employee OWNER TO postgres;
+
+--
+-- Name: employee_emp_id_seq; Type: SEQUENCE; Schema: chetu; Owner: postgres
+--
+
+CREATE SEQUENCE chetu.employee_emp_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE chetu.employee_emp_id_seq OWNER TO postgres;
+
+--
+-- Name: employee_emp_id_seq; Type: SEQUENCE OWNED BY; Schema: chetu; Owner: postgres
+--
+
+ALTER SEQUENCE chetu.employee_emp_id_seq OWNED BY chetu.employee.emp_id;
+
+
+--
+-- Name: employees_emp_id_seq; Type: SEQUENCE; Schema: chetu; Owner: postgres
+--
+
+CREATE SEQUENCE chetu.employees_emp_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE chetu.employees_emp_id_seq OWNER TO postgres;
+
+--
+-- Name: employees_emp_id_seq; Type: SEQUENCE OWNED BY; Schema: chetu; Owner: postgres
+--
+
+ALTER SEQUENCE chetu.employees_emp_id_seq OWNED BY chetu.employees.emp_id;
+
+
+--
+-- Name: payroll; Type: TABLE; Schema: chetu; Owner: postgres
+--
+
+CREATE TABLE chetu.payroll (
+    payroll_id integer NOT NULL,
+    emp_id integer,
+    month text,
+    salary_paid numeric(10,2),
+    paid_on timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE chetu.payroll OWNER TO postgres;
+
+--
+-- Name: payroll_payroll_id_seq; Type: SEQUENCE; Schema: chetu; Owner: postgres
+--
+
+CREATE SEQUENCE chetu.payroll_payroll_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE chetu.payroll_payroll_id_seq OWNER TO postgres;
+
+--
+-- Name: payroll_payroll_id_seq; Type: SEQUENCE OWNED BY; Schema: chetu; Owner: postgres
+--
+
+ALTER SEQUENCE chetu.payroll_payroll_id_seq OWNED BY chetu.payroll.payroll_id;
+
+
+--
+-- Name: departments dept_id; Type: DEFAULT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.departments ALTER COLUMN dept_id SET DEFAULT nextval('chetu.departments_dept_id_seq'::regclass);
+
+
+--
+-- Name: employee emp_id; Type: DEFAULT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.employee ALTER COLUMN emp_id SET DEFAULT nextval('chetu.employee_emp_id_seq'::regclass);
+
+
+--
+-- Name: employees emp_id; Type: DEFAULT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.employees ALTER COLUMN emp_id SET DEFAULT nextval('chetu.employees_emp_id_seq'::regclass);
+
+
+--
+-- Name: payroll payroll_id; Type: DEFAULT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.payroll ALTER COLUMN payroll_id SET DEFAULT nextval('chetu.payroll_payroll_id_seq'::regclass);
+
+
+--
+-- Data for Name: departments; Type: TABLE DATA; Schema: chetu; Owner: postgres
+--
+
+COPY chetu.departments (dept_id, dept_name) FROM stdin;
+1       HR
+2       IT
+3       Finance
+\.
+
+
+--
+-- Data for Name: employee; Type: TABLE DATA; Schema: chetu; Owner: postgres
+--
+
+COPY chetu.employee (emp_id, emp_name, department, salary, joining_date) FROM stdin;
+1       Chetan Salunkhe DevOps  75000.00        2024-07-01
+2       Priya Sharma    Data    68000.50        2024-06-20
+3       Rohit Mehta     Support 50000.00        2024-05-15
+\.
+
+
+--
+-- Data for Name: employees; Type: TABLE DATA; Schema: chetu; Owner: postgres
+--
+
+COPY chetu.employees (emp_id, emp_name, dept_id, salary, joining_date) FROM stdin;
+1       Chetan Salunkhe 2       75000.00        2025-07-25
+2       Priya Sharma    1       50000.00        2025-07-25
+3       Ravi Desai      3       60000.00        2025-07-25
+\.
+
+
+--
+-- Data for Name: payroll; Type: TABLE DATA; Schema: chetu; Owner: postgres
+--
+
+COPY chetu.payroll (payroll_id, emp_id, month, salary_paid, paid_on) FROM stdin;
+1       1       June    75000.00        2025-07-25 17:06:59.538642
+2       2       June    50000.00        2025-07-25 17:06:59.538642
+3       3       June    60000.00        2025-07-25 17:06:59.538642
+\.
+
+
+--
+-- Name: departments_dept_id_seq; Type: SEQUENCE SET; Schema: chetu; Owner: postgres
+--
+
+SELECT pg_catalog.setval('chetu.departments_dept_id_seq', 3, true);
+
+
+--
+-- Name: employee_emp_id_seq; Type: SEQUENCE SET; Schema: chetu; Owner: postgres
+--
+
+SELECT pg_catalog.setval('chetu.employee_emp_id_seq', 3, true);
+
+
+--
+-- Name: employees_emp_id_seq; Type: SEQUENCE SET; Schema: chetu; Owner: postgres
+--
+
+SELECT pg_catalog.setval('chetu.employees_emp_id_seq', 3, true);
+
+
+--
+-- Name: payroll_payroll_id_seq; Type: SEQUENCE SET; Schema: chetu; Owner: postgres
+--
+
+SELECT pg_catalog.setval('chetu.payroll_payroll_id_seq', 3, true);
+
+
+--
+-- Name: departments departments_dept_name_key; Type: CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.departments
+    ADD CONSTRAINT departments_dept_name_key UNIQUE (dept_name);
+
+
+--
+-- Name: departments departments_pkey; Type: CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.departments
+    ADD CONSTRAINT departments_pkey PRIMARY KEY (dept_id);
+
+
+--
+-- Name: employee employee_pkey; Type: CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.employee
+    ADD CONSTRAINT employee_pkey PRIMARY KEY (emp_id);
+
+
+--
+-- Name: employees employees_pkey; Type: CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.employees
+    ADD CONSTRAINT employees_pkey PRIMARY KEY (emp_id);
+
+
+--
+-- Name: payroll payroll_pkey; Type: CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.payroll
+    ADD CONSTRAINT payroll_pkey PRIMARY KEY (payroll_id);
+
+
+--
+-- Name: idx_emp_dept; Type: INDEX; Schema: chetu; Owner: postgres
+--
+
+CREATE INDEX idx_emp_dept ON chetu.employees USING btree (dept_id);
+
+
+--
+-- Name: payroll trg_payroll_insert; Type: TRIGGER; Schema: chetu; Owner: postgres
+--
+
+CREATE TRIGGER trg_payroll_insert AFTER INSERT ON chetu.payroll FOR EACH ROW EXECUTE FUNCTION chetu.log_salary_trigger();
+
+
+--
+-- Name: employees employees_dept_id_fkey; Type: FK CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.employees
+    ADD CONSTRAINT employees_dept_id_fkey FOREIGN KEY (dept_id) REFERENCES chetu.departments(dept_id);
+
+
+--
+-- Name: payroll payroll_emp_id_fkey; Type: FK CONSTRAINT; Schema: chetu; Owner: postgres
+--
+
+ALTER TABLE ONLY chetu.payroll
+    ADD CONSTRAINT payroll_emp_id_fkey FOREIGN KEY (emp_id) REFERENCES chetu.employees(emp_id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+[postgres@localhost backup]$ cd
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -f /var/lib/pgsql/backup/interactive_^Cql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &
+[postgres@localhost ~]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# \l
+                                                                 List of databases
+       Name        |          Owner          | Encoding | Locale Provider |   Collate   |    Ctype    | Locale | ICU Rules |   Access privileges
+-------------------+-------------------------+----------+-----------------+-------------+-------------+--------+-----------+-----------------------
+ interactive_forum | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ merchant_service  | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ postgres          | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ repmgr            | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_dp       | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ salesone_lms      | dailyplanner_deployment | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ sqlmonitor        | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           |
+ template0         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | =c/postgres          +
+                   |                         |          |                 |             |             |        |           | postgres=CTc/postgres
+ template1         | postgres                | UTF8     | libc            | en_IN.UTF-8 | en_IN.UTF-8 |        |           | postgres=CTc/postgres+
+                   |                         |          |                 |             |             |        |           | =c/postgres
+(9 rows)
+
+postgres=# \c interactive_forum
+You are now connected to database "interactive_forum" as user "postgres".
+interactive_forum=# \dn
+      List of schemas
+  Name  |       Owner
+--------+-------------------
+ chetu  | postgres
+ public | pg_database_owner
+(2 rows)
+
+interactive_forum=#
+interactive_forum=# set search_path to chetu ;
+SET
+interactive_forum=# \dt
+            List of relations
+ Schema |    Name     | Type  |  Owner
+--------+-------------+-------+----------
+ chetu  | departments | table | postgres
+ chetu  | employee    | table | postgres
+ chetu  | employees   | table | postgres
+ chetu  | payroll     | table | postgres
+(4 rows)
+
+interactive_forum=# \q
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &
+[1] 2916
+[postgres@localhost ~]$
+[1]+  Done                    pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -s -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &   [1] 2919
+[postgres@localhost ~]$
+[1]+  Done                    pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -s -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -a -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &
+[1] 2939
+[postgres@localhost ~]$
+[1]+  Done                    pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -a -f /var/lib/pgsql/backup/employee_table_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log
+[postgres@localhost ~]$ cd /var/lib/pgsql/backup/
+[postgres@localhost backup]$ ll
+total 16
+-rw-r--r--. 1 postgres postgres  973 Jul 25 17:15 employee_table_bkp.sql
+-rw-r--r--. 1 postgres postgres    0 Jul 25 17:15 interactive_forum_bkp_log.log
+-rw-r--r--. 1 postgres postgres 8946 Jul 25 17:12 interactive_forum_bkp.sql
+[postgres@localhost backup]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -a -f /var/lib/pgsql/backup/employee_dataonly_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &
+[1] 2948
+[postgres@localhost backup]$
+[1]+  Done                    pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -a -f /var/lib/pgsql/backup/employee_dataonly_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log
+[postgres@localhost backup]$ ll
+total 20
+-rw-r--r--. 1 postgres postgres  973 Jul 25 17:16 employee_dataonly_bkp.sql
+-rw-r--r--. 1 postgres postgres  973 Jul 25 17:15 employee_table_bkp.sql
+-rw-r--r--. 1 postgres postgres    0 Jul 25 17:16 interactive_forum_bkp_log.log
+-rw-r--r--. 1 postgres postgres 8946 Jul 25 17:12 interactive_forum_bkp.sql
+[postgres@localhost backup]$ cat employee_dataonly_bkp.sql
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Data for Name: employee; Type: TABLE DATA; Schema: chetu; Owner: postgres
+--
+
+COPY chetu.employee (emp_id, emp_name, department, salary, joining_date) FROM stdin;
+1       Chetan Salunkhe DevOps  75000.00        2024-07-01
+2       Priya Sharma    Data    68000.50        2024-06-20
+3       Rohit Mehta     Support 50000.00        2024-05-15
+\.
+
+
+--
+-- Name: employee_emp_id_seq; Type: SEQUENCE SET; Schema: chetu; Owner: postgres
+--
+
+SELECT pg_catalog.setval('chetu.employee_emp_id_seq', 3, true);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+[postgres@localhost backup]$ cd
+[postgres@localhost ~]$ pg_dump -h 192.168.142.129 -p 5432 -d interactive_forum -t chetu.employee -a -f /var/lib/pgsql/backup/employee_dataonly_bkp.sql > /var/lib/pgsql/backup/interactive_forum_bkp_log.log &^C
+[postgres@localhost ~]$ cd $PGDATA
+[postgres@localhost data]$ ll
+total 72
+drwx------. 12 postgres postgres   128 Jul 23 17:51 base
+-rw-------.  1 postgres postgres    30 Jul 25 16:15 current_logfiles
+drwx------.  2 postgres postgres  4096 Jul 25 17:04 global
+drwx------.  2 postgres postgres    58 Jul 25 16:15 log
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_commit_ts
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_dynshmem
+-rw-------.  1 postgres postgres  5644 Jul 23 17:47 pg_hba.conf
+-rw-------.  1 postgres postgres  2640 Jul 23 15:13 pg_ident.conf
+drwx------.  4 postgres postgres    68 Jul 25 17:15 pg_logical
+drwx------.  4 postgres postgres    36 Jul 23 15:32 pg_multixact
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_notify
+drwx------.  3 postgres postgres    27 Jul 23 17:51 pg_replslot
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_serial
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_snapshots
+drwx------.  2 postgres postgres     6 Jul 23 17:49 pg_stat
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_stat_tmp
+drwx------.  2 postgres postgres    18 Jul 23 15:13 pg_subtrans
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_tblspc
+drwx------.  2 postgres postgres     6 Jul 23 15:13 pg_twophase
+drwx------.  6 postgres postgres   114 Jul 23 15:33 pg_upgrade_output.d
+-rw-------.  1 postgres postgres     3 Jul 23 15:13 PG_VERSION
+drwx------.  4 postgres postgres  4096 Jul 23 18:38 pg_wal
+drwx------.  2 postgres postgres    18 Jul 23 15:32 pg_xact
+-rw-------.  1 postgres postgres    88 Jul 23 15:13 postgresql.auto.conf
+-rw-------.  1 postgres postgres 30716 Jul 23 17:20 postgresql.conf
+-rw-------.  1 postgres postgres    58 Jul 25 16:15 postmaster.opts
+-rw-------.  1 postgres postgres    91 Jul 25 16:15 postmaster.pid
+[postgres@localhost data]$ pwd
+/var/lib/pgsql/17/data
+[postgres@localhost data]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# set search_path to chetu ;
+SET
+postgres=# \q
+[postgres@localhost data]$ psql
+psql (17.5)
+Type "help" for help.
+
+postgres=# set search_path to chetu ;
+SET
+postgres=# \dt
+Did not find any relations.
+postgres=# \c interactive_forum
+You are now connected to database "interactive_forum" as user "postgres".
+interactive_forum=# set search_path to chetu ;
+SET
+interactive_forum=# \dt
+            List of relations
+ Schema |    Name     | Type  |  Owner
+--------+-------------+-------+----------
+ chetu  | departments | table | postgres
+ chetu  | employee    | table | postgres
+ chetu  | employees   | table | postgres
+ chetu  | payroll     | table | postgres
+(4 rows)
+
+interactive_forum=#

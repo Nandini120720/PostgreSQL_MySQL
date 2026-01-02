@@ -1,0 +1,81 @@
+-- Reference Document: PostgreSQL User, Role, and Privilege Setup
+
+-- Step 1: Login and Switch User
+-- login as: azhan
+-- azhan@192.168.25.128's password:
+-- su -
+-- su - postgres
+
+-- Step 2: Access psql CLI
+psql;
+
+-- Step 3: Check Existing Roles
+\du;
+
+-- Step 4: Create a new user 'azhan' with password
+CREATE USER azhan WITH PASSWORD '123';
+
+-- Step 5: List all databases
+\l;
+
+-- Step 6: Connect to database 'azhan'
+\c azhan;
+
+-- Step 7: Check all schemas
+\dn;
+
+-- Step 8: Set the working schema
+SET search_path TO kazi;
+
+-- Step 9: List all tables
+\dt;
+
+-- Step 10: Grant DML privileges to azhan on employee table
+GRANT SELECT ON employee TO azhan;
+GRANT UPDATE ON employee TO azhan;
+GRANT DELETE ON employee TO azhan;
+GRANT INSERT ON employee TO azhan;
+-- GRANT CONNECT ON employee TO azhan; -- Invalid, CONNECT is for databases
+
+-- Step 11: Grant connect privilege on database
+GRANT CONNECT ON DATABASE azhan TO azhan;
+
+-- Step 12: Grant usage and sequence access
+GRANT USAGE ON SCHEMA public TO azhan;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO azhan;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO azhan;
+
+-- Step 13: Grant all DML privileges on employee table (within correct schema)
+\c azhan;
+SET search_path TO kazi;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE employee TO azhan;
+
+-- Step 14: Check all granted privileges
+SELECT grantee, privilege_type
+FROM information_schema.role_table_grants
+WHERE table_name = 'employee';
+
+-- Step 15: Check role properties
+SELECT rolname, rolinherit, rolcanlogin FROM pg_roles WHERE rolname = 'azhan';
+
+-- Step 16: Create a read-only role for app support
+CREATE ROLE app_support;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_support;
+GRANT USAGE ON SCHEMA public TO app_support;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT ON TABLES TO app_support;
+
+-- Step 17: Create a DML-only role for application logic
+-- Note: 'your_schema' should be replaced with actual schema name
+CREATE ROLE app_dml NOLOGIN;
+GRANT USAGE ON SCHEMA kazi TO app_dml;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA kazi TO app_dml;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA kazi TO app_dml;
+ALTER DEFAULT PRIVILEGES IN SCHEMA kazi
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_dml;
+ALTER DEFAULT PRIVILEGES IN SCHEMA kazi
+  GRANT USAGE ON SEQUENCES TO app_dml;
+
+-- Step 18: Create a deployment role and assign role inheritance
+CREATE ROLE app_deployment NOLOGIN;
+GRANT app_dml TO app_deployment WITH ADMIN OPTION;
