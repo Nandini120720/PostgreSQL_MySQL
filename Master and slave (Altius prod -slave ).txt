@@ -1,0 +1,338 @@
+DB user - root 					mysql -u root -p
+password : H5$#fs590Q@d			H5$#fs590Q@d	
+
+
+Slave	altdbwhsaaa03   10.16.2.149     SA.Nandini.Batgeri	@#$Admin@#$123456
+root	Mute$5tv4#t55
+mysql -u root -p	Mute$5tv4#t55
+
+SA.Nandini.Batgeri	@#$Admin@#$1234567
+==================================================================================================
+replication	
+sh25rk86dby0
+==================================================================================================
+Setup MySQL Master-Slave Replication on RHEL 
+PROD	altdbwhsaaa01	10.16.2.147	
+Slave	altdbwhsaaa03    10.16.2.149
+
+
+Mysql Replication:
+
+Master : 10.16.2.147
+Slave  : 10.16.2.149
+---------------------------------MASTER CONFIGURATION-------------------------------------------------
+
+1.	Master Configuration :
+
+# Change settings and create a user for replication on Mysql Matser Host.
+
+root> vi /etc/my.cnf or  vi /etc/my.cnf.d/server.cnf 
+
+[mysqld]
+server-id=1
+bind-address=0.0.0.0  ----------
+log_bin=/dbdata/mysql/logs/mysql-bin
+log_error=1 		-----------
+log_error=/dbdata/mysql/logs/mysqld.log
+#read_only=on
+==================================================================================================
+[mysqld]  ---used this 
+server-id = 1
+log_bin = /dbdata/mysql/logs/mysql-bin.log
+binlog_format =mixed
+sync_binlog = 1
+expire_logs_days = 15
+
+# Optional for performance
+innodb_flush_log_at_trx_commit = 1
+==================================================================================================
+
+root> systemctl restart mysql
+
+root> systemctl status mysql 
+ 
+
+mysql> mysql -u root -p
+		H5$#fs590Q@d
+
+	select user,host from mysql.user;
+	
+select user,host,password from mysql.user where user='replication';
+	+-------------+-------------+-------------------------------------------+
+| user        | host        | password                                  |
++-------------+-------------+-------------------------------------------+
+| replication | 10.9.156.23 | *D36660B5249B066D7AC5A1A14CECB71D36944CBC |
++-------------+-------------+-------------------------------------------+
+
+==================================================================================================
+	
+show grants for 'replication'@'10.9.156.23'; 
++----------------------------------------------------------------------------------------------------------------------------------+
+| Grants for replication@10.9.156.23                                                                                               |
++----------------------------------------------------------------------------------------------------------------------------------+
+| GRANT REPLICATION SLAVE ON *.* TO 'replication'@'10.9.156.23' IDENTIFIED BY PASSWORD '*D36660B5249B066D7AC5A1A14CECB71D36944CBC' |
++----------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+---------------
+user : replication	
+pass: sh25rk86dby0
+----------------
+mysql> create user 'replication'@'10.16.2.149' identified by 'sh25rk86dby0';
+
+mysql> select user, host from mysql.user; --check user created or not
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'replication'@'10.16.2.149';
+
+mysql> flush privileges;
+ 
+select user,host,password from mysql.user where user='replication';
++-------------+-------------+-------------------------------------------+
+| user        | host        | password                                  |
++-------------+-------------+-------------------------------------------+
+| replication | 10.16.2.149 | *B2BEB9368C2487E5A74F6519312065E751EE58BF |
++-------------+-------------+-------------------------------------------+
+1 row in set (0.00 sec)
+
+===============================================================================================
+
+mysql -u root -p
+
+flush tables with read lock; --- lock all tables
+
+show master status; ----show status (remember binary File name, Position value)
+
++------------------+-----------+--------------+------------------+
+| File             | Position  | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+-----------+--------------+------------------+
+| mysql-bin.003545 | 191793436 |              |                  |
++------------------+-----------+--------------+------------------+
+1 row in set (0.06 sec)
+
+ ==================================================================================================
+
+# Then (in a separate terminal), take a backup (Manually)of the database for the replica:
+mysqldump -u root -p --all-databases --single-transaction --events --triggers --master-data=2 > full_backup_06122025.sql
+ 
+											OR 
+											
+ NOTE : if Db size is big then scedule backup using crontabb .
+# Schedule backup in crontab :
+
+ crontab -e  -------edit crontab & enter below command in crontab and save using Esc -> :wq
+
+57 23 5 12 * mysqldump -u root -p'H5$#fs590Q@d' --all-databases --single-transaction --events --triggers --master-data=2 > /dbdata/mysql/backup/full_backup_06122025.sql 2>> /dbdata/mysql/backup/full_backup_06122025.log
+
+==========================================================================================================
+NOTE :if your size of backup file is big then only zip the file and scp/rsync :
+
+# To zip your backup file full_backup_06122025.sql : 
+
+gzip full_backup_06122025.sql
+
+ (file should be in .gz format full_backup_06122025.sql.gz)
+ 
+=========================================================================================================
+# Ensure directories exist
+sudo mkdir -p /dbdata/mysql/backup
+
+# Give access to your user OR a group you belong to
+# (Pick one of the following)
+
+# 1) Own by your user
+sudo chown -R sa.nandini.batgeri:sa.nandini.batgeri /dbdata/mysql/backup
+sudo chmod 755 /dbdata /dbdata/mysql
+sudo chmod 775 /dbdata/mysql/backup
+
+# 2) Own by a shared group (e.g., 'mysql') and add you to that group
+sudo usermod -aG mysql sa.nandini.batgeri
+sudo chgrp -R mysql /dbdata/mysql/backup
+sudo chmod 775 /dbdata/mysql/backup
+# (you must re-login for group change to take effect)
+
+=======================================================================================
+# transfer/copy the dump to Slave Host using SCP or rsync:
+
+root> scp /tmp/dbdump.sql slave_ip:/tmp/ 
+
+OR 
+
+rsync -avzP /dbdata/mysql/backup/full_backup_06122025.sql \
+  sa.nandini.batgeri@10.16.2.149:/dbdata/mysql/backup/ \
+  >> /dbdata/mysql/backup/scpcron.log 2>&1
+
+sa.nandini.batgeri@10.16.2.149 Password :@#$Admin@#$1234567
+
+----enter respective password
+============================================================================================
+
+# unzip file after scp :
+gunzip full_backup_06122025.sql.gz
+
+------------------------------------SLAVE CONFIGGURATION --------------------------------------------------------- 
+
+2.Slave Configuration :
+
+# Change settings on Slave Host.
+
+vi /etc/my.cnf or  vi /etc/my.cnf.d/server.cnf
+
+[mysqld]
+server-id=2
+bind-address=0.0.0.0		------------																			
+log_bin= = /dbdata/mysql/logs/mysql-bin   
+log_error=1 				-------------
+log_error=/dbdata/mysql/logs/mysqld.log
+read_only=on
+
+==================================================================================================
+
+[mysqld]
+server-id = 2   (in alitus cnf file -server-id       = 3)
+
+relay_log           = /dbdata/mysql/logs/mysql-relay-bin
+
+read_only = on    ---this parameter not set on ATC 03 so  didnt update on alitu 03 
+
+==================================================================================================
+
+
+root> systemctl restart mysql
+root> systemctl status mysql  (make sure that in active (running) state)
+
+==================================================================================================  
+
+# import dump 
+mysql -u root -p < mysql_dump.sql
+or 
+nohup mysql -u root -p < /dbdata/mysql/backup/full_backup_06122025.sql 
+Mute$5tv4#t55 ---------enter respective pass.
+
+or 
+40 18 9 12 * mysql -u root -p'Mute$5tv4#t55' < /dbdata/mysql/backup/full_backup_06122025.sql > /dbdata/mysql/backup/full_backup_06122025.log 2>&1
+
+
+==================================================================================================
+root> mysql -u root -p
+
+
+
+-- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.003553', MASTER_LOG_POS=130523499;
+
+
+STOP SLAVE;
+
+CHANGE MASTER TO MASTER_HOST='10.16.2.147',
+MASTER_USER='replication',
+MASTER_PASSWORD='sh25rk86dby0',
+MASTER_LOG_FILE='mysql-bin.003553',
+MASTER_LOG_POS=130523499;
+
+mysql> change master to
+    -> master_host='10.16.2.147',           # Master Hosts's IP
+    -> master_user='replication',             # replication ID
+    -> master_password='sh25rk86dby0',             # replication ID's 
+password
+    -> master_log_file='mysql-bin.003553',     # File value confirmed on Master
+    -> master_log_pos=130523499;                     # Position value confirmed on Master
+
+==================================================================================================	
+
+# start replication
+mysql> 
+START REPLICA;     -- MySQL 8.0+
+-- or
+START SLAVE;       -- MySQL 5.7 and older
+
+# show status
+mysql> 
+SHOW REPLICA STATUS\G;   -- MySQL 8.0+
+-- or
+SHOW SLAVE STATUS\G;     -- MySQL 5.7 and older
+
+Look for:
+Replica_IO_Running: Yes
+Replica_SQL_Running: Yes
+Last_IO_Error : 0.
+-If both say Yes, replication is working successfully!
+
+==================================================================================================
+
+mysql> STOP SLAVE;
+Query OK, 0 rows affected, 2 warnings (0.00 sec)
+
+mysql> CHANGE MASTER TO MASTER_HOST='10.16.2.147',
+    -> MASTER_USER='replication',
+    -> MASTER_PASSWORD='Replica@123',
+    -> MASTER_LOG_FILE='binlog.000022',
+    -> MASTER_LOG_POS=871;
+Query OK, 0 rows affected, 8 warnings (0.19 sec)
+
+mysql>
+mysql>
+mysql> START REPLICA;
+Query OK, 0 rows affected (0.93 sec)
+mysql> SHOW REPLICA STATUS\G;
+*************************** 1. row ***************************
+             Replica_IO_State: Waiting for source to send event
+                  Source_Host: 10.16.2.147
+                  Source_User: replication
+                  Source_Port: 3306
+                Connect_Retry: 60
+              Source_Log_File: binlog.000022
+          Read_Source_Log_Pos: 1327
+               Relay_Log_File: localhost-relay-bin.000008
+                Relay_Log_Pos: 323
+        Relay_Source_Log_File: binlog.000022
+           Replica_IO_Running: Yes
+          Replica_SQL_Running: Yes
+              Replicate_Do_DB:
+          Replicate_Ignore_DB:
+           Replicate_Do_Table:
+       Replicate_Ignore_Table:
+      Replicate_Wild_Do_Table:
+  Replicate_Wild_Ignore_Table:
+                   Last_Errno: 0
+                   Last_Error:
+                 Skip_Counter: 0
+          Exec_Source_Log_Pos: 1327
+              Relay_Log_Space: 1159
+              Until_Condition: None
+               Until_Log_File:
+                Until_Log_Pos: 0
+           Source_SSL_Allowed: No
+           Source_SSL_CA_File:
+           Source_SSL_CA_Path:
+              Source_SSL_Cert:
+            Source_SSL_Cipher:
+               Source_SSL_Key:
+        Seconds_Behind_Source: 0
+Source_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error:
+               Last_SQL_Errno: 0
+               Last_SQL_Error:
+  Replicate_Ignore_Server_Ids:
+             Source_Server_Id: 1
+                  Source_UUID: de50937c-9456-11f0-8e3d-080027572b04
+             Source_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+    Replica_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Source_Retry_Count: 86400
+                  Source_Bind:
+      Last_IO_Error_Timestamp:
+     Last_SQL_Error_Timestamp:
+               Source_SSL_Crl:
+           Source_SSL_Crlpath:
+           Retrieved_Gtid_Set:
+            Executed_Gtid_Set:
+                Auto_Position: 0
+         Replicate_Rewrite_DB:
+                 Channel_Name:
+           Source_TLS_Version:
+       Source_public_key_path:
+        Get_Source_public_key: 0
+            Network_Namespace:
+1 row in set (0.00 sec)
+

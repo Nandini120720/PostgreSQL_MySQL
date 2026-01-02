@@ -1,0 +1,82 @@
+[root@altdbwhsaaa03 backup]# viimport.sh
+#!/bin/bash
+PID=11247
+SQL_FILE="/dbdata/mysql/backup/full_backup_06122025.sql"
+LOG_FILE="/dbdata/mysql/backup/full_backup_06122025.log"
+
+echo "Checking MySQL import status..."
+echo "--------------------------------"
+
+# Check process
+if ps -p $PID > /dev/null; then
+    echo "Import process is running (PID: $PID)"
+    ps -p $PID -o pid,etime,cmd
+else
+    echo "Import process is NOT running."
+    exit 1
+fi
+
+# Check log file size
+echo "Log file size:"
+ls -lh $LOG_FILE
+
+# Check SQL file size
+echo "Backup file size:"
+ls -lh $SQL_FILE
+
+# Check MySQL activity
+echo "Current MySQL queries:"
+mysql -u root -p -e "SHOW PROCESSLIST;"
+
+[root@altdbwhsaaa03 backup]# ls -lrth
+total 779G
+-rw------- 1 mysql mysql 190M Nov 27 22:54 mysql-5.5.62-linux-glibc2.12-x86_64.tar.gz
+-rw------- 1 mysql mysql 5.0M Dec  2 16:50 ib_logfile0.bak
+-rw------- 1 mysql mysql 5.0M Dec  3 11:21 ib_logfile1.bak.2025-12-03-1731
+-rw------- 1 mysql mysql 5.0M Dec  3 12:53 ib_logfile0.bak.2025-12-03
+-rw------- 1 mysql mysql 128M Dec  3 12:59 ibdata1.ba
+-rw------- 1 mysql mysql  10M Dec  3 12:59 ibdata2.bad.2025-12-03-1740
+-rw------- 1 mysql mysql 128M Dec  3 13:06 ibdata1.bad.2025-12-03-1740
+-rw-rw---- 1 mysql mysql 256M Dec  3 16:13 ib_logfile0.bak.2025-12-03-1731
+-rw-rw---- 1 mysql mysql 256M Dec  3 17:46 ib_logfile1.bak
+drwxrwxrwx 6 mysql mysql 4.0K Dec  5 15:03 datadir
+-rw-rw---- 1 mysql mysql 5.0M Dec  5 22:02 ibdata2
+-rw-r--r-- 1 mysql mysql 777G Dec  6 17:42 full_backup_06122025.sql
+-rw-r----- 1 root  root  256M Dec  9 14:52 ib_logfile1
+-rw-r----- 1 root  root  256M Dec  9 14:52 ib_logfile0
+-rw-rw---- 1 mysql mysql 256M Dec  9 14:53 ibdata1
+-rw-r--r-- 1 root  root   13K Dec  9 15:23 my.cnf_final
+-rw------- 1 root  root     0 Dec  9 15:32 nohup.out
+-rw-r--r-- 1 mysql mysql   73 Dec  9 19:00 full_backup_06122025.log
+-rw-r--r-- 1 root  root   629 Dec 10 16:35 import.sh
+[root@altdbwhsaaa03 backup]# chmod +x import.sh
+[root@altdbwhsaaa03 backup]# ./import.sh
+Checking MySQL import status...
+--------------------------------
+Import process is running (PID: 11247)
+  PID     ELAPSED CMD
+11247    21:36:39 /usr/local/mysql/bin/mysql -u root -px xxxxxxxxxxx
+Log file size:
+-rw-r--r-- 1 mysql mysql 73 Dec  9 19:00 /dbdata/mysql/backup/full_backup_06122025.log
+Backup file size:
+-rw-r--r-- 1 mysql mysql 777G Dec  6 17:42 /dbdata/mysql/backup/full_backup_06122025.sql
+Current MySQL queries:
+Enter password:
++----+------+-----------+-------------------------+---------+------+----------------------------------+------------------------------------------------------------------------------------------------------+
+| Id | User | Host      | db                      | Command | Time | State                            | Info                                                                                                 |
++----+------+-----------+-------------------------+---------+------+----------------------------------+------------------------------------------------------------------------------------------------------+
+|  1 | root | localhost | oracle_integration_jobs | Query   |    0 | query end                        | INSERT INTO `ap_master_data` VALUES (104135674,1695670357674,'PO','{\"poDate\":\"2023-09-11T10:38:35 |
+|  2 | root | localhost | mysql                   | Query   | 8321 | Waiting for schema metadata lock | CREATE DATABASE /*!32312 IF NOT EXISTS*/ `oracle_integration_jobs` /*!40100 DEFAULT CHARACTER SET la |
+|  3 | root | localhost | epr_prod                | Sleep   |    0 |                                  | NULL                                                                                                 |
+|  5 | root | localhost | NULL                    | Query   |    0 | init                             | SHOW PROCESSLIST                                                                                     |
++----+------+-----------+-------------------------+---------+------+----------------------------------+------------------------------------------------------------------------------------------------------+
+[root@altdbwhsaaa03 backup]#
+[root@altdbwhsaaa03 backup]#
+[root@altdbwhsaaa03 backup]# mysql -u root -p -e "SHOW GLOBAL STATUS LIKE 'Innodb_rows_inserted';"
+Enter password:
++----------------------+------------+
+| Variable_name        | Value      |
++----------------------+------------+
+| Innodb_rows_inserted | 2234605674 |
++----------------------+------------+
+[root@altdbwhsaaa03 backup]#

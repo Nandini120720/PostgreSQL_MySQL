@@ -1,0 +1,29 @@
+-create shell script for import and add below command in .sh :
+
+vi /dbdata/mysql/backup/import_script.sh
+
+edit :
+mysql -u root -p'Mute$5tv4#t55' < /dbdata/mysql/backup/full_backup_06122025.sql > /dbdata/mysql/backup/import_script.log 2>&1
+
+then make it executable:
+
+chmod +X /dabata/mysql/backup/import_script.sh
+
+
+
+-Test once (recommended)
+bash /dbdata/mysql/backup/import_script.sh
+tail -n 100 /dbdata/mysql/backup/import_script.log
+
+-scedule cron job:
+
+crontab -e 
+
+0 15 8 12 * /dabata/mysql/backup/import_script.sh
+
+- log location :
+tail -f /dabata/mysql/backup/import_script.log
+
+==============================================================================
+
+nohup mysql -u root -p'Mute$5tv4#t55' < /dbdata/mysql/backup/full_backup_06122025.sql > /dbdata/mysql/backup/full_backup_06122025.log 2>&1 &

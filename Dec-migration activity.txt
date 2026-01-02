@@ -1,0 +1,50 @@
+"Take Backup of below schemas from ATC Database - PROD  (2nd Dec - after 6 PM)
+1. transport (02nd)
+
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'transport';
+   
+
+
+
+=========================================================================================  
+2. email_notifications_prod (02nd)
+
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'email_notifications_prod';
+ 
+
+
+
+ 
+=========================================================================================  
+   3. identitymaster_prod (02nd)"
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'identitymaster_prod';
+   
+   
+
+=========================================================================================  
+
+
+
+
+"Restore below schemas in Altius Database - PROD
+1. transport
+2. email_notifications_prod
+3. identitymaster_prod"

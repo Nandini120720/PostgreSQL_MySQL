@@ -1,0 +1,41 @@
+
+# Ensure directories exist
+sudo mkdir -p /dbdata/mysql/backup
+
+# Give access to your user OR a group you belong to
+# (Pick one of the following)
+
+# 1) Own by your user
+sudo chown -R sa.nandini.batgeri:sa.nandini.batgeri /dbdata/mysql/backup
+sudo chmod 755 /dbdata /dbdata/mysql
+sudo chmod 775 /dbdata/mysql/backup
+
+# 2) Own by a shared group (e.g., 'mysql') and add you to that group
+sudo usermod -aG mysql sa.nandini.batgeri
+sudo chgrp -R mysql /dbdata/mysql/backup
+sudo chmod 775 /dbdata/mysql/backup
+# (you must re-login for group change to take effect)
+
+
+
+rsync -avzP /dbdata/mysql/backup/full_backup_06122025.sql \
+  sa.nandini.batgeri@10.16.2.149:/dbdata/mysql/backup/ \
+  >> /dbdata/mysql/backup/scpcron.log 2>&1
+	
+sa.nandini.batgeri@10.16.2.149 Password :@#$Admin@#$1234567
+
+=====================================================================================
+crontab -e
+
+0 2 * * * rsync -avzP --partial --append-verify \
+  --rsync-path="sudo rsync" \
+  /dbdata/mysql/backup/full_backup_06122025.sql \
+  sa.nandini.batgeri@10.16.2.149:/dbdata/mysql/backup/ \
+  >> /dbdata/mysql/backup/scpcron.log 2>&1
+  
+  
+  
+  Huge file (777G): For very large transfers:
+
+Use --partial --append-verify to resume efficiently.
+Consider --inplace if destination free space is tight.

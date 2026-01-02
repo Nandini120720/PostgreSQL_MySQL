@@ -1,0 +1,26 @@
+# gerenrate SSh key :
+
+-Step 1: Generate SSH Key Pair :
+On your source server (altdbwhsaaa01), run:
+
+	ssh-keygen -t rsa -b 4096 -C "sa.nandini.batgeri"
+
+-t rsa → RSA key type
+-b 4096 → 4096-bit key for better security
+-C → Comment (optional)
+
+When prompted:
+
+File location → Press Enter to accept default (~/.ssh/id_rsa)
+Passphrase → Leave empty for automation (or set one if you want extra security)
+
+=========================================================================================
+
+-Step 2: Copy Public Key to Remote Server
+	
+	ssh-copy-id sa.nandini.batgeri@10.16.2.149
+	
+This will:
+
+Append your public key (~/.ssh/id_rsa.pub) to ~/.ssh/authorized_keys on the remote server.
+After this, you can SSH without a password.

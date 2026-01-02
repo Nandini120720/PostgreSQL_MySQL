@@ -1,0 +1,314 @@
+OS User: SA.Nandini.Batgeri	 			
+Password: @#$Admin@#$12345 
+
+
+mysql -u nandini.batgeri -p    Nandu@1qaz!
+
+mysql -u root -p			   H5$#fs590Q@d
+
+mysql -u shubham.kale -p		Shu@123bham!
+
+sa.shubham.kale
+AlT!us@3211fra%$#@!
+
+
+================================================================================================================
+-- Check DB Size: 'transport'
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'transport';
++---------------+-----------+
+| Database Name | Size (MB) |
++---------------+-----------+
+| transport     |  12368.34 |
++---------------+-----------+
+
+
+-- Take Backup:
+
+mysqldump -u nandini.batgeri -p --databases transport --routines --events --triggers | gzip > transport_291125.sql.gz
+Nandu@1qaz!
+
+mysqldump -u root -p --databases transport --routines --events --triggers | gzip > transport_291125.sql.gz
+H5$#fs590Q@d
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive)
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM 
+
+-- Unzip Backup:
+
+gunzip transport_291125.sql.gz
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS transport DEFAULT CHARACTER SET latin1;
+
+-- Import Backup:
+
+mysql -u root -p transport < transport_291125.sql
+root password:  H5$#fs590Q@d
+
+
+
+
+NOTS: ---below count/table size and Procedures, Functions, Triggers, Events are same for atc and altius 
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'transport' AND table_type = 'BASE TABLE';
+
++----------+
+| COUNT(*) |
++----------+
+|       66 |
++----------+
+
++----------+
+| COUNT(*) |
++----------+
+|       66 |
++----------+
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'transport';
+
+
+66 rows in set (0.03 sec)
+66 rows in set (0.03 sec)
+
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'transport';
+SHOW TRIGGERS FROM transport;
+SHOW EVENTS FROM transport;
+
+Empty set 
+
+
+
+
+==================================================================================================================   
+
+-- Check DB Size: 'viam_registration'
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'viam_registration';
+
++-------------------+-----------+
+| Database Name     | Size (MB) |
++-------------------+-----------+
+| viam_registration |     17.56 |
++-------------------+-----------+
+
+-- Take Backup:
+
+mysqldump -u nandini.batgeri -p --databases viam_registration --routines --events --triggers | gzip > viam_registration_291125.sql.gz
+Nandu@1qaz!
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive)
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM 
+
+-- Unzip Backup:
+
+gunzip viam_registration_291125.sql.gz
+
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS viam_registration DEFAULT CHARACTER SET latin1;
+
+-- Import Backup:
+
+mysql -u root -p viam_registration < viam_registration_291125.sql
+root password:  H5$#fs590Q@d
+
+
+
+NOTS: ---below count/table size and Procedures, Functions, Triggers, Events are same for atc and altius 
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'viam_registration' AND table_type = 'BASE TABLE';
++----------+
+| COUNT(*) |
++----------+
+|        8 |
++----------+
+
++----------+
+| COUNT(*) |
++----------+
+|        8 |
++----------+
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'viam_registration';
+
+8 rows in set (0.00 sec)
+8 rows in set
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'viam_registration';
+SHOW TRIGGERS FROM viam_registration;
+SHOW EVENTS FROM viam_registration;
+
+Empty set
+Empty set 
+
+===================================================================================================================
+  
+-- Check DB Size: 'email_notifications_prod' this DB is on "prdwhsdb03:- 10.9.156.23  -  Slave"
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'email_notifications_prod';
++--------------------------+-----------+
+| Database Name            | Size (MB) |
++--------------------------+-----------+
+| email_notifications_prod |  58544.41 |
++--------------------------+-----------+
+
+
+-- Take Backup:
+
+mysqldump -u shubham.kale -p --databases email_notifications_prod --routines --events --triggers | gzip > email_notifications_prod_291125.sql.gz
+Shu@123bham!
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive)
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM 
+
+-- Unzip Backup:
+
+gunzip email_notifications_prod_291125.sql.gz
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS email_notifications_prod DEFAULT CHARACTER SET latin1;
+
+-- Import Backup:
+
+
+mysql -u root -p email_notifications_prod < email_notifications_prod_291125.sql
+root password:  H5$#fs590Q@d
+
+
+NOTS: ---below count/table size and Procedures, Functions, Triggers, Events are same for atc and altius 
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'email_notifications_prod' AND table_type = 'BASE TABLE';
+
++----------+
+| COUNT(*) |
++----------+
+|       95 |
++----------+
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'email_notifications_prod';
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'email_notifications_prod';
+SHOW TRIGGERS FROM email_notifications_prod;
+SHOW EVENTS FROM email_notifications_prod;
+
+
+NOTS: ---below count/table size and Procedures, Functions, Triggers, Events are same for atc and altius 
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'email_notifications_prod' AND table_type = 'BASE TABLE';
+
++----------+
+| COUNT(*) |
++----------+
+|       19 |
++----------+
+
++----------+
+| COUNT(*) |
++----------+
+|       19 |
++----------+
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'email_notifications_prod';
+
+
+19 rows in set 
+
+19 rows in set
+
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'email_notifications_prod'; 		Empty set  
+SHOW TRIGGERS FROM email_notifications_prod;
+SHOW EVENTS FROM email_notifications_prod;			Empty set 
+	 
+
+Trigger :
+ceo_mail_discard
+discard_already_paid_invoices
+======================================================================================
+

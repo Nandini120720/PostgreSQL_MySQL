@@ -1,0 +1,237 @@
+# For advice on how to change settings please see
+# http://dev.mysql.com/doc/refman/5.5/en/server-configuration-defaults.html
+
+# The following options will be passed to all MySQL clients
+[client]
+port=3306
+socket=/dbdata/mysql/db/mysql.sock
+
+
+# The MySQL server
+[mysqld]
+#
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+#
+# Remove leading # to turn on a very important data integrity option: logging
+# changes to the binary log between backups.
+# log_bin
+#
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+#datadir=/var/lib/mysql
+#socket=/var/lib/mysql/mysql.sock
+datadir=/dbdata/mysql/db
+socket=/dbdata/mysql/db/mysql.sock
+
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+# Recommended in standard MySQL setup
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+max_binlog_size                 = 256M    #max size for binlog before rolling
+#expire_logs_days               = 5       #binlog files older than this will be purged
+expire_logs_days                = 3       #binlog files older than this will be purged
+
+## Per-Thread Buffers * (max_connections) = total per-thread mem usage
+thread_stack                    = 256K    #default: 32bit: 192K, 64bit: 256K
+sort_buffer_size                = 1M      #default: 2M, larger may cause perf issues
+read_buffer_size                = 1M      #default: 128K, change in increments of 4K
+read_rnd_buffer_size            = 1M      #default: 256K
+join_buffer_size                = 1M      #default: 128K
+binlog_cache_size               = 64K     #default: 32K, size of buffer to hold TX queries
+
+## Query Cache
+query_cache_size                = 32M     #global buffer
+query_cache_limit               = 512K    #max query result size to put in cache
+
+## Connections
+max_connections                 = 500     #multiplier for memory usage via per-thread buffers
+#max_connect_errors             = 50      #default: 10
+max_connect_errors              = 10000000
+concurrent_insert               = 2       #default: 1, 2: enable insert for all instances
+connect_timeout                 = 30      #default -5.1.22: 5, +5.1.22: 10
+
+## Table and TMP settings
+max_heap_table_size             = 1G    #recommend same size as tmp_table_size
+bulk_insert_buffer_size         = 1G    #recommend same size as tmp_table_size
+tmp_table_size                  = 1G    #recommend 1G min
+
+# set tmpdir to a ramdisk?
+#tmpdir                         = /data/mysql-tmp0:/data/mysql-tmp1
+
+## Thread settings
+# Try number of CPU's*2 for thread_concurrency
+#thread_concurrency             = 8     #recommend 2x CPU cores [0 create as many as needed]
+thread_cache_size               = 25    #recommend 5% of max_connections
+
+# Other buffers and caches
+table_definition_cache = 400    # As big as many tables you have
+table_open_cache = 512          # connections x tables/connection (~2)
+
+# The maximum size of a query packet the server can handle as well as
+# maximum query size server can process (Important when working with
+# large BLOBs).  enlarged dynamically, for each connection.
+#max_allowed_packet = 16M
+max_allowed_packet = 32M
+
+# amount of time defined in "long_query_time" or which do not use
+# indexes well, if log_short_format is not enabled. It is normally good idea
+# to have this turned on if you frequently add new queries to the
+# system.
+slow_query_log
+
+# All queries taking more than this amount of time (in seconds) will be
+# trated as slow. Do not use "1" as a value here, as this will result in
+# even very fast queries being logged from time to time (as MySQL
+# currently measures time with second accuracy only).
+long_query_time = 3
+
+#skip_name_resolve
+
+## MyISAM Engine
+#key_buffer                     = 1M    #global buffer
+key_buffer_size                 = 1M    #global buffer
+myisam_sort_buffer_size         = 128M  #index buffer size for creating/altering indexes
+myisam_max_sort_file_size       = 256M  #max file size for tmp table when creating/alering indexes
+
+
+# Uncomment the following if you are using InnoDB tables
+## InnoDB IO settings -  5.5.x and greater
+innodb_write_io_threads         = 8
+innodb_read_io_threads          = 8
+
+## InnoDB Plugin Independent Settings
+innodb_file_per_table           #enable always
+innodb_data_file_path           = ibdata1:128M;ibdata2:10M:autoextend
+innodb_buffer_pool_size         = 12G           #global buffer
+innodb_additional_mem_pool_size = 4M            #global buffer
+innodb_flush_log_at_trx_commit  = 1             #2/0 = perf, 1 = ACID
+innodb_log_file_size            = 256M
+innodb_log_buffer_size          = 128M          #global buffer
+innodb_lock_wait_timeout        = 300
+innodb_thread_concurrency       = 8             #recommend 2x core quantity
+innodb_commit_concurrency       = 8             #recommend 4x num disks
+innodb_flush_method             = O_DSYNC       #O_DIRECT = local/DAS, O_DSYNC = SAN/iSCSI
+innodb_support_xa               = 0             #recommend 0, disable xa to negate extra disk flush
+skip-innodb-doublewrite
+
+
+#### REPLICATION RELATED
+sync_binlog                     = 1
+
+# required unique id between 1 and 2^32 - 1
+# defaults to 1 if master-host is not set
+# but will not function as a master if omitted
+server-id       = 3
+
+## Replication Master Server (default)
+# binary logging is required for replication
+# binary logging - not required for slaves, but recommended
+#log-bin=mysql-bin
+log_bin             = /dbdata/mysql/logs/mysql-bin
+log_bin_index       = /dbdata/mysql/logs/mysql-bin.index
+#
+# binary logging format - mixed recommended
+binlog_format=mixed
+
+#### FOR SLAVES
+#relay-log           = mysql-relay-bin
+relay_log           = /dbdata/mysql/logs/mysql-relay-bin
+relay_log_index     = /dbdata/mysql/logs/mysql-relay-bin.index
+log-slave-updates   = 1
+
+## LOG FILES
+#general_log_file    = /dbdata/mysql/logs/prdwhsdb03.log
+#log_error           = /dbdata/mysql/logs/mysqld.log
+#slow_query_log_file = /dbdata/mysql/logs/prdwhsdb03-slow.log
+
+
+general_log_file	=/dbdata/mysql/logs/general.log
+log_error			=/dbdata/mysql/logs/mysqld.log
+slow_query_log_file	=/dbdata/mysql/logs/slow_query.log
+
+## VHD DB
+#replicate-do-db=vhddb_prod
+## additional
+#replicate-do-db=audittracker_prod
+#replicate-do-db=billing_integration
+#replicate-do-db=billing_interface
+#replicate-do-db=billing_workbench
+#replicate-do-db=coadb1
+#replicate-do-db=eb_loader_prod
+#replicate-do-db=eb_viom_prod
+#replicate-do-db=ecms_nfa_alf_prod
+#replicate-do-db=ets_mdm
+#replicate-do-db=identitymaster_prod
+#replicate-do-db=issuetracker_prod
+#replicate-do-db=nfaappatc_prod
+#replicate-do-db=oracle_integration_jobs
+#replicate-do-db=osticket_helpdesk
+#replicate-do-db=osticket_helpdesk_urja
+#replicate-do-db=scarabissuetracker_prod
+#replicate-do-db=sequencesdb
+#replicate-do-db=servicesapidb_prod
+#replicate-do-db=transport
+#replicate-do-db=vdr_master_prod
+#replicate-do-db=vhddb_prod
+#replicate-do-db=viam_registration
+
+replicate-wild-ignore-table=mysql.%
+replicate-wild-ignore-table=information_schema.%
+replicate-wild-ignore-table=performance_schema.%
+## additional
+replicate-wild-ignore-table=ecms_alf_prod.%
+replicate-wild-ignore-table=email_notifications_prod.%
+replicate-wild-ignore-table=mdmdb_prod.%
+replicate-wild-ignore-table=ets_mdm_19092018.%
+replicate-wild-ignore-table=ets_mdm_24082018.%
+replicate-wild-ignore-table=ets_emssyncverify_uat.%
+replicate-wild-ignore-table=mdmdb_prod.%
+replicate-wild-ignore-table=coadb_prod.%
+replicate-wild-ignore-table=coadb2.%
+replicate-wild-ignore-table=docexfer_production.%
+replicate-wild-ignore-table=VN_ECMS_prod.%
+replicate-wild-ignore-table=AR_VN_ECMS.%
+replicate-wild-ignore-table=OP_ECMS.%
+replicate-wild-ignore-table=AR_VN_ECMS.%
+replicate-wild-ignore-table=VN_ECMS.%
+replicate-wild-ignore-table=billing_cp.%
+# Replication Stoped  on 25JAN  at 1029
+#replicate-wild-ignore-table=billing_workbench.%
+#End
+
+slave-skip-errors = all
+
+[mysqld_safe]
+#log-error=/var/log/mysqld.log
+log_error           = /dbdata/mysql/logs/mysqld.log
+pid-file			=/dbdata/mysql/db/mysql.pid
+#nice                           = -15
+
+
+[mysqldump]
+quick
+#max_allowed_packet = 16M
+max_allowed_packet = 32M
+
+[mysql]
+no-auto-rehash
+# Remove the next comment character if you are not familiar with SQL
+#safe-updates
+
+[myisamchk]
+key_buffer_size = 256M
+sort_buffer_size = 256M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout

@@ -1,0 +1,113 @@
+--Compare data count in each table:
+
+SELECT COUNT(*) FROM table_name;  ----for single table in schema
+
+----Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'your_schema_name' AND table_type = 'BASE TABLE';
+ 
+ 
+--Checksum validation (optional, deeper check):(You can compare MD5 checksums between old and new servers.)
+mysqldump --user=root --password --single-transaction --quick --master-data=2 --skip-triggers --skip-add-locks --no-create-info dbname table_name | md5sum
+
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'your_db';
+
+
+--Check Stored Procedures, Functions, Triggers, Events:
+
+SHOW PROCEDURE STATUS WHERE Db = 'your_db';
+SHOW TRIGGERS FROM your_db;
+SHOW EVENTS FROM your_db;
+
+{
+@ Note: run above query ,if routine(procedure/fcntions)not backup then run below command 
+
+ --Take backup of routine on source:
+ mysqldump -u nandini.batgeri -p --no-create-info --no-create-db --no-data --routines servicesapidb_prod > servicesapidb_prod_routine_291025.sql
+
+-- Transfer file to AVD c drive using WinSCP  (C:\Backup )
+
+-- Upload files to onedrive on AVD (on source server)  
+ 
+-- Download files from onedrive on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM
+
+ --import on target :
+ mysql -u root -p servicesapidb_prod < servicesapidb_prod_routine_291025.sql
+}
+
+
+--Compare schema definition:(This ensures both schemas match exactly.)
+
+mysqldump -u root -p --no-data old_db > old_schema.sql
+mysqldump -u root -p --no-data new_db > new_schema.sql
+diff old_schema.sql new_schema.sql
+
+
+--Compare users and permissions: 
+(Make sure the same privileges are available on the new server.)
+
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'user'@'host';
+
+--Compare query performance using EXPLAIN:
+
+EXPLAIN SELECT * FROM your_table WHERE ...;
+
+--Monitor slow queries:
+
+SHOW VARIABLES LIKE 'slow_query_log%';
+
+# Configuration Verification
+--Check my.cnf / my.ini parameters match what you expect — e.g.:
+cat /etc/my.cnf
+Look for:
+• innodb_buffer_pool_size
+• max_connections
+• query_cache_size
+• tmpdir
+
+--Check character set and collation:
+SHOW VARIABLES LIKE 'character_set%';
+SHOW VARIABLES LIKE 'collation%';
+
+
+# Replication or Backup Verification (if applicable)
+--If replication is configured:
+
+SHOW SLAVE STATUS\G
+
+✅ If automated backups are used — test a backup/restore once to ensure it works.
+
+# File System Checks
+--Verify data directory permissions:
+
+ls -l /var/lib/mysql/
+
+--Ensure enough disk space:
+
+df -h
+
+
+# Log and Error Checks
+--Review MySQL error logs:
+
+cat /var/log/mysqld.log
+
+✅ Look for startup errors or table corruption messages.
+
+
+
+# Final Sanity Tests
+• Try CRUD operations (Create, Read, Update, Delete).
+• Validate application pages / API endpoints.
+• Check timezone settings (SELECT @@global.time_zone;).
+• Run sample business reports to confirm correctness.

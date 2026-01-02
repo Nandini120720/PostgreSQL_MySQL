@@ -1,0 +1,119 @@
+
+# Service Management (systemctl) :
+ systemctl status mysqld        # Check MySQL service status
+ systemctl start mysqld         # Start MySQL service
+ systemctl stop mysqld          # Stop MySQL service
+ systemctl restart mysqld       # Restart MySQL service
+ systemctl enable mysqld        # Enable MySQL on boot
+ systemctl disable mysqld       # Disable MySQL on boot
+ systemctl is-enabled mysqld    # Check if MySQL is enabled on boot
+ systemctl cat mysqld           # View unit file
+ systemctl edit mysqld          # Override unit file settings
+ systemctl daemon-reload        # Reload systemd after changes
+ systemd-analyze verify <unit>  # Validate unit file syntax
+
+
+mysqladmin -u root -p ping     #If you want to double-check connectivity
+
+ps aux | grep mysqld		   # see mysqld in the output, the server is running.
+
+----------------------------------------------------------------
+
+# MySQL Admin Commands:
+
+SELECT VERSION();			# Check MySQL Version
+
+SELECT USER();				# Check Current User
+
+SELECT DATABASE();			# Check Current Database
+
+SHOW DATABASES;        		#  Show All Databases
+
+SHOW TABLES;				# Show All Tables in Current Database	
+
+STATUS;				        # Check Server Status	
+
+SHOW VARIABLES;      	    # Show Global Variables (like port, hostname)
+SHOW VARIABLES LIKE 'port';
+SHOW VARIABLES LIKE 'hostname';
+
+SHOW PROCESSLIST;				  # Show Running Processes
+
+SHOW VARIABLES LIKE 'read_only';  #Check if MySQL is in read-only mode
+
+
+
+================= health checks, monitoring, and basic administration===============
+		 
+# Server Information & Status:
+SELECT VERSION();          -- MySQL version
+STATUS;                    -- Server status (uptime, threads, queries)
+SHOW VARIABLES;            -- All system variables
+SHOW VARIABLES LIKE 'port'; -- Check MySQL port
+SHOW VARIABLES LIKE 'hostname'; -- Hostname
+
+---------------------------------------------------------
+
+# Database & Table Management
+SHOW DATABASES;            -- List all databases
+USE database_name;         -- Switch to a database
+SHOW TABLES;               -- List tables in current DB
+DESCRIBE table_name;       -- Table structure
+
+---------------------------------------------------------
+
+# Performance & Monitoring :
+
+SHOW PROCESSLIST;          			  -- Active connections & queries
+SHOW STATUS;               			  -- Server status variables
+SHOW STATUS LIKE 'Threads_connected'; -- Current connections
+SHOW STATUS LIKE 'Uptime';            -- Server uptime
+
+---------------------------------------------------------
+
+# Replication & Read-Only
+SHOW VARIABLES LIKE 'read_only'; 	-- Check read-only mode
+SHOW SLAVE STATUS\G;               		-- Replication status (if configured)
+
+---------------------------------------------------------
+
+# Storage & Engine Info
+SHOW ENGINES;              -- Available storage engines
+SHOW TABLE STATUS;		   -- Table info (engine, size)
+
+---------------------------------------------------------
+
+# Security & Configuration:
+
+SHOW VARIABLES LIKE 'validate_password%';	 -- Password policy
+SHOW VARIABLES LIKE 'secure_file_priv';		 -- Secure file path
+
+======================Linux Process Management===========================
+# Why use ps -ef?
+
+To find running processes (e.g., check if mysqld is running).
+To kill a process (using kill PID).
+To trace parent-child relationships of processes.
+
+---------------------------------------------------------
+# Viewing Processes
+ ps -ef                # Show all processes (System V format)
+ ps aux                # Show all processes (BSD format)
+ top                   # Real-time process monitoring
+ htop                  # Interactive process viewer (if installed)
+---------------------------------------------------------
+# Searching for Processes
+ pgrep mysqld          # Find PID of MySQL process
+ pidof mysqld          # Get PID of mysqld
+ ps -ef | grep mysqld  # Search for MySQL process manuall
+---------------------------------------------------------
+# Killing Processes
+ kill <PID>            # Terminate process gracefully
+ kill -9 <PID>         # Force kill process
+ pkill mysqld          # Kill process by name
+ --------------------------------------------------------
+# Useful Tips
+ Use 'journalctl -u mysqld' to view MySQL logs.
+ Combine 'ps' with 'grep' for custom searches.
+ Use 'systemd-analyze verify <unit>' to check unit file syntax.
+ ----------------------------------------------------------

@@ -1,0 +1,202 @@
+ 
+whsapps	ZRa24vg96BU7
+
+
+$ sudo -i
+
+[root@ ~]# df -h
+
+[root@ ~]# mysql -u root -p
+Enter password: H5$#fs590Q@d
+
+DB user : nandini.batgeri	mysql -u nandini.batgeri -p 
+password :Nandu@1qaz!		Nandu@1qaz!  
+
+mysql> select user,host,password from mysql.user where user='whsapps';
+ 
+# check user created or not :
+ select user,host from mysql.user;	
+
+mysql> show grants for 'whsapps'@'%';
+
+ 
+mysql> create user 'whsapps'@'%' identified by 'ZRa24vg96BU7!';
+
+ create user 'whsapps'@'%' identified by 'ZRa24vg96BU7!';
+ 
+mysql> select user,host,password from mysql.user where user='whsapps'; 
+mysql> show grants for 'whsapps'@'%';
+ 
+mysql> GRANT SELECT ON *.* TO `whsapps`@`%`;  ---for all db
+ 
+ 
+
+
+
+mysql> show databases;
+ 
+mysql> flush privileges;
+ 
+
+
+
+# update the password:(MySQL 5.5)
+
+SET PASSWORD FOR 'username'@'hostname' = PASSWORD('new_password');
+
+
+
+
+---------------------------------------
+#create this user on altius UAT 
+ username : eprjob
+ Pass : 5sRF4nK5KRM4
+ Schema : epr_prod
+ 
+
+
+
+$ sudo -i
+
+[root@ ~]# df -h
+
+[root@ ~]# mysql -u root -p
+Enter password: H5$#fs590Q@d
+
+DB user : nandini.batgeri	mysql -u nandini.batgeri -p 
+password :Nandu@1qaz!		Nandu@1qaz!  
+
+mysql> select user,host,password from mysql.user where user='eprjob';
+ 
+ select user,host from mysql.user;
+
+mysql> show grants for 'eprjob'@'%';
+
+ 
+mysql> create user 'eprjob'@'%' identified by '5sRF4nK5KRM4!';
+
+
+ 
+mysql> select user,host,password from mysql.user where user='eprjob'; 
+mysql> show grants for 'eprjob'@'%';
+ 
+mysql> GRANT ALL PRIVILEGES ON `epr_prod`.* TO `eprjob`@`%`;
+ 
+
+
+
+mysql> show databases;
+ 
+mysql> flush privileges;
+ 
+
+
+
+# update the password:(MySQL 5.5)
+
+SET PASSWORD FOR 'username'@'hostname' = PASSWORD('new_password');
+==============================================================================
+
+please create 'eprjob' user on uat as well as prod altius
+ 
+prod password - k6L97B9jv1cp
+
+
+
+
+$ sudo -i
+
+[root@ ~]# df -h
+
+[root@ ~]# mysql -u root -p
+Enter password: H5$#fs590Q@d
+
+DB user : nandini.batgeri	mysql -u nandini.batgeri -p 
+password :Nandu@1qaz!		Nandu@1qaz!  
+
+ 
+	select user,host from mysql.user;
+
+	CREATE USER 'eprjob'@'%' IDENTIFIED BY 'k6L97B9jv1cp';
+ 
+	select user,host from mysql.user; 
+
+	GRANT ALL PRIVILEGES ON *.* TO `eprjob`@`%`;
+	GRANT ALL PRIVILEGES ON `epr_prod`.* TO `eprjob`@`%`;
+
+	show grants for 'eprjob'@'%';
+	
+	flush privileges;
+
+
+	show databases;
+ 
+ ================================================================================================
+
+[root@ ~]# mysql -u root -p
+Enter password: H5$#fs590Q@d
+
+DB user : nandini.batgeri	mysql -u nandini.batgeri -p 
+password :Nandu@1qaz!		Nandu@1qaz! 
+
+
+
+please create 'sapuser' user 
+ 
+prod password - GZzPyj7827QW
+
+need to create avive user on UAT only: ATC /ALTIUS WHS .LAT :
+
+ATC DB - UAT  (uatwhsdb01:- 10.9.156.146  - UAT)
+billing_workbench - ATC
+
+UAT		altdbwhsaea01	10.16.5.152	   -------------DONE
+ets_mdm - Altius Whs DB
+transport - Altius Whs DB
+
+UAT		altdblataea01	10.16.5.147	   GZzPyj7827QW!
+leasetoolapp - LAT DB Altius (altdblataea01)
+
+$ sudo -i
+
+[root@ ~]# df -h
+
+[root@ ~]# mysql -u root -p
+Enter password: H5$#fs590Q@d
+
+DB user : nandini.batgeri	mysql -u nandini.batgeri -p 
+password :Nandu@1qaz!		Nandu@1qaz!  
+
+ 
+	select user,host from mysql.user;
+
+	CREATE USER 'sapuser'@'%' IDENTIFIED BY 'GZzPyj7827QW';
+ 
+	select user,host from mysql.user; 
+
+	
+
+ATC UAT:	
+	GRANT SELECT, INSERT, UPDATE, CREATE, INDEX, ALTER
+    ON billing_workbench.* TO 'sapuser'@'%';
+	
+	
+WHS alitus UAT:
+	GRANT SELECT, INSERT, UPDATE, CREATE, INDEX, ALTER
+    ON ets_mdm.* TO 'sapuser'@'%';
+	
+	
+	GRANT SELECT, INSERT, UPDATE, CREATE, INDEX, ALTER
+    ON transport.* TO 'sapuser'@'%';
+	
+LAT DB Altius :	
+	GRANT SELECT, INSERT, UPDATE, CREATE, INDEX, ALTER
+    ON leasetoolapp.* TO 'sapuser'@'%';
+
+
+	show grants for 'sapuser'@'%';
+	
+	flush privileges;
+
+
+	show databases;

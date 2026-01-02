@@ -1,0 +1,26 @@
+# List Current User's Cron Jobs:
+crontab -l
+
+# Edit Cron Jobs:
+crontab -e
+
+# Check System-Wide Cron Jobs:
+
+-System cron jobs are in:
+
+/etc/crontab
+/etc/cron.d/
+/etc/cron.daily/, /etc/cron.hourly/, /etc/cron.weekly/
+
+To view:
+cat /etc/crontab
+ls /etc/cron.d/
+
+# Verify Cron Service Status:
+systemctl status crond   # On RHEL/CentOS
+
+# Check Cron Logs:
+tail -f /var/log/cron      # RHEL/CentOS
+
+
+

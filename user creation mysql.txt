@@ -1,0 +1,35 @@
+$ sudo -i
+
+[root@ ~]# df -h
+
+[root@ ~]# mysql -u root -p
+Enter password: 
+
+mysql> select user,host,password from mysql.user where user='user_name';
+ 
+
+mysql> show grants for 'nandini.batgeri'@'%';
+mysql> show grants for 'nandini.batgeri'@'%';
+
+ 
+mysql> create user 'user_name'@'%' identified by 'password';
+
+ 
+mysql> select user,host,password from mysql.user where user='user_name'; 
+mysql> show grants for 'user_name'@'%';
+ 
+mysql> GRANT ALL PRIVILEGES ON `database_name`.* TO `user_name`@`%`;
+ 
+mysql>
+mysql> show databases;
+ 
+mysql> flush privileges;
+ 
+
+
+
+# update the password:(MySQL 5.5)
+
+SET PASSWORD FOR 'username'@'hostname' = PASSWORD('new_password');
+
+

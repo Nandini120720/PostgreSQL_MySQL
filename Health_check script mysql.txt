@@ -1,0 +1,177 @@
+NOTE : if 'user' bale to login DB thn only give user name or use root =
+======================================================================================
+# update below in : vi /root/.my.cnf 
+
+[client]
+user=nandini.batgeri OR root
+password=Nandu@1qaz!
+socket=/dbdata/mysql/db/mysql.sock
+
+======================================================================================
+# vi health_check.sh  ---and edit below in .sh file :
+
+#!/bin/bash
+####################################################
+# MySQL 5.5 Health Check Script (RHEL)
+# PROD SAFE – READ ONLY
+####################################################
+
+MYSQL_USER="nandini.batgeri"
+MYSQL_HOST="10.16.2.147"
+MYSQL_PORT="3306"
+
+DATE=$(date +"%F_%H-%M-%S")
+LOG_DIR="/dbdata/mysql/backup/health_check/logs"
+LOG_FILE="$LOG_DIR/health_check_${DATE}.log"
+
+mkdir -p "$LOG_DIR"
+exec > "$LOG_FILE" 2>&1
+
+echo "======================================"
+echo " MySQL 5.5 Production Health Check"
+echo " Host: $(hostname)"
+echo " Date: $(date)"
+echo "======================================"
+
+MYSQL="mysql -u$MYSQL_USER -h$MYSQL_HOST -P$MYSQL_PORT"
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Version ---"
+$MYSQL -e "SELECT VERSION();"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Uptime ---"
+$MYSQL -e "
+SELECT CONCAT(
+    FLOOR(val / 86400), ' days ',
+    FLOOR((val % 86400) / 3600), ' hours ',
+    FLOOR((val % 3600) / 60), ' minutes ',
+    (val % 60), ' seconds'
+) AS uptime_pretty
+FROM (
+    SELECT CAST(variable_value AS UNSIGNED) AS val
+    FROM information_schema.GLOBAL_STATUS
+    WHERE variable_name = 'Uptime'
+) AS s;
+"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Connection Status ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Threads_connected','Threads_running','Max_used_connections');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Aborted Connections ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Aborted_clients','Aborted_connects');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Slow Queries ---"
+$MYSQL -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Table Locks ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Table_locks_waited','Table_locks_immediate');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- InnoDB Status Summary ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Innodb_buffer_pool_reads',
+ 'Innodb_buffer_pool_read_requests',
+ 'Innodb_log_waits',
+ 'Innodb_row_lock_waits');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Replication Status (if configured) ---"
+$MYSQL -e "SHOW SLAVE STATUS\G" || echo "Replication not configured"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Binary Log Status ---"
+$MYSQL -e "SHOW MASTER STATUS;" || echo "Not a master"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Disk Usage ---"
+df -h | grep -E '(/dbdata|/mysql|/var/lib/mysql)'
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Data Directory ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'datadir';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Top 10 Largest Databases ---"
+$MYSQL -e "
+SELECT table_schema AS DB,
+ROUND(SUM(data_length+index_length)/1024/1024,2) AS Size_MB
+FROM information_schema.tables
+GROUP BY table_schema
+ORDER BY Size_MB DESC
+LIMIT 10;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Long Running Queries (>60 sec) ---"
+$MYSQL -e "
+SELECT ID, USER, HOST, DB, COMMAND, TIME
+FROM information_schema.processlist
+WHERE TIME > 60;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Error Log Location ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'log_error';"
+
+########################################
+echo -e "\n============================================================"
+echo " Health Check Completed"
+echo " Log File: $LOG_FILE"
+
+==========================================================================================
+#give execute permission to the file:
+
+chmod +x /dbdata/mysql/backup/health_check/health_check.sh
+
+==========================================================================================
+# run script manually using below command :
+
+	./health_check.sh
+	
+==========================================================================================
+# check output in logs :
+
+/dbdata/mysql/backup/health_check/logs
+
+==========================================================================================
+# CPU :
+CPU="$(top -bn1 | awk '/Cpu\(s\)/ {print 100 - $8}')"
+printf "CPU Usage: %.2f%%\n" "${CPU:-0}"
+ 
+========================================================================================== 
+
+# Memory: 
+MEM="$(free | awk '/Mem:/ {printf("%.2f", $3/$2*100.0)}')"
+printf "Memory Usage: %.2f%%\n" "${MEM:-0}"
+ 
+==========================================================================================
+ 
+# Evenet statis:
+SELECT EVENT_SCHEMA, EVENT_NAME, STATUS, LAST_EXECUTED
+FROM INFORMATION_SCHEMA.EVENTS
+ORDER BY EVENT_SCHEMA, EVENT_NAME;
+ 
+==========================================================================================

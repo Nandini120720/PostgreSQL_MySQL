@@ -1,0 +1,220 @@
+
+vi /root/.my.cnf 
+
+[client]
+user=nandini.batgeri
+password=Nandu@1qaz!
+socket=/var/lib/mysql/mysql.sock
+
+
+
+
+
+/dbdata/data/mysql
+
+
+
+
+
+
+
+
+#!/bin/bash
+####################################################
+# MySQL 5.5 Health Check Script (RHEL)
+# PROD SAFE – READ ONLY
+####################################################
+
+MYSQL_USER="nandini.batgeri"
+MYSQL_HOST="10.16.5.152"
+MYSQL_PORT="3306"
+
+DATE=$(date +"%F_%H-%M-%S")
+LOG_DIR="/dbdata/data/mysql/backup/health_check/logs"
+LOG_FILE="$LOG_DIR/health_check_${DATE}.log"
+
+mkdir -p "$LOG_DIR"
+exec > "$LOG_FILE" 2>&1
+
+echo "======================================"
+echo " MySQL 5.5 Production Health Check"
+echo " Host: $(hostname)"
+echo " Date: $(date)"
+echo "======================================"
+
+MYSQL="mysql -u$MYSQL_USER -h$MYSQL_HOST -P$MYSQL_PORT"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Version ---"
+$MYSQL -e "SELECT VERSION();"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Uptime ---"
+$MYSQL -e "SHOW GLOBAL STATUS LIKE 'Uptime';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- CPU Usage ---"
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print 100 - $8}')
+echo "CPU Usage: ${CPU}%"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Memory Usage ---"
+MEM=$(free | awk '/Mem:/ {printf("%.2f", $3/$2 * 100.0)}')
+echo "Memory Usage: ${MEM}%"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- System Users (MySQL internal) ---"
+$MYSQL -e "
+SELECT ID, USER, HOST, DB, COMMAND, TIME, STATE
+FROM INFORMATION_SCHEMA.PROCESSLIST
+WHERE USER='system user'
+ORDER BY TIME DESC;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Application Users (Current Connections) ---"
+$MYSQL -e "
+SELECT ID, USER, HOST, DB, COMMAND, TIME, STATE
+FROM INFORMATION_SCHEMA.PROCESSLIST
+WHERE USER <> 'system user'
+ORDER BY TIME DESC;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Event Scheduler Status ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'event_scheduler';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Events Status ---"
+$MYSQL -e "
+SELECT EVENT_SCHEMA, EVENT_NAME, STATUS, LAST_EXECUTED
+FROM INFORMATION_SCHEMA.EVENTS
+ORDER BY EVENT_SCHEMA, EVENT_NAME;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- InnoDB Buffer Pool Usage ---"
+$MYSQL -e "
+SELECT ROUND((1 - (FREE_BUFFERS / TOTAL_BUFFERS)) * 100, 2) AS buffer_pool_used_pct,
+FREE_BUFFERS, TOTAL_BUFFERS
+FROM INFORMATION_SCHEMA.INNODB_BUFFER_POOL_STATS;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Aborted Connections ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Aborted_clients','Aborted_connects');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Pending I/O & Row Lock Waits ---"
+$MYSQL -e "
+SELECT 
+(SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_row_lock_time') AS innodb_row_lock_time_ms,
+(SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_row_lock_waits') AS innodb_row_lock_waits,
+(SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_data_pending_reads') AS data_pending_reads,
+(SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_data_pending_writes') AS data_pending_writes;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Error Log Path ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'log_error';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Latest Deadlock Info ---"
+$MYSQL -e "SHOW ENGINE INNODB STATUS\G" | awk '/LATEST DETECTED DEADLOCK/,/TRANSACTION/' | head -n 20
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Connection Status ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Threads_connected','Threads_running','Max_used_connections');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Aborted Connections ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Aborted_clients','Aborted_connects');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Slow Queries ---"
+$MYSQL -e "SHOW GLOBAL STATUS LIKE 'Slow_queries';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Table Locks ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Table_locks_waited','Table_locks_immediate');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- InnoDB Status Summary ---"
+$MYSQL -e "
+SHOW GLOBAL STATUS WHERE Variable_name IN
+('Innodb_buffer_pool_reads',
+ 'Innodb_buffer_pool_read_requests',
+ 'Innodb_log_waits',
+ 'Innodb_row_lock_waits');"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Replication Status (if configured) ---"
+$MYSQL -e "SHOW SLAVE STATUS\G" || echo "Replication not configured"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Binary Log Status ---"
+$MYSQL -e "SHOW MASTER STATUS;" || echo "Not a master"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Disk Usage ---"
+df -h | grep -E '(/dbdata|/data|/mysql|/var/lib/mysql)'
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- MySQL Data Directory ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'datadir';"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Top 10 Largest Databases ---"
+$MYSQL -e "
+SELECT table_schema AS DB,
+ROUND(SUM(data_length+index_length)/1024/1024,2) AS Size_MB
+FROM information_schema.tables
+GROUP BY table_schema
+ORDER BY Size_MB DESC
+LIMIT 10;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Long Running Queries (>60 sec) ---"
+$MYSQL -e "
+SELECT 'ID' AS ID, 'USER' AS USER, 'HOST' AS HOST, 'DB' AS DB, 'COMMAND' AS COMMAND, 'TIME' AS TIME
+UNION ALL
+SELECT ID, USER, HOST, DB, COMMAND, TIME
+FROM information_schema.processlist
+WHERE TIME > 60;"
+
+########################################
+echo -e "\n============================================================"
+echo -e "\n--- Error Log Location ---"
+$MYSQL -e "SHOW VARIABLES LIKE 'log_error';"
+
+########################################
+echo -e "\n============================================================"
+echo " Health Check Completed"
+echo " Log File: $LOG_FILE"

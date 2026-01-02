@@ -1,0 +1,138 @@
+ 
+Please copy below schema from ATC PROD DB (10.9.156.200) to Altius PROD DB (DB server : 10.16.2.147) 
+with same schema name.
+
+				Hostname 	   	 Ip_Address
+Source :       Prdwhsdb01    	10.9.156.200  ATC PROD DB
+Destination : altdbwhsaaa01  	10.16.2.147   Altius PROD DB
+
+--Below is WHS server 
+
+	   Schema Name		 User Name
+1.	   epr_prod			 eprweb
+
+
+
+ 
+-- Check DB Size: 'epr_prod'
+
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'epr_prod';
+
++---------------+-----------+
+| Database Name | Size (MB) |
++---------------+-----------+
+| epr_prod       |   46973.69 |
++---------------+-----------+
+
+-- Take Backup: on Source :       Prdwhsdb01    	10.9.156.200  ATC PROD DB
+
+mysqldump -u nandini.batgeri -p --databases epr_prod --routines --events --triggers | gzip > epr_prod_041125.sql.gz
+
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive)
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM   (Altius onedrive not working so we copy the file from 'local' and paste it in Altius onedrive 'migration' folder and then Transfer/upload files to ALTIUS server using WinSCP) 
+
+-- Unzip Backup:
+
+gunzip epr_prod_041125.sql.gz
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS epr_prod DEFAULT CHARACTER SET latin1;
+
+
+-- Import Backup: on Destination : altdbwhsaaa01  	10.16.2.147   Altius PROD DB
+
+mysql -u root -p epr_prod < epr_prod_041125.sql
+root pass -H5$#fs590Q@d
+
+
+
+
+--SELECT user, host FROM mysql.user;    ---check this user 
+
+--create user 'eprweb'@'%' identified by 'E7JT992g6czQ';
+@NOTE: before granting privilages check on source(ATC) that which privilages have that 'user'.
+
+--GRANT ALL PRIVILEGES ON `epr_prod`.* TO `eprweb`@`%`;
+  GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE, SHOW VIEW ON `epr_prod`.* TO `eprweb`@`%`;
+  
+--SHOW GRANTS FOR 'eprweb'@'%';
+
+flush privileges;
+
+
+
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'epr_prod' AND table_type = 'BASE TABLE';
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'epr_prod';
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'epr_prod';
+SHOW TRIGGERS FROM epr_prod;
+SHOW EVENTS FROM epr_prod;
+ 
+
+
+@ Note: run above query to check rutines ,if routine(procedure/fcntions)not backup then run below command 
+
+ --Take backup of routine on source:
+ mysqldump -u nandini.batgeri -p --no-create-info --no-create-db --no-data --routines epr_prod > epr_prod_041125.sql
+
+-- Transfer file to AVD c drive using WinSCP  (C:\Backup )
+
+-- Upload files to onedrive on AVD (on source server)  
+ 
+-- Download files from onedrive on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM
+
+ --import on target :
+ mysql -u root -p epr_prod > epr_prod_041125.sql
+
+
+
+--Compare users and permissions: 
+(Make sure the same privileges are available on the new server.)
+
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'eprweb'@'%';
+
+
+-- find 'user' in schema using below query : 
+ 
+SELECT
+    User, Host,
+    Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv, Grant_priv,
+    References_priv, Index_priv, Alter_priv
+FROM mysql.db
+WHERE Db = 'epr_prod';
+
+
+task :
+--compare routine,function, procedure on ATC PROD and Altius PROD:(Altius PROD routine should be same as ATC PROD)
+Prdwhsdb01:- 10.9.156.200  - production/Master
+PROD	altdbwhsaaa01	10.16.2.147

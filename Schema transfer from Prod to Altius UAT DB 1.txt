@@ -1,0 +1,48 @@
+
+
+
+Please copy below schema from Prod to Altius UAT DB with same schema name.
+
+Services Apps	Schema Name	          User Name
+EBFeed Serivce	servicesapidb_prod	feedsvcwebapp
+Content Service	servicesapidb_prod	feedsvcwebapp
+MDM services	dfr_mdm	                mdmuser
+
+-- Check DB Size:
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'servicesapidb_prod';
+
+-- Take Backup:
+
+mysqldump -u shubham.kale -p --databases servicesapidb_prod --routines --events --triggers | gzip > servicesapidb_prod_050925.sql.gz
+mysqldump -u shubham.kale -p --databases ets_mdm --routines --events --triggers | gzip > ets_mdm_050925.sql.gz
+
+
+-- Transfer file to AVD c drive using WinSCP
+
+-- Upload files to onedrive on AVD
+
+-- Download files from onedrive on local
+
+-- Transfer files to ALTIUS server using WinSCP 
+
+-- Unzip Backup:
+
+gunzip servicesapidb_prod_050925.sql.gz
+gunzip ets_mdm_050925.sql.gz
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS ets_mdm DEFAULT CHARACTER SET latin1;
+CREATE DATABASE IF NOT EXISTS servicesapidb_prod DEFAULT CHARACTER SET latin1;
+
+-- Import Backup:
+
+mysql -u root -p ets_mdm < ets_mdm_050925.sql
+mysql -u root -p servicesapidb_prod < servicesapidb_prod_050925.sql

@@ -1,0 +1,17 @@
+while doing replication setup on altius slave i took backup of my.cnf file ( /etc/my.cnf.bak)
+[root@altdbwhsaaa03 ~]# ls -d /etc/my.cnf*
+/etc/my.cnf  /etc/my.cnf.bak  /etc/my.cnf.new  /etc/my.cnf_orgnl
+ 	
+	systemctl Stop mysql
+	
+- and took backup of /etc/my.cnf file on ATC and transffer it in Altius 03 slave server:
+-and rsync that ATC bkup file in /etc/my.cnf file of Altius slave file:
+  (use rsync to copy the backup file to replace /etc/my.cnf. It’s a safe and efficient way because 
+ rsync preserves permissions and can show progress.) 
+   rsync -av /etc/my.cnf.bak /etc/my.cnf   
+	
+	systemctl restart mysql
+	
+	
+	
+--avilable size id 533 GB and all db size is 700GB -so space is not avilable 

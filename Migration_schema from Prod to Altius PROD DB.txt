@@ -1,0 +1,200 @@
+ 
+Please copy below schema from ATC PROD DB (10.9.156.200) to Altius PROD DB (DB server : 10.16.2.147) 
+with same schema name.
+
+
+				Hostname 	   	 Ip_Address
+Source :       Prdwhsdb01    	10.9.156.200  ATC PROD DB
+Destination : altdbwhsaaa01  	10.16.2.147   Altius PROD DB
+
+--Below is WHS server 
+
+	   Schema Name				  User Name
+1.	 servicesapidb_prod	  		feedsvcwebapp
+2.	 servicesapidb_prod	  		feedsvcwebapp
+3.	 ets_mdm					mdmuser
+4.   transport			 		transportapp
+5.   email_notifications_prod	emailuser  (prdwhsdb03:- 10.9.156.23  -  Slave )
+
+--Below is LAT server 
+
+6.  leasetoolapp                leasetool
+Source – US1PRDWHSDB1.americantower.com
+Destination - altdblataaa01 (10.16.2.142)
+
+
+
+-- Check DB Size:  'servicesapidb_prod'  22 gb    10.14 min to transfer file
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'servicesapidb_prod';
+ 
+ +--------------------+-----------+
+| Database Name      | Size (MB) |
++--------------------+-----------+
+| servicesapidb_prod |  22227.33 | 
++--------------------+-----------+
+
+ 
+-- Check DB Size: 'ets_mdm'
+
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'ets_mdm';
+
++---------------+-----------+
+| Database Name | Size (MB) |
++---------------+-----------+
+| ets_mdm       |   3378.83 |
++---------------+-----------+
+
+
+-- Check DB Size: 'transport'
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'transport';
+   
+ +---------------+-----------+
+| Database Name | Size (MB) |
++---------------+-----------+
+| transport     |  12140.87 |
++---------------+-----------+
+
+  
+-- Check DB Size: 'email_notifications_prod' this DB is on "prdwhsdb03:- 10.9.156.23  -  Slave"
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'email_notifications_prod';
+
++--------------------------+-----------+
+| Database Name            | Size (MB) |
++--------------------------+-----------+
+| email_notifications_prod |  57928.41 |
++--------------------------+-----------+
+
+-- Take Backup:
+
+mysqldump -u nandini.batgeri -p --databases servicesapidb_prod --routines --events --triggers | gzip > servicesapidb_prod_271025.sql.gz
+mysqldump -u nandini.batgeri -p --databases ets_mdm --routines --events --triggers | gzip > ets_mdm_271025.sql.gz
+
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive)
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM 
+
+-- Unzip Backup:
+
+gunzip servicesapidb_prod_050925.sql.gz
+gunzip ets_mdm_050925.sql.gz
+
+-- Create Database:
+
+CREATE DATABASE IF NOT EXISTS ets_mdm DEFAULT CHARACTER SET latin1;
+CREATE DATABASE IF NOT EXISTS servicesapidb_prod DEFAULT CHARACTER SET latin1;
+
+-- Import Backup:
+
+mysql -u root -p ets_mdm < ets_mdm_271025.sql
+mysql -u root -p servicesapidb_prod < servicesapidb_prod_271025.sql
+root password:  H5$#fs590Q@d
+
+
+--SELECT user, host FROM mysql.user;
+
+--create user 'user_name'@'%' identified by 'password';
+
+
+@NOTE: before granting privilages check on source(ATC) that which privilages have that 'user'.
+--GRANT ALL PRIVILEGES ON `database_name`.* TO `user_name`@`%`;
+
+--SHOW GRANTS FOR 'eprweb'@'%';
+
+--flush privileges;
+
+
+
+
+
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = 'your_schema_name' AND table_type = 'BASE TABLE';
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = 'your_db';
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = 'your_db';
+SHOW TRIGGERS FROM your_db;
+SHOW EVENTS FROM your_db;
+
+@ Note: run above query ,if routine(procedure/fcntions)not backup then run below command 
+
+ --Take backup of routine on source:
+ mysqldump -u nandini.batgeri -p --no-create-info --no-create-db --no-data --routines servicesapidb_prod > servicesapidb_prod_routine_291025.sql
+
+-- Transfer file to AVD c drive using WinSCP  (C:\Backup )
+
+-- Upload files to onedrive on AVD (on source server)  
+ 
+-- Download files from onedrive on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM
+
+ --import on target :
+ mysql -u root -p servicesapidb_prod < servicesapidb_prod_routine_291025.sql
+
+
+
+--Compare users and permissions: 
+(Make sure the same privileges are available on the new server.)
+
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'user'@'host';
+
+
+-- find 'user' in schema using below query : 
+ 
+SELECT
+    User, Host,
+    Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv, Grant_priv,
+    References_priv, Index_priv, Alter_priv
+FROM mysql.db
+WHERE Db = 'your_db_name';
+
+
+task :
+--compare routine,function, procedure on ATC PROD and Altius PROD:(Altius PROD routine should be same as ATC PROD)
+Prdwhsdb01:- 10.9.156.200  - production/Master
+PROD	altdbwhsaaa01	10.16.2.147

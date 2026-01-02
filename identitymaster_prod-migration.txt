@@ -1,0 +1,148 @@
+ 
+Please copy below schema from ATC UAT to Altius UAT DB with same schema name.
+
+				Hostname 	   	 	 Ip_Address
+Source :       Prdwhsdb01    	10.9.156.200  ATC PROD DB
+Destination :	altdbwhsaea01		10.16.5.152	   Altius UAT DB
+
+--Below is WHS server 
+
+	   Schema Name		 		User Name
+1.	   identitymaster_prod		altiusauthwebapp
+
+
+
+ 
+-- Check DB Size: ' identitymaster_prod'
+
+   SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'identitymaster_prod';
+
++---------------------+-----------+
+| Database Name       | Size (MB) |
++---------------------+-----------+
+| identitymaster_prod |   5490.19 |
++---------------------+-----------+
+
+
+
+
+
+-- Take Backup: on Source :        Prdwhsdb01    	10.9.156.200  ATC PROD DB
+
+mysqldump -u nandini.batgeri -p --databases  identitymaster_prod --routines --events --triggers | gzip >  identitymaster_prod_101125.sql.gz
+pass-  Nandu@1qaz!
+
+mysqldump -u shubham.kale -p --databases  identitymaster_prod --routines --events --triggers | gzip >  identitymaster_prod_101125.sql.gz
+Shu@123bham!
+
+
+-- Transfer file to AVD c drive using WinSCP (on AVD open winscp and then transfer file to C:drive) [c:\DB Migration\PROD]
+
+-- Upload files to onedrive(Altius) on AVD (on source server )  (Note;if altius onedrive not logging then use ATC on both source and target server for activity )  
+ 
+-- Download files from onedrive(Altius) on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM   (Altius onedrive not working so we copy the file from 'local' and paste it in Altius onedrive 'migration' folder and then Transfer/upload files to ALTIUS server using WinSCP) 
+ /dbdata/data/bkp --file saved in this folder
+ 
+-- Unzip Backup:
+
+gunzip  identitymaster_prod_101125.sql.gz
+
+--ask vandana about user pass
+asked pawan that the user not present 
+-- Create Database: alredy exitst on altius uat server 
+
+CREATE DATABASE IF NOT EXISTS  identitymaster_prod DEFAULT CHARACTER SET latin1;
+
+
+-- Import Backup: on Destination : altdbwhsaea01		10.16.5.152	   Altius UAT DB
+
+mysql -u root -p  identitymaster_prod <  identitymaster_prod_101125.sql
+root pass -H5$#fs590Q@d
+
+
+
+NOTE:  PASSWORD NEED TO KNIW FROM VANDANA AND THEN CREATE 'USER'
+--SELECT user, host FROM mysql.user;    ---check this user 
+
+--create user 'altiusauthwebapp'@'%' identified by 'pass';
+@NOTE: before granting privilages check on source(ATC) that which privilages have that 'user'.
+
+--GRANT ALL PRIVILEGES ON ` identitymaster_prod`.* TO `altiusauthwebapp`@`%`;
+  GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE, SHOW VIEW ON ` identitymaster_prod`.* TO `altiusauthwebapp`@`%`;
+  
+--SHOW GRANTS FOR 'altiusauthwebapp'@'%';
+
+flush privileges;
+
+
+
+# Postg activity need to check rows on table in schema : cound should be same 
+in HeidiSQL
+
+---Compare data count for multiple tables in one schema :use below query
+
+SELECT COUNT(*) 
+FROM information_schema.tables
+WHERE table_schema = ' identitymaster_prod' AND table_type = 'BASE TABLE';
+
+--Check table sizes:
+
+SELECT table_name, table_rows, data_length, index_length
+FROM information_schema.tables
+WHERE table_schema = ' identitymaster_prod';
+
+--Check Stored Procedures, Functions, Triggers, Events: in HeidiSQL
+
+SHOW PROCEDURE STATUS WHERE Db = ' identitymaster_prod';
+SHOW TRIGGERS FROM  identitymaster_prod;
+SHOW EVENTS FROM  identitymaster_prod;
+ 
+
+
+@ Note: run above query to check rutines ,if routine(procedure/fcntions)not backup then run below command 
+
+ --Take backup of routine on source:
+ mysqldump -u nandini.batgeri -p --no-create-info --no-create-db --no-data --routines  identitymaster_prod >  identitymaster_prod_041125.sql
+
+-- Transfer file to AVD c drive using WinSCP  (C:\Backup )
+
+-- Upload files to onedrive on AVD (on source server)  
+ 
+-- Download files from onedrive on local (on target server)   
+
+-- Transfer files to ALTIUS server using WinSCP -open in PAM
+
+ --import on target :
+ mysql -u root -p  identitymaster_prod >  identitymaster_prod_041125.sql
+
+
+
+--Compare users and permissions: 
+(Make sure the same privileges are available on the new server.)
+
+SELECT user, host FROM mysql.user;
+SHOW GRANTS FOR 'altiusauthwebapp'@'%';
+
+
+-- find 'user' in schema using below query : 
+ 
+SELECT
+    User, Host,
+    Select_priv, Insert_priv, Update_priv, Delete_priv, Create_priv, Drop_priv, Grant_priv,
+    References_priv, Index_priv, Alter_priv
+FROM mysql.db
+WHERE Db = ' identitymaster_prod';
+
+
+task :
+--compare routine,function, procedure on ATC PROD and Altius PROD:(Altius PROD routine should be same as ATC PROD)
+Prdwhsdb01:- 10.9.156.200  - production/Master
+PROD	altdbwhsaaa01	10.16.2.147

@@ -1,0 +1,220 @@
+Great—since you’re on **MySQL 5.5**, here are **compatible** commands/queries for each item using only `SHOW` and `INFORMATION_SCHEMA` (no `sys` schema, and limited `performance_schema`). I’ve added small notes where 5.5 behaves differently.
+
+***
+
+## 🖥️ Linux (OS) checks — Threshold **≥ 85%**
+
+> These are shell commands to run on the DB server.
+
+### Mount Points (≥ 85%)
+
+```bash
+df -hP | awk 'NR>1 && ($5+0) >= 85 {printf "%-35s used=%6s mounted_on=%s\n", $1, $5, $6}'
+```
+
+### CPU (≥ 85%)
+
+```bash
+# Using /proc/stat over 1 second to compute total CPU usage
+read cpu a b c d e f g h i j k < /proc/stat
+idle1=$d total1=$((a+b+c+d+e+f+g+h+i+j+k))
+sleep 1
+read cpu a b c d e f g h i j k < /proc/stat
+idle2=$d total2=$((a+b+c+d+e+f+g+h+i+j+k))
+cpu_use=$(awk -v i1="$idle1" -v t1="$total1" -v i2="$idle2" -v t2="$total2" 'BEGIN{print (1 - (i2 - i1)/(t2 - t1)) * 100}')
+awk -v v="$cpu_use" 'BEGIN{printf("CPU Usage: %.2f%%\n", v); if(v>=85) print "ALERT: CPU >= 85%"}'
+```
+
+### Memory (≥ 85%)
+
+```bash
+free | awk '/Mem:/ {use=($3/$2)*100; printf("Memory Usage: %.2f%%\n", use); if(use>=85) print "ALERT: Memory >= 85%"}'
+```
+
+***
+
+## 🗄️ MySQL 5.5 — SQL queries
+
+### DB Status (Quick snapshot)
+
+```sql
+-- Basic server info & key status values
+SELECT @@hostname AS host, @@version AS version, @@read_only AS read_only, @@log_bin AS binlog_enabled;
+
+-- Uptime / connections / slow queries
+SHOW GLOBAL STATUS LIKE 'Uptime';
+SHOW GLOBAL STATUS LIKE 'Threads_connected';
+SHOW GLOBAL STATUS LIKE 'Threads_running';
+SHOW GLOBAL STATUS LIKE 'Slow_queries';
+
+-- Event scheduler status
+SHOW VARIABLES LIKE 'event_scheduler';
+```
+
+***
+
+### Log Gap (Replication)
+
+> Run these on the **replica** (slave). In 5.5, `SHOW SLAVE STATUS` is primary source.
+
+```sql
+SHOW SLAVE STATUS\G
+-- Check:
+--   Seconds_Behind_Master            => time lag
+--   Read_Master_Log_Pos vs Exec_Master_Log_Pos  => position gap
+--   Relay_Log_Space                  => backlog size on replica
+```
+
+If you have **multiple channels** (unlikely in 5.5), it’s still single-channel—use the output above.
+
+***
+
+### Binlog Usage
+
+> On the **source/primary**:
+
+```sql
+-- Current active binlog file and position
+SHOW MASTER STATUS;
+
+-- All binlog files and sizes
+SHOW BINARY LOGS;
+```
+
+**Compute current file % usage** (manual):  
+Match `SHOW MASTER STATUS.File` with `SHOW BINARY LOGS.Log_name`, then calculate:
+
+    percent = (Position / File_size) * 100
+
+> MySQL 5.5 doesn’t let you join `SHOW` results in a single SQL; calculate in your client or I can give a small script if you tell me the current file/size.
+
+**Total binlog footprint (MB/GB)**: Sum the `File_size` from `SHOW BINARY LOGS`.
+
+***
+
+### Total Connections
+
+```sql
+SHOW GLOBAL STATUS LIKE 'Threads_connected';
+```
+
+### Active Connections
+
+```sql
+SHOW GLOBAL STATUS LIKE 'Threads_running';
+
+-- Or count non-idle sessions
+SELECT COUNT(*) AS active_sessions
+FROM INFORMATION_SCHEMA.PROCESSLIST
+WHERE COMMAND <> 'Sleep';
+```
+
+***
+
+### System Users (MySQL accounts)
+
+> In 5.5, `mysql.user` has: `User`, `Host`, `Password`, `Plugin` (depending on build), but **no** `account_locked`.
+
+```sql
+SELECT User, Host, IFNULL(Plugin,'') AS auth_plugin
+FROM mysql.user
+ORDER BY User, Host;
+```
+
+If by “System Users” you meant **Linux accounts**:
+
+```bash
+getent passwd | awk -F: '{printf "%-20s uid=%-6s shell=%s\n", $1, $3, $7}'
+```
+
+***
+
+### Application Users
+
+> Replace with your app’s table(s). Example for `leasetoolapp`:
+
+```sql
+-- Adjust column names to your schema (e.g., username, status, last_login)
+SELECT *
+FROM leasetoolapp.users
+LIMIT 50;
+```
+
+If you share exact table/columns, I’ll tailor queries for active/locked counts.
+
+***
+
+### Event Status
+
+```sql
+-- Is scheduler on?
+SHOW VARIABLES LIKE 'event_scheduler';
+
+-- List events and their status
+SELECT EVENT_SCHEMA, EVENT_NAME, STATUS, LAST_EXECUTED, INTERVAL_VALUE, INTERVAL_FIELD
+FROM INFORMATION_SCHEMA.EVENTS
+ORDER BY EVENT_SCHEMA, EVENT_NAME;
+```
+
+***
+
+### Critical DB Errors
+
+> MySQL 5.5 does **not** have `performance_schema.error_log`. Use the server error log file:
+
+```sql
+SHOW VARIABLES LIKE 'log_error';
+```
+
+Then on Linux:
+
+```bash
+logfile="/path/from/log_error"
+# Show recent serious entries
+grep -Ei 'ERROR|CRITICAL|ASSERT|PANIC|FATAL' "$logfile" | tail -200
+```
+
+***
+
+## 🔧 Helpful threshold checks (MySQL 5.5)
+
+### Connections ≥ 85% of max
+
+```sql
+SELECT
+  @@max_connections AS max_conn,
+  (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Threads_connected') AS current_conn,
+  ROUND( ( (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Threads_connected') / @@max_connections ) * 100, 2 ) AS pct_used;
+```
+
+### Buffer Pool hit ratio (approx)
+
+```sql
+SELECT
+  100 - ROUND(
+    ( (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_buffer_pool_reads')
+    / (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Innodb_buffer_pool_read_requests') ) * 100
+  , 4) AS buffer_pool_hit_pct;
+```
+
+### Slow queries rate (since startup)
+
+```sql
+SELECT
+  (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Slow_queries') AS slow_queries,
+  (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Uptime') AS uptime_seconds,
+  ROUND(
+    ( (SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Slow_queries')
+    / NULLIF((SELECT VARIABLE_VALUE FROM INFORMATION_SCHEMA.GLOBAL_STATUS WHERE VARIABLE_NAME='Uptime'),0) )
+  , 6) AS slow_queries_per_sec;
+```
+
+***
+
+## Want a single **report script**?
+
+I can provide a **bash script** that runs these MySQL queries and OS checks, prints alerts for ≥ 85%, and summarizes replication/binlog status—tailored for **MySQL 5.5**.  
+If that helps, tell me:
+
+*   How you connect (`mysql -u... -p... -h...`), and
+*   Whether this is **source** or **replica** (or both).

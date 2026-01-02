@@ -1,0 +1,75 @@
+
+Schema Name					User Name		Password
+servicesapidb_prod			feedsvcwebapp	x6D6jeE20IV1
+ets_mdm						mdmuser			z0iDd8ZJ5sOa
+transport					transportapp	kgZdFYe238MN
+email_notifications_prod	emailuser		5e7zQ81cW7kp
+
+
+SELECT user, host FROM mysql.user WHERE USER='feedsvcwebapp'; ---check host of the user  
+
+feedsvcwebapp	10.9.154.123
+				10.9.154.225
+				10.9.154.65
+				
+--check which privilages have the user of perticular host			
+show grants for 'feedsvcwebapp'@'10.9.154.123'; 
+show grants for 'feedsvcwebapp'@'10.9.154.225';
+show grants for 'feedsvcwebapp'@'10.9.154.65';
+
+
+SELECT user, host FROM mysql.user WHERE USER='mdmuser';  --no any host for this user
+show grants for 'mdmuser'@'%';   ----no any privilages for that user
+
+SELECT user, host FROM mysql.user WHERE USER='transportapp';
+transportapp	10.9.154.65
+				prdwhsap02.americantower.com
+				prdwhsap03.americantower.com
+				prdwhsap05.americantower.com
+				
+show grants for 'transportapp'@'10.9.154.65';
+show grants for 'transportapp'@'prdwhsap02.americantower.com';
+show grants for 'transportapp'@'prdwhsap03.americantower.com';
+show grants for 'transportapp'@'prdwhsap05.americantower.com';
+
+
+SELECT user, host FROM mysql.user WHERE USER='emailuser';
+emailuser	10.9.154.105
+			10.9.154.123
+			10.9.154.194
+			10.9.154.225
+			10.9.154.65
+			prdwhsap03.americantower.idm
+			
+show grants for 'emailuser'@'10.9.154.105';
+show grants for 'emailuser'@'10.9.154.123';
+show grants for 'emailuser'@'10.9.154.194';
+show grants for 'emailuser'@'10.9.154.225';
+show grants for 'emailuser'@'10.9.154.65';
+show grants for 'emailuser'@'prdwhsap03.americantower.idm';
+
+
+
+
+
+
+	
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, EXECUTE, SHOW VIEW, TRIGGER ON `servicesapidb\_prod`.* TO 'feedsvcwebapp'@'10.9.154.123'
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, EXECUTE, SHOW VIEW, TRIGGER ON `servicesapidb\_prod`.* TO 'feedsvcwebapp'@'10.9.154.225'
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, EXECUTE, SHOW VIEW, TRIGGER ON `servicesapidb\_prod`.* TO 'feedsvcwebapp'@'10.9.154.65'
+
+
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, CREATE TEMPORARY TABLES, EXECUTE, SHOW VIEW ON `transport`.* TO 'transportapp'@'10.9.154.65'
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, CREATE TEMPORARY TABLES, EXECUTE, SHOW VIEW ON `transport`.* TO 'transportapp'@'prdwhsap02.americantower.com'
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, CREATE TEMPORARY TABLES, EXECUTE, SHOW VIEW ON `transport`.* TO 'transportapp'@'prdwhsap03.americantower.com'
+GRANT SELECT, INSERT, UPDATE, DELETE, INDEX, CREATE TEMPORARY TABLES, EXECUTE, SHOW VIEW ON `transport`.* TO 'transportapp'@'prdwhsap05.americantower.com'
+	
+
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, LOCK TABLES, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'10.9.154.105'
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, LOCK TABLES, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'10.9.154.123'
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, LOCK TABLES, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'10.9.154.194'
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, LOCK TABLES, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'10.9.154.225'
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'10.9.154.65'
+GRANT SELECT, INSERT, UPDATE, DROP, INDEX, EXECUTE, SHOW VIEW, TRIGGER ON `email\_notifications\_prod`.* TO 'emailuser'@'prdwhsap03.americantower.idm'
+
+

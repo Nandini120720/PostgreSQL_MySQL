@@ -1,0 +1,93 @@
+. please create a copy of leasetoolapp in Altius UAT server ... change the schema name a little and create a user with all permission... This will be used for Development environment
+
+old db name :leasetoolapp
+
+db name: leasetoolapp_dev
+ 
+user: leasetool_dev   40VbsSS87Mfv  ------cerate user
+
+	Dump20251126.sql : backup file name (saved bkup in /temp)
+
+
+Copy 1 database from one to another server with different target db name:
+
+Source server: source_host
+Source database: db_source					 leasetoolapp
+Target server: LAT UAT		      UAT		altdblataea01	10.16.5.147
+Target database (new name): db_target		 leasetoolapp_dev
+
+
+•	Dump the Source Database :
+mysqldump -h source_host -u root -p --single-transaction --routines --triggers --databases leasetoolapp > Dump20251126.sql
+
+•	Replace the Source DB Name with Target DB Name :
+This changes every mention of leasetoolapp to leasetoolapp_dev (usually in CREATE DATABASE and USE statements):
+sed 's/`leasetoolapp`/`leasetoolapp_dev`/g' leasetoolapp.sql > leasetoolapp_dev.sql
+sed 's/`leasetoolapp`/`leasetoolapp_dev`/g' Dump20251126.sql > leasetoolapp_dev.sql
+sed 's/`Dump20251126`/`leasetoolapp_dev`/g' Dump20251126.sql > leasetoolapp_dev.sql
+
+•	Create the Target Database :
+Before importing, ensure the target database exists :
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS leasetoolapp_dev;"
+H5$#fs590Q@d
+
+•	Import the Modified Dump File :
+mysql -u root -p leasetoolapp_dev < leasetoolapp_dev.sql (Now db_source is fully copied to db_target on the new server.)
+H5$#fs590Q@d
+
+
+•	After import, verify on the target server :
+SHOW TABLES FROM leasetoolapp_dev;
+
+# check source -DB size:
+
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'leasetoolapp';
+
++---------------+-----------+
+| Database Name | Size (MB) |
++---------------+-----------+
+| leasetoolapp  |    307.56 |
++---------------+-----------+
+
+#target db size after import 
+SELECT
+   table_schema AS `Database Name`,
+   ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS `Size (MB)`
+FROM
+   information_schema.tables
+WHERE
+   table_schema = 'leasetoolapp_dev';
++------------------+-----------+
+| Database Name    | Size (MB) |
++------------------+-----------+
+| leasetoolapp_dev |    307.56 |
++------------------+-----------+
+
+
+# create user :
+
+user: leasetool_dev   	40VbsSS87Mfv
+
+ 
+ create user 'leasetool_dev'@'%' identified by '40VbsSS87Mfv';
+
+ select user,host from mysql.user;	  --------------------check user created or not 
+ 
+ GRANT ALL PRIVILEGES ON `leasetoolapp_dev`.* TO `leasetool_dev`@`%`;
+ 
+ show grants for 'leasetool_dev'@'%';
+
+ show databases;
+ 
+ flush privileges;
+ 
+
+
+
+
