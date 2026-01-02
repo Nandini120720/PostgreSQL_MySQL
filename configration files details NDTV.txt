@@ -1,0 +1,62 @@
+# cat /etc/my.cnf
+[mysqld]
+datadir=/data/mysql
+#socket=/var/run/mysqld/mysqld.sock
+#pid-file=/var/run/mysqld/mysqld.pid
+
+socket=/data/mysql/mysql.sock
+pid-file=/data/mysqld/mysqld.pid
+
+# Logs
+#general_log_file=/var/log/mysql/general.log
+#slow_query_log_file=/var/log/mysql/slow.log
+#log_error=/var/log/mysql/error.log
+
+log_error=/data/mysql/mysqld.log
+general_log_file=/data/mysql/general.log
+slow_query_log_file=/data/mysql/slow_query.log
+
+[client]
+socket=/var/run/mysqld/mysqld.sock
+
+
+
+# cat /etc/mysql/mysql.cnf
+
+[client]
+port            = 3306
+#socket          = /var/run/mysqld/mysqld.sock
+socket=/data/mysql/mysql.sock
+
+[mysqld_safe]
+#socket          = /var/run/mysqld/mysqld.sock
+socket=/data/mysql/mysql.sock
+nice            = 0
+
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+
+
+
+# /etc/mysql/mysql.conf.d/mysqld.cnf
+
+[mysqld]
+#pid-file       = /var/run/mysqld/mysqld.pid
+#socket         = /var/run/mysqld/mysqld.sock
+#datadir                = /var/lib/mysql
+#log-error      = /var/log/mysql/error.log
+# By default we only accept connections from localhost
+#bind-address   = 127.0.0.1
+bind-address    = 0.0.0.0
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+
+datadir=/data/mysql
+socket=/data/mysql/mysql.sock
+log_error=/data/mysql/mysqld.log
+pid-file=/data/mysqld/mysqld.pid
+
+general_log_file=/data/mysql/general.log
+slow_query_log_file=/data/mysql/slow_query.log
+

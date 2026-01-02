@@ -1,0 +1,25 @@
+# check DB size :
+ SELECT 
+    table_schema AS "Database",
+    ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS "Size (MB)"
+FROM 
+    information_schema.tables
+WHERE 
+    table_schema = 'your_database_name'
+GROUP BY 
+    table_schema;
+
+
+#Query to List Sizes of All Databases:
+ SELECT 
+    table_schema AS "Database",
+    ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS "Size (MB)"
+FROM 
+    information_schema.tables
+GROUP BY 
+    table_schema
+ORDER BY 
+    `Size (MB)` DESC;
+	
+#To check size of file like 'report.sql' on root
+ du -sh file_name     Ex: du -sh report.sql

@@ -1,0 +1,71 @@
+# INSTALLATION:(AlmaLinux)
+
+cat <<EOF | tee /etc/yum.repos.d/proxysql.repo
+[proxysql_repo]
+name=ProxySQL repository
+baseurl=https://repo.proxysql.com/ProxySQL/proxysql-2.6.x/almalinux/\$releasever
+gpgcheck=1
+gpgkey=https://repo.proxysql.com/ProxySQL/proxysql-2.6.x/repo_pub_key
+EOF
+
+yum install proxysql
+
+-------------------------------------------------------------------------------------------------------
+
+# INSTALLATION:(CentOS)
+
+cat <<EOF | tee /etc/yum.repos.d/proxysql.repo
+
+[proxysql_repo]
+name=ProxySQL repository
+baseurl=https://repo.proxysql.com/ProxySQL/proxysql-2.6.x/centos/\$releasever
+gpgcheck=1
+gpgkey=https://repo.proxysql.com/ProxySQL/proxysql-2.6.x/repo_pub_key
+EOF
+
+yum install proxysql
+
+
+# SERVICE MANAGEMENT
+
+start:
+systemctl start proxysql
+
+stop:
+systemctl stop proxysql
+
+restart:
+systemctl restart proxysql
+
+Or alternatively via the Admin interface:
+mysql -u admin -padmin -h 127.0.0.1 -P6032 --prompt='Admin> '
+Admin> proxysql stop
+
+
+# Reinitializing ProxySQL from the config file 
+(after first startup the DB file is used instead of the config file):
+
+* If you are using the init script run:
+/etc/init.d/proxysql initial
+* or
+service proxysql initial
+
+* If you are using the systemd unit file run:
+systemctl start proxysql-initial
+* or
+service proxysql-initial start
+
+
+# How to check the ProxySQL version
+proxysql --version
+
+
+# Configuring ProxySQL through the admin interface
+
+To log into the admin interface (with the default credentials) use a mysql client 
+and connect using the following admin credentials locally on port (6032):
+mysql -u admin -padmin -h 127.0.0.1 -P6032 --prompt='Admin> '
+
+note: If your MySQL client version is version 8.04 or higher add --default-auth=mysql_native_password 
+to the above command to connect to the admin interface
+

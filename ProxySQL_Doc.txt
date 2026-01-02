@@ -1,0 +1,251 @@
+--------------------------------------P-R-O-X-Y-S-Q-L---C-O-M-M-A-N-D-S-----------------------------------------
+                                           \------O---------O-------/
+									        \   ~~~    II     ~~~  /
+									         \   /------------\   /
+			                                  ~  \------------/  ~						
+----------------------------------------------------------------------------------------------------------------
+# Set new list of admin username / password pairs
+set admin-admin_credentials="admin:admin;nimda:nimda"
+
+-- Load config to runtime
+LOAD ADMIN VARIABLES TO RUNTIME;
+
+-- Persist config to disk (to retain settings across restarts
+SAVE ADMIN VARIABLES FROM RUNTIME;
+
+----------------------------------------------------------------------------------------------------------
+
+# Change ProxySQL Ports/Add Ports
+
+SET mysql-interfaces='0.0.0.0:6767;0.0.0.0:6768;
+## save it on disk and restart proxysql
+SAVE MYSQL VARIABLES TO DISK;
+PROXYSQL RESTART;
+
+----------------------------------------------------------------------------------------------------------
+
+# Adding Servers/Backends
+
+insert into mysql_servers(hostgroup_id, hostname, port) values (1,'192.168.56.11',3306);
+insert into mysql_servers(hostgroup_id, hostname, port) values (1,'192.168.56.12',3306);
+
+----------------------------------------------------------------------------------------------------------
+
+# Configure Monitoring
+
+create user 'monitor'@'%' identified by 'monitor';
+grant usage, replication client on *.* to 'monitor'@'%';
+
+update global variables set variable_value='monitor' where variable_name='mysql-monitor_username';
+update global variables set variable_value='monitor' where variable_name='mysql-monitor_password';
+update global variables set variable_value='2000' where variable_name in ('mysql-monitor_connect_interval','mysql-monitor_ping_interval','mysql-monitor_read_only_interval');
+
+----------------------------------------------------------------------------------------------------------
+
+# Backends Healthcheck
+
+show tables from monitor;
+select * from monitor.mysql_server_connect_log order by time_start_us DESC limit 3;
+select * from monitor.mysql_server_ping_log order by time_start_us DESC limit 3;
+select * from monitor.mysql_server_read_only_log order by time_start_us DESC LIMIT 3;
+
+----------------------------------------------------------------------------------------------------------
+
+# Mysql Users
+
+show create table mysql_users\G
+insert into mysql_users(username, password, default_hostgroups) values ('proxyuser','proxyuser',1);
+
+----------------------------------------------------------------------------------------------------------
+
+# Proxysql Statistics, the foundation of query rules
+
+show tables from stats;
+select * from stats.stats_mysql_connection_pool;
+select * from stats_mysql_commands_counters where Total_cnt;
+select * from stats_mysql_query_digest order by sum_time DESC;
+select hostgroup hg, sum_time, count_star, digest_text from stats_mysql_query_digest order by sum_time DESC;
+
+----------------------------------------------------------------------------------------------------------
+
+# Mysql replication hostgroups
+
+show create table mysql_replication_hostgroups\Girish@1234#
+insert into mysql_replication_hostgroups (writer_hostgroup, reader_hostgroup, comment) values (1,2,'cluster1');
+
+
+----------------------------------------------------------------------------------------------------------
+
+# How to check Digest and Hostgroup
+
+SELECT hostgroup hg, sum_time, count_star, digest_text FROM stats_mysql_query_digest 
+ORDER BY sum_time DESC;
+
+----------------------------------------------------------------------------------------------------------
+
+# Backup and Restore
+
+Config file backup:
+
+ProxySQL backup can be performed by the config file. This method is beneficial in creating 
+multiple instances.
+Config backup file can be created by using the below commands and it can be used to start new 
+ProxySQL instances.
+
+ProxySQLAdmin> select config into outfile /var/lib/proxysql/proxybkp.cnf;
+cat /var/lib/proxysql/proxybkp.cnf |grep -wi mysql_servers -A 35
+
+Mysqldump Backup:
+mysqldump -u admin -p -h 127.0.0.1 -P6032 --no-tablespaces --no-create-info --no-create-db --skip-triggers --skip-column-statistics main mysql_servers > proxy_mysql_servers_bkp.sql
+
+Restoration:
+mysql -uadmin -p -h 127.0.0.1 -P 6032  -vvv < proxysql_mysql_servers_bkp.sql
+
+Physical snapshot:
+A ProxySQL backup can be performed using the physical snapshot method. Ensure to stop ProxySQL 
+services to get a consistent backup. This method contains the following steps:
+
+Stop ProxySQL:
+systemctl stop proxysql
+
+Create a copy of the data directory:
+cp /var/lib/proxysql/* /proxysql_snapshot/
+
+Start ProxySQL:
+systemctl start proxysql
+
+----------------------------------------------------------------------------------------------------------
+
+# How to check Mysql & Admin Global Variables
+
+SELECT * FROM global_variables WHERE variable_name LIKE 'mysql_%';
+
+SELECT * FROM global_variables WHERE variable_name LIKE 'admin_%';
+
+----------------------------------------------------------------------------------------------------------
+
+# Add routing based on incoming port
+
+INSERT INTO mysql_query_rules (rule_id,active,proxy_port,destination_hostgroup,apply)
+VALUES (1,1,6401,1,1), (2,1,6402,2,1);
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK; # if you want this change to be permanent
+
+----------------------------------------------------------------------------------------------------------
+
+# Data Directory Change
+
+Take backup of existing data directory and configuration file
+cp /var/lib/proxysql/* /databackup/proxysql
+cp /etc/proxysql.cnf /databackup/proxysql
+
+Move the current data directory content to new one
+mv /var/lib/proxysql/* /datafiles/proxysql
+
+Edit the configuration file to add new data directory location
+vi /etc/proxysql.cnf
+data_dir="/datafiles/proxysql"
+errorlog="/datafiles/proxysql/proxysql.log"
+
+Edit ProxySQL service file to change the pid location
+vi /etc/systemd/system/proxysql.service
+PIDFile=/datafiles/proxysql/proxysql.pid
+
+Reload the daemon for changed to take effect
+systemctl daemon-reload
+
+Start the service
+systemctl start proxysql
+
+----------------------------------------------------------------------------------------------------------
+
+# How to identify expensive queries
+
+* How to find the top 5 queries based on total execution time:
+SELECT digest,SUBSTR(digest_text,0,25),count_star,sum_time FROM stats_mysql_query_digest WHERE 
+digest_text LIKE 'SELECT%' ORDER BY sum_time DESC LIMIT 5;
+
+* How to find the top 5 queries based on count:
+SELECT digest,SUBSTR(digest_text,0,25),count_star,sum_time FROM stats_mysql_query_digest WHERE 
+digest_text LIKE 'SELECT%' ORDER BY count_star DESC LIMIT 5;
+
+* How to find the top 5 queries based on maximum execution time:
+SELECT digest,SUBSTR(digest_text,0,25),count_star,sum_time,sum_time/count_star avg_time, min_time, 
+max_time FROM stats_mysql_query_digest WHERE digest_text LIKE 'SELECT%' ORDER BY max_time DESC LIMIT 5;
+
+* How to find the top 5 queries ordered by total execution time, and with a minimum execution 
+time of at least 1 millisecond:
+SELECT digest,SUBSTR(digest_text,0,20),count_star,sum_time,sum_time/count_star avg_time, min_time, 
+max_time FROM stats_mysql_query_digest WHERE digest_text LIKE 'SELECT%' AND min_time > 1000 
+ORDER BY sum_time DESC LIMIT 5;
+
+* How to find the top 5 queries ordered by total execution time, with an average execution time of 
+at least 1 second. Also show the percentage of the total execution time:
+SELECT digest,SUBSTR(digest_text,0,25),count_star,sum_time,sum_time/count_star avg_time, 
+ROUND(sum_time*100.00/(SELECT SUM(sum_time) FROM stats_mysql_query_digest),3) pct FROM 
+stats_mysql_query_digest WHERE digest_text LIKE 'SELECT%' AND sum_time/count_star > 1000000 
+ORDER BY sum_time DESC LIMIT 5;
+
+* How to find the top 5 queries ordered by total execution time, with an average execution time of at 
+least 15 milliseconds and also show the percentage of the total execution time:
+SELECT digest,SUBSTR(digest_text,0,25),count_star,sum_time,sum_time/count_star avg_time, 
+ROUND(sum_time*100.00/(SELECT SUM(sum_time) FROM stats_mysql_query_digest WHERE digest_text LIKE 
+'SELECT%'),3) pct FROM stats_mysql_query_digest WHERE digest_text LIKE 'SELECT%' AND sum_time/count_star 
+> 15000 ORDER BY sum_time DESC LIMIT 5;
+
+
+----------------------------------------------------------------------------------------------------------
+
+SELECT * FROM global_variables WHERE variable_name LIKE 'admin-admin_credentials';
+
+UPDATE global_variables SET variable_value='admin2:admin2' WHERE variable_name='admin-admin_credentials';
+
+UPDATE global_variables SET variable_value='0.0.0.0:7032' WHERE variable_name='admin-mysql_ifaces';
+
+UPDATE global_variables SET variable_value='0.0.0.0:6034' WHERE variable_name='mysql-interfaces';
+
+CREATE USER 'dbadmin'@'%' IDENTIFIED BY 'dbadmin';
+
+GRANT ALL PRIVILEGES ON world.* TO 'dbadmin'@'%';
+
+INSERT INTO mysql_users(username,password,default_hostgroup) VALUES ('dbadmin','dbadmin',1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup) 
+VALUES (1, 1, '^SET @ApplicationName=', 1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup) 
+VALUES (2, 1, '.*', 1);
+----------------------------------------------------------------------------------------------------------
+
+select * from mysql_servers;
+select * from mysql_replication_hostgroups;
+select * from mysql_query_rules;
+
+SAVE MYSQL USERS TO DISK
+SAVE MYSQL SERVERS TO DISK
+SAVE MYSQL QUERY RULES TO DISK
+SAVE MYSQL VARIABLES TO DISK
+SAVE ADMIN VARIABLES TO DISK
+
+-------------------------------------
+Testing Server ProxySQL credentials:
+
+Admin username and password:
+admin:Admin@#123!
+
+Admin and mysql ports:
+6767:6768
+5555:5556
+--------------------------------------
+Production Server ProxySQL credentials:
+
+Admin username and password:
+admin:PrxY%2611H!
+
+Admin and mysql ports:
+6767:6768
+--------------------------------------
+Production My user:
+
+datapatrol_girish
+Girish@1234#
