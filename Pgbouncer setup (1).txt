@@ -1,0 +1,508 @@
+
+rahulsuryawanshi@MAC-KGV4T3HF3G ~ % ssh -J rahul.suryawanshi@jumphost.enterprisedb.com -i "NKP_New.pem" ec2-user@ec2-3-10-207-133.eu-west-2.compute.amazonaws.com -o "ServerAliveInterval 60"
+rahul.suryawanshi@jumphost.enterprisedb.com's password: 
+Register this system with Red Hat Insights: insights-client --register
+Create an account or view all your systems at https://red.ht/insights-dashboard
+Last login: Wed Apr 16 12:54:04 2025 from 54.164.46.13
+[ec2-user@ip-172-31-18-221 ~]$ 
+[ec2-user@ip-172-31-18-221 ~]$ 
+[ec2-user@ip-172-31-18-221 ~]$ sudo su root
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# hostnamectl
+   Static hostname: ip-172-31-18-221.eu-west-2.compute.internal
+         Icon name: computer-vm
+           Chassis: vm
+        Machine ID: 48bef44596ed4261a69f9e7ddeec843a
+           Boot ID: 5db4b0f4c7be4d3f95c008e37a01bf7e
+    Virtualization: amazon
+  Operating System: Red Hat Enterprise Linux 8.8 (Ootpa)
+       CPE OS Name: cpe:/o:redhat:enterprise_linux:8::baseos
+            Kernel: Linux 4.18.0-425.3.1.el8.x86_64
+      Architecture: x86-64
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# curl -1sSLf 'https://downloads.enterprisedb.com/pdZe6pcnWIgmuqdR7v1L38rG6Z6wJEsY/enterprise/setup.rpm.sh' | sudo -E bash
+Executing the  setup script for the 'enterprisedb/enterprise' repository ...
+
+   OK: Checking for required executable 'curl' ... 
+   OK: Checking for required executable 'rpm' ... 
+   OK: Detecting your OS distribution and release using system methods ...
+ ^^^^: ... Detected/provided for your OS/distribution, version and architecture:
+ >>>>:
+ >>>>: ... distro=rhel  version=8.8  codename=Ootpa  arch=x86_64  
+ >>>>:
+   OK: Importing 'enterprisedb/enterprise' repository GPG keys into rpm ... 
+   OK: Checking for available package manager (DNF/Microdnf/YUM/Zypper) ... 
+ ^^^^: ... Detected package manager as 'dnf'
+   OK: Checking for dnf dependency 'dnf-plugins-core' ... 
+   OK: Checking if upstream install config is OK ... 
+   OK: Fetching 'enterprisedb/enterprise' repository configuration ... 
+   OK: Installing 'enterprisedb/enterprise' repository via dnf ... 
+   OK: Updating the dnf cache to fetch the new repository metadata ... 
+   OK: The repository has been installed successfully - You're ready to rock!
+
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# sudo dnf -y install edb-pgbouncer123
+Updating Subscription Management repositories.
+Unable to read consumer identity
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Last metadata expiration check: 0:00:10 ago on Wed 16 Apr 2025 02:31:21 PM UTC.
+Dependencies resolved.
+=====================================================================================================================================================================================================================================================
+ Package                                                     Architecture                                      Version                                                      Repository                                                          Size
+=====================================================================================================================================================================================================================================================
+Installing:
+ edb-pgbouncer123                                            x86_64                                            1.23.1.0-1.el8                                               enterprisedb-enterprise                                            211 k
+
+Transaction Summary
+=====================================================================================================================================================================================================================================================
+Install  1 Package
+
+Total download size: 211 k
+Installed size: 493 k
+Downloading Packages:
+edb-pgbouncer123-1.23.1.0-1.el8.x86_64.rpm                                                                                                                                                                           418 kB/s | 211 kB     00:00    
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                                                                                416 kB/s | 211 kB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                                                                                             1/1 
+  Running scriptlet: edb-pgbouncer123-1.23.1.0-1.el8.x86_64                                                                                                                                                                                      1/1 
+  Installing       : edb-pgbouncer123-1.23.1.0-1.el8.x86_64                                                                                                                                                                                      1/1 
+  Running scriptlet: edb-pgbouncer123-1.23.1.0-1.el8.x86_64                                                                                                                                                                                      1/1 
+  Verifying        : edb-pgbouncer123-1.23.1.0-1.el8.x86_64                                                                                                                                                                                      1/1 
+Installed products updated.
+
+Installed:
+  edb-pgbouncer123-1.23.1.0-1.el8.x86_64                                                                                                                                                                                                             
+
+Complete!
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# rpm -qa | grep pgbouncer
+edb-pgbouncer123-1.23.1.0-1.el8.x86_64
+
+
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# cd /etc/edb/pgbouncer1.23/
+
+
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# vi pgbouncer.ini
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# ls -lrt
+total 20
+-rwx------. 1 root         root           831 Aug  6  2024 mkauth.py
+-rw-r--r--. 1 root         root         10515 Aug  6  2024 edb-pgbouncer-1.23.ini
+-rw-------. 1 enterprisedb enterprisedb    72 Aug  6  2024 userlist.txt
+-rw-r--r--. 1 root         root             0 Apr 16 14:35 pgbouncer.ini
+
+
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# vi edb-pgbouncer-1.23.ini
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+
+
+#### **[databases] section**
+
+```
+[databases]
+postgres = host= <Server ip> port=5444
+```
+
+#### **[pgbouncer] section**
+
+```
+[pgbouncer]
+logfile = /var/log/edb/pgbouncer1.23/edb-pgbouncer-1.23.log
+pidfile = /var/run/edb/pgbouncer1.23/edb-pgbouncer-1.23.pid
+listen_addr = *
+listen_port = 6432
+auth_type = md5
+auth_file = /etc/edb/pgbouncer1.16/userlist.txt
+admin_users = enterprisedb
+stats_users = enterprisedb
+pool_mode = session
+server_reset_query = DISCARD ALL
+ignore_startup_parameters = application_name
+max_client_conn = 100
+default_pool_size = 20
+```
+
+save and exit
+
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# vi userlist.txt 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# echo -n 'enterprisedbmypassword' | md5sum
+74d8c0fae28addb8886100c8056ad377  -
+
+
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# vi userlist.txt 
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+
+"enterprisedb" "74d8c0fae28addb8886100c8056ad377"
+
+save and exit
+
+[root@ip-172-31-18-221 pgbouncer1.23]# 
+[root@ip-172-31-18-221 pgbouncer1.23]# exit
+
+
+[ec2-user@ip-172-31-18-221 ~]$ sudo su root
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# systemctl start edb-pgbouncer-1.23
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# systemctl enable edb-pgbouncer-1.23
+Created symlink /etc/systemd/system/multi-user.target.wants/edb-pgbouncer-1.23.service → /usr/lib/systemd/system/edb-pgbouncer-1.23.service.
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# systemctl status edb-pgbouncer-1.23
+● edb-pgbouncer-1.23.service - A lightweight connection pooler for EPAS and PostgreSQL
+   Loaded: loaded (/usr/lib/systemd/system/edb-pgbouncer-1.23.service; enabled; vendor preset: disabled)
+   Active: active (running) since Wed 2025-04-16 14:56:58 UTC; 46s ago
+ Main PID: 20501 (pgbouncer)
+    Tasks: 2 (limit: 47355)
+   Memory: 1.2M
+   CGroup: /system.slice/edb-pgbouncer-1.23.service
+           └─20501 /usr/edb/pgbouncer1.23/bin/pgbouncer -d -q /etc/edb/pgbouncer1.23/edb-pgbouncer-1.23.ini
+
+Apr 16 14:56:58 ip-172-31-18-221.eu-west-2.compute.internal systemd[1]: Starting A lightweight connection pooler for EPAS and PostgreSQL...
+Apr 16 14:56:58 ip-172-31-18-221.eu-west-2.compute.internal systemd[1]: edb-pgbouncer-1.23.service: Can't open PID file /var/run/edb/pgbouncer1.23/edb-pgbouncer-1.23.pid (yet?) after start: No such file or directory
+Apr 16 14:56:58 ip-172-31-18-221.eu-west-2.compute.internal systemd[1]: Started A lightweight connection pooler for EPAS and PostgreSQL.
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# 
+[root@ip-172-31-18-221 ec2-user]# sudo su enterprisedb
+bash-4.4$ 
+bash-4.4$ 
+bash-4.4$ cd /usr/edb/as14/bin/
+bash-4.4$ 
+bash-4.4$ 
+bash-4.4$ ./psql -p 6432 -U enterprisedb pgbouncer
+Password for user enterprisedb: 
+psql (14.15.0, server 1.23.1.0/bouncer)
+Type "help" for help.
+
+pgbouncer=# 
+pgbouncer=# 
+pgbouncer=# SHOW CLIENTS;
+ type |     user     | database  | replication | state  | addr | port | local_addr | local_port |      connect_time       |      request_time       | wait | wait_us | close_needed |    ptr    | link | remote_pid | tls | application_name | prepar
+ed_statements 
+------+--------------+-----------+-------------+--------+------+------+------------+------------+-------------------------+-------------------------+------+---------+--------------+-----------+------+------------+-----+------------------+-------
+--------------
+ C    | enterprisedb | pgbouncer | none        | active | unix | 6432 | unix       |       6432 | 2025-04-16 15:01:52 UTC | 2025-04-16 15:02:06 UTC |    0 |       0 |            0 | 0x2227230 |      |      20956 |     | psql             |       
+            0
+
+pgbouncer=# \x
+Expanded display is on.
+pgbouncer=# 
+pgbouncer=# SHOW CLIENTS;
+-[ RECORD 1 ]-------+------------------------
+type                | C
+user                | enterprisedb
+database            | pgbouncer
+replication         | none
+state               | active
+addr                | unix
+port                | 6432
+local_addr          | unix
+local_port          | 6432
+connect_time        | 2025-04-16 15:01:52 UTC
+request_time        | 2025-04-16 15:03:42 UTC
+wait                | 95
+wait_us             | 339926
+close_needed        | 0
+ptr                 | 0x2227230
+link                | 
+remote_pid          | 20956
+tls                 | 
+application_name    | psql
+prepared_statements | 0
+
+pgbouncer=# 
+pgbouncer=# SHOW STATS;
+-[ RECORD 1 ]-----------------+----------
+database                      | pgbouncer
+total_server_assignment_count | 0
+total_xact_count              | 1
+total_query_count             | 1
+total_received                | 0
+total_sent                    | 0
+total_xact_time               | 0
+total_query_time              | 0
+total_wait_time               | 0
+avg_server_assignment_count   | 0
+avg_xact_count                | 0
+avg_query_count               | 0
+avg_recv                      | 0
+avg_sent                      | 0
+avg_xact_time                 | 0
+avg_query_time                | 0
+avg_wait_time                 | 0
+
+pgbouncer=# 
+pgbouncer=# 
+pgbouncer=# SHOW POOLS;
+-[ RECORD 1 ]---------+----------
+database              | pgbouncer
+user                  | pgbouncer
+cl_active             | 1
+cl_waiting            | 0
+cl_active_cancel_req  | 0
+cl_waiting_cancel_req | 0
+sv_active             | 0
+sv_active_cancel      | 0
+sv_being_canceled     | 0
+sv_idle               | 0
+sv_used               | 0
+sv_tested             | 0
+sv_login              | 0
+maxwait               | 0
+maxwait_us            | 0
+pool_mode             | statement
+
+pgbouncer=# 
+pgbouncer=# SHOW LISTS;
+-[ RECORD 1 ]--------
+list  | databases
+items | 2
+-[ RECORD 2 ]--------
+list  | users
+items | 4
+-[ RECORD 3 ]--------
+list  | peers
+items | 0
+-[ RECORD 4 ]--------
+list  | pools
+items | 1
+-[ RECORD 5 ]--------
+list  | peer_pools
+items | 0
+-[ RECORD 6 ]--------
+list  | free_clients
+items | 49
+-[ RECORD 7 ]--------
+list  | used_clients
+items | 1
+-[ RECORD 8 ]--------
+list  | login_clients
+items | 0
+-[ RECORD 9 ]--------
+list  | free_servers
+items | 0
+-[ RECORD 10 ]-------
+list  | used_servers
+items | 0
+-[ RECORD 11 ]-------
+list  | dns_names
+items | 0
+-[ RECORD 12 ]-------
+list  | dns_zones
+items | 0
+-[ RECORD 13 ]-------
+list  | dns_queries
+items | 0
+-[ RECORD 14 ]-------
+list  | dns_pending
+items | 0
+
+pgbouncer=# 
+pgbouncer=# SHOW USERS;
+-[ RECORD 1 ]--------+-------------
+name                 | enterprisedb
+pool_size            | 
+pool_mode            | 
+max_user_connections | 0
+current_connections  | 0
+-[ RECORD 2 ]--------+-------------
+name                 | pgbouncer
+pool_size            | 
+pool_mode            | 
+max_user_connections | 0
+current_connections  | 0
+-[ RECORD 3 ]--------+-------------
+name                 | username2
+pool_size            | 
+pool_mode            | 
+max_user_connections | 0
+current_connections  | 0
+-[ RECORD 4 ]--------+-------------
+name                 | username3
+pool_size            | 
+pool_mode            | 
+max_user_connections | 0
+current_connections  | 0
+
+pgbouncer=# SHOW DATABASES;
+-[ RECORD 1 ]-------+--------------
+name                | edb
+host                | 172.31.18.221
+port                | 5444
+database            | edb
+force_user          | 
+pool_size           | 20
+min_pool_size       | 0
+reserve_pool        | 0
+server_lifetime     | 3600
+pool_mode           | 
+max_connections     | 0
+current_connections | 0
+paused              | 0
+disabled            | 0
+-[ RECORD 2 ]-------+--------------
+name                | pgbouncer
+host                | 
+port                | 6432
+database            | pgbouncer
+force_user          | pgbouncer
+pool_size           | 2
+min_pool_size       | 0
+reserve_pool        | 0
+server_lifetime     | 3600
+pool_mode           | statement
+max_connections     | 0
+current_connections | 0
+paused              | 0
+disabled            | 0
+
+pgbouncer=# SHOW FDS;
+-[ RECORD 1 ]----+--------
+fd               | 8
+task             | pooler
+user             | 
+database         | 
+addr             | 0.0.0.0
+port             | 6432
+cancel           | 0
+link             | 0
+client_encoding  | 
+std_strings      | 
+datestyle        | 
+timezone         | 
+password         | 
+scram_client_key | 
+scram_server_key | 
+-[ RECORD 2 ]----+--------
+fd               | 9
+task             | pooler
+user             | 
+database         | 
+addr             | ::
+port             | 6432
+cancel           | 0
+link             | 0
+client_encoding  | 
+std_strings      | 
+datestyle        | 
+timezone         | 
+password         | 
+scram_client_key | 
+scram_server_key | 
+-[ RECORD 3 ]----+--------
+fd               | 10
+task             | pooler
+user             | 
+database         | 
+addr             | unix
+port             | 6432
+cancel           | 0
+link             | 0
+client_encoding  | 
+std_strings      | 
+datestyle        | 
+timezone         | 
+password         | 
+scram_client_key | 
+scram_server_key | 
+
+pgbouncer=# SHOW CONFIG;
+-[ RECORD 1 ]------------------------------------------------------
+key        | admin_users
+value      | enterprisedb
+default    | 
+changeable | yes
+-[ RECORD 2 ]------------------------------------------------------
+key        | application_name_add_host
+value      | 0
+default    | 0
+changeable | yes
+-[ RECORD 3 ]------------------------------------------------------
+key        | auth_dbname
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 4 ]------------------------------------------------------
+key        | auth_file
+value      | /etc/edb/pgbouncer1.23/userlist.txt
+default    | 
+changeable | yes
+-[ RECORD 5 ]------------------------------------------------------
+key        | auth_hba_file
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 6 ]------------------------------------------------------
+key        | auth_ident_file
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 7 ]------------------------------------------------------
+key        | auth_query
+value      | SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+default    | SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+changeable | yes
+-[ RECORD 8 ]------------------------------------------------------
+key        | auth_type
+value      | md5
+default    | md5
+changeable | yes
+-[ RECORD 9 ]------------------------------------------------------
+key        | auth_user
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 10 ]-----------------------------------------------------
+key        | autodb_idle_timeout
+value      | 3600
+default    | 3600
+changeable | yes
+-[ RECORD 11 ]-----------------------------------------------------
+key        | client_idle_timeout
+value      | 0
+default    | 0
+changeable | yes
+-[ RECORD 12 ]-----------------------------------------------------
+key        | client_login_timeout
+value      | 60
+default    | 60
+changeable | yes
+-[ RECORD 13 ]-----------------------------------------------------
+key        | client_tls_ca_file
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 14 ]-----------------------------------------------------
+key        | client_tls_cert_file
+value      | 
+default    | 
+changeable | yes
+-[ RECORD 15 ]-----------------------------------------------------
+key        | client_tls_ciphers
+value      | default
+--More--
+[1]+  Stopped                 ./psql -p 6432 -U enterprisedb pgbouncer

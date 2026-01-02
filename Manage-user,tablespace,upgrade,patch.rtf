@@ -1,0 +1,170 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 .SFNS-Regular_wdth_opsz180000_GRAD_wght2580000;
+\f3\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red21\green21\blue22;\red69\green73\blue76;\red228\green234\blue244;
+\red52\green55\blue54;\red111\green14\blue195;\red236\green241\blue247;\red24\green112\blue43;\red21\green21\blue22;
+\red38\green38\blue38;\red255\green255\blue255;\red67\green67\blue67;}
+{\*\expandedcolortbl;;\cssrgb\c10588\c10980\c11373;\cssrgb\c34118\c35686\c37255;\cssrgb\c91373\c93333\c96471;
+\cssrgb\c26667\c27843\c27451;\cssrgb\c51765\c18824\c80784;\cssrgb\c94118\c95686\c97647;\cssrgb\c9412\c50196\c21961;\cssrgb\c10588\c10980\c11373;
+\cssrgb\c19608\c19608\c19608;\cssrgb\c100000\c100000\c100000;\cssrgb\c33333\c33333\c33333;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww34360\viewh21600\viewkind0
+\deftab720
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f0\b\fs36 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Tablespace Management
+\fs28 \
+
+\f1\b0\fs24 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 A 
+\f0\b tablespace
+\f1\b0  is a directory on the file system that stores data files for database objects like tables and indexes. Using different tablespaces can help with performance by spreading I/O load across multiple storage devices or by placing frequently accessed data on faster disks (e.g., SSDs).\
+To create a tablespace, you first need a directory on the file system that the PostgreSQL user has write access to.Then, use the \cf3 \cb4 \strokec3 CREATE TABLESPACE\cf2 \cb1 \strokec2  command.
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 CREATE\cf3 \strokec3  \cf6 \strokec6 TABLE\cf3 \strokec3 SPACE fastdata LOCATION \cf8 \strokec8 '/mnt/ssd/pg_fastdata'\cf3 \strokec3 ;\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 To use the tablespace, you specify it when creating a database, table, or index.
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 CREATE\cf3 \strokec3  DATABASE myapp_db TABLESPACE fastdata;\
+\cf6 \strokec6 CREATE\cf3 \strokec3  \cf6 \strokec6 TABLE\cf3 \strokec3  mytable (id \cf6 \strokec6 INT\cf3 \strokec3 ) TABLESPACE fastdata;\
+\cf6 \strokec6 CREATE\cf3 \strokec3  INDEX myindex \cf6 \strokec6 ON\cf3 \strokec3  mytable (id) TABLESPACE fastdata;\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 To drop a tablespace, all objects within it must be dropped or moved to another tablespace first.\\
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 DROP\cf3 \strokec3  TABLESPACE fastdata;\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f0\b\fs36 \cf2 User Management\
+
+\f1\b0\fs24 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 User management in PostgreSQL involves creating, modifying, and dropping user accounts (also called 
+\f0\b roles
+\f1\b0 ) and assigning them permissions. Roles can be a user or a group of users.\
+To create a new user with a password, use the \cf3 \cb4 \strokec3 CREATE ROLE\cf2 \cb1 \strokec2  command.
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 CREATE\cf3 \strokec3  ROLE myuser \cf6 \strokec6 WITH\cf3 \strokec3  LOGIN PASSWORD \cf8 \strokec8 'strongpassword'\cf3 \strokec3 ;\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 To grant specific permissions, use the \cf3 \cb4 \strokec3 GRANT\cf2 \cb1 \strokec2  command. You can grant privileges on databases, tables, schemas, and other objects.
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 GRANT\cf3 \strokec3  \cf6 \strokec6 CONNECT\cf3 \strokec3  \cf6 \strokec6 ON\cf3 \strokec3  DATABASE myapp_db \cf6 \strokec6 TO\cf3 \strokec3  myuser;\
+\cf6 \strokec6 GRANT\cf3 \strokec3  \cf6 \strokec6 SELECT\cf3 \strokec3 , \cf6 \strokec6 INSERT\cf3 \strokec3 , UPDATE, \cf6 \strokec6 DELETE\cf3 \strokec3  \cf6 \strokec6 ON\cf3 \strokec3  \cf6 \strokec6 TABLE\cf3 \strokec3  mytable \cf6 \strokec6 TO\cf3 \strokec3  myuser;\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 To revoke privileges, use the \cf3 \cb4 \strokec3 REVOKE\cf2 \cb1 \strokec2  command.
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 REVOKE\cf3 \strokec3  \cf6 \strokec6 DELETE\cf3 \strokec3  \cf6 \strokec6 ON\cf3 \strokec3  \cf6 \strokec6 TABLE\cf3 \strokec3  mytable \cf6 \strokec6 FROM\cf3 \strokec3  myuser;\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 To drop a user, use \cf3 \cb4 \strokec3 DROP ROLE\cf2 \cb1 \strokec2 .
+\fs48 \cf5 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf6 \cb7 \strokec6 DROP\cf3 \strokec3  ROLE myuser;\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f0\b\fs36 \cf2 Patching and Upgrades
+\fs28 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b0\fs24 \cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\b \cf2 Patching
+\f1\b0  typically refers to applying minor version updates (e.g., from 14.1 to 14.2) that fix bugs and security vulnerabilities. 
+\f0\b Upgrades
+\f1\b0  involve moving to a new major version (e.g., from 13 to 14), which often includes new features and architectural changes.\
+\
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f0\b\fs36 \cf2 Patching (Minor Version Updates)
+\fs24 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b0 \cf2 \
+For minor updates, PostgreSQL's binary compatibility often allows for a simple process. First, stop the PostgreSQL service. Then, install the new package from your operating system's package manager (e.g., \cf3 \cb4 \strokec3 apt\cf2 \cb1 \strokec2 , \cf3 \cb4 \strokec3 yum\cf2 \cb1 \strokec2 ). Finally, restart the service. This usually doesn't require a data dump and restore.\
+\
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f0\b\fs36 \cf2 Upgrades (Major Version Upgrades)
+\fs24 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b0 \cf2 \
+\pard\pardeftab720\sa160\partightenfactor0
+\cf2 Major version upgrades are more complex and require careful planning. The most common methods are:\
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa160\partightenfactor0
+\ls1\ilvl0
+\f0\b \cf2 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 pg_dumpall and Restore
+\f1\b0 : This is the safest method. You dump all databases to a SQL file using \cf3 \cb4 \strokec3 pg_dumpall\cf2 \cb1 \strokec2 , install the new version of PostgreSQL, initiali\cf9 \outl0\strokewidth0 s\cf2 \outl0\strokewidth0 \strokec2 e a new data directory, and then restore the data from the dump file. This is reliable but can be slow for large databases.\uc0\u8232 \
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 pg_upgrade
+\f1\b0 : This tool is designed to make upgrades faster by rewriting the system catalogue but not the actual data files. It's much faster than the dump and restore method. It requires both the old and new PostgreSQL binaries to be present on the system. You run \cf3 \cb4 \strokec3 pg_upgrade\cf2 \cb1 \strokec2  with the old and new data directories specified.\
+\ls1\ilvl0
+\f0\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	3	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Logical Replication
+\f1\b0 : For minimal downtime, you can set up a new server with the upgraded version and use logical replication (or a tool like \cf3 \cb4 \strokec3 pglogical\cf2 \cb1 \strokec2 ) to replicate data from the old server to the new one. Once the new server is fully synchronized, you can switch your application's connection to it.\uc0\u8232 
+\fs26\fsmilli13333 \cf3 \strokec3 \uc0\u8232 
+\fs24 \cf2 \strokec2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa160\partightenfactor0
+\cf2 Ref:\
+\
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f2\b \cf10 \cb11 \strokec10 1] Database Major version upgrade Methods: \
+- https://knowledge.enterprisedb.com/hc/en-us/articles/13519554586524-Database-Major-version-upgrade-Methods\
+\
+2] Patching Minor Version in Postgres High Availability (HA) Database Cluster: Plans & Strategies for DBAs\
+- https://www.enterprisedb.com/blog/postgresql-database-patching-ha-cluster-postgres-update-minor-versions\
+\
+3] What to consider before performing a major upgrade of PostgreSQL\
+- https://knowledge.enterprisedb.com/hc/en-us/articles/13523493417116-What-to-consider-before-performing-a-major-upgrade-of-PostgreSQL\
+\
+4] A few tips about database owners and application users\
+\
+- https://knowledge.enterprisedb.com/hc/en-us/articles/13523320127132-A-few-tips-about-database-owners-and-application-users\
+\
+5] Top Tools to Manage Postgres in an Enterprise: Administration, Performance, High Availability, and Migration\
+\
+- https://www.enterprisedb.com/blog/top-tools-manage-postgres-enterprise-administration-performance-high-availability-and?lang=en)%5B6
+\fs48 \
+\pard\pardeftab720\partightenfactor0
+
+\f3\b0\fs32 \cf12 \cb1 \strokec12 \
+}

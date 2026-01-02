@@ -1,0 +1,138 @@
+
+Set up pgBadger tool to analyze Postgres database logs
+
+# **Abstract:**
+
+The troubleshooting process can be sped up by having a detailed PostgreSQL log with a comprehensive format, graphs, and charts. In the following article, we will explain how we can do this using pgBadger.
+
+# **Introduction:**
+PgBadger can automatically detect PostgreSQL log file formats such as Syslog, stderr, csvlog, jsonlog, and pgbouncer log files. This tool can parse both gzip-compressed and huge log files. The following is a comprehensive list of features.
+
+- All charts are zoomable and can be saved as PNG images.
+
+- You can also limit pgBadger to only report errors or remove any part of the report using command line options.
+
+- pgBadger supports any custom format set into the log_line_prefix directive of your postgresql.conf file as long as it at least specifies a time escape sequence (%t, %m or %n) and the process-related escape sequence (%p or %c).
+
+- pgBadger allows parallel processing on a single log file and multiple files through the use of the -j or -J options and the number of CPUs as a value.
+
+- If you want to save system performance you can also use log_duration instead of log_min_duration_statement to have reports on duration and number of queries only.
+
+- pgBadger supports an incremental mode that allows the construction of incremental reports after successive runs of pgBadger. It is possible to run pg badger each day or even more, each hour, and have cumulative reports per day and per week. A top index page will allow you to go directly to the weekly and daily reports.
+
+Please find the below steps for installation of PdBadger tool.
+
+# **PgBadger Installation:**
+
+**Step 1:** Prerequisite: The pgbadger is written in pure Perl and uses a JavaScript library to draw graphs. Hence, you need to ensure that a modern Perl distribution is available in your system. Charts are rendered using a JavaScript library and Your web browser will do all the work. Nothing additional is required here.
+
+Use the below command to install perl if it is not already installed in your system.
+
+```
+ $ yum install -y perl perl-devel
+```
+                  
+**Step 2 :** Install pgBadger using below steps.
+
+Once `pgdg` repository is installed from the [community site](https://www.postgresql.org/download/linux/redhat/), Also install the epel repository for other dependencies like `perl-Text-CSV_XS` and `perl-UNIVERSAL-isa`:
+
+```
+dnf install epel-release
+```
+
+After that, you will be able to install the last pgbadger version from the community repository :
+
+```
+dnf install pgbadger
+```
+
+```
+dnf list installed pgbadger
+
+Installed Packages
+pgbadger.noarch                                            12.1-1.rhel8                                            @pgdg-common
+```
+
+**Or**
+
+Download pgbadger from [https://github.com/darold/pgbadger](https://github.com/darold/pgbadger). It will provide a zip file pgbadger-master.zip which consists of the pgbadger binaries.
+
+**Or**
+
+```
+wget https://github.com/darold/pgbadger/archive/refs/heads/master.zip
+```
+
+Once downloaded you have to unzip to extract the file using ,
+
+```
+[root@RockyB1 ~]#  unzip pgbadger-master.zip
+```
+			
+Now go to the extracted directory.
+
+```
+[root@RockyB1 ~]# cd pgbadger-master/
+```
+			
+Compile the makefile.
+
+```
+root@RockyB1 pgbadger-master]# perl Makefile.PL
+```
+			 
+Now install the pgbadger using the below command.
+
+```
+[root@RockyB1 pgbadger-master]# make && sudo make install
+```
+			
+Finally, verify the installation by running the below command which will display the pgbadger installed version.
+
+```
+[root@RockyB1 pgbadger-master]# pgbadger -V
+```
+       
+**Step 3 :** PostgreSQL.conf Configuration
+
+- Since pgbadger reads the PostgreSQL logs and picks up the information, it is essential to make some changes on Postgresql.Conf file so that necessary information are available in the PostgreSQL log file for pgbadger to read.
+
+- Do not enable both log_min_duration_statement, log_duration and log_statement all together, this will result in wrong counter values and excessive log size.
+
+- The usual postgresql.conf configuration for pgBadger looks like this:
+
+	- log_min_duration_statement = 0
+	- log_line_prefix = '%t [%p]: user=%u,db=%d,app=%a,client=%h'
+	- log_checkpoints = on
+	- log_connections = on
+	- log_disconnections = on
+	- log_lock_waits = on
+	- log_temp_files = 0
+	- log_autovacuum_min_duration = 0
+	- log_error_verbosity = default
+	- lc_messages='en_US.UTF-8's
+	- lc_messages='C'
+
+`Note:` The above changes requires you to perform a PostgreSQL restart. `systemctl restart postgresqlxx` Replace xx with your postgres version.
+
+`Note:` You need to enable the above parameters as per your business requirements.
+
+**Step 4:** Generating pgbadger report is done through the command line pgBadger utility. There are a lot of options, but the most basic setup is to provide the log line prefix, the database uses the log file and the output HTML file. You can check the available options using ./pgbadger --help that can be used with pgBadger.
+
+**Step 5:** Please find the Command for generating the pgbadger report.
+
+`Example:`
+
+```
+[root@RockyB1 pgbadger-master]# ./pgbadger --prefix '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h' /var/lib/edb/as13/data/log/edb-2022-06-11_071033.log -o postgresql.html
+
+[========================>] Parsed 2315 bytes of 2315 (100.00%), queries: 0, events: 0 LOG: Ok, generating html report...
+```
+
+The above command will create a graph output (postgresql.html) in HTML format.
+
+`Note:` You can provide a list of log files with an absolute path
+
+# **Related articles:**
+
+- [Suggested PostgreSQL logging configuration](https://techsupport.enterprisedb.com/kb/a/suggested-postgresql-logging-configuration/)
