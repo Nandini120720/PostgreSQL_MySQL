@@ -1,1 +1,1 @@
-this is 1st draft from mssql
+this is 1st draft from mysql
