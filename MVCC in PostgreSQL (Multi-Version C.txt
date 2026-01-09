@@ -1,0 +1,148 @@
+MVCC in PostgreSQL (Multi-Version Concurrency Control)
+
+MVCC means:
+
+PostgreSQL keeps multiple versions of a row so that readers and writers don’t block each other.
+
+This is core to PostgreSQL and a very common interview topic.
+
+1️⃣ Why MVCC is needed
+
+Without MVCC:
+
+A SELECT would block UPDATE
+
+An UPDATE would block SELECT
+
+With MVCC:
+
+SELECT never blocks UPDATE
+
+UPDATE never blocks SELECT
+
+This gives high concurrency.
+
+2️⃣ How MVCC works (simple)
+
+When a row is modified:
+
+PostgreSQL does not overwrite the row
+
+It creates a new version of the row
+
+Old version stays for existing transactions
+
+Each row has system columns:
+
+xmin → transaction that created the row
+
+xmax → transaction that deleted/updated the row
+
+3️⃣ Example (very important)
+
+Initial row:
+
+id=1, name='A'
+xmin=100, xmax=NULL
+
+Session 1
+BEGIN;
+UPDATE emp SET name='B' WHERE id=1;
+
+
+PostgreSQL creates a new row version:
+
+id=1, name='B'
+xmin=101, xmax=NULL
+
+
+Old row becomes:
+
+id=1, name='A'
+xmin=100, xmax=101
+
+Session 2 (running SELECT)
+
+Still sees name='A'
+
+Because its snapshot was taken earlier
+
+After COMMIT in session 1:
+
+New transactions see name='B'
+
+Old transactions continue to see A
+
+4️⃣ Snapshot concept (key point)
+
+Each transaction sees a snapshot:
+
+Which transactions were committed
+
+Which were in progress
+
+Which were aborted
+
+Visibility depends on:
+
+xmin
+
+xmax
+
+Snapshot information
+
+5️⃣ COMMIT and MVCC (connection)
+
+Until COMMIT, row versions are not visible
+
+After COMMIT, row becomes visible
+
+During PITR / WAL replay → only committed changes are applied
+
+6️⃣ Role of VACUUM (very important)
+
+Old row versions (dead tuples) stay on disk.
+
+VACUUM:
+
+Removes dead tuples
+
+Frees space
+
+Prevents table bloat
+
+Protects against transaction ID wraparound
+
+Without VACUUM → database breaks.
+
+7️⃣ MVCC vs Locks (interview clarity)
+Operation	Locking behavior
+SELECT	No lock (uses MVCC)
+UPDATE	Row-level lock
+DELETE	Row-level lock
+DDL	Strong locks
+8️⃣ Real production example
+
+Reporting query running 30 minutes
+
+OLTP updates running simultaneously
+
+Reports see old consistent data
+
+OLTP continues normally
+
+That’s MVCC in action.
+
+9️⃣ Interview one-liner (use this)
+
+“MVCC allows PostgreSQL to handle concurrent reads and writes by maintaining multiple row versions and using snapshots for visibility.”
+
+🔑 Key takeaway
+
+MVCC ≠ UNDO
+
+MVCC uses row versions
+
+VACUUM is mandatory
+
+High concurrency without blocking

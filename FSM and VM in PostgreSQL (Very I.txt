@@ -1,0 +1,173 @@
+## FSM and VM in PostgreSQL (Very Important DBA Topic)
+
+These two are **internal storage maps** that help PostgreSQL work efficiently with **MVCC and VACUUM**.
+
+---
+
+## 1️⃣ FSM – Free Space Map
+
+### What is FSM?
+
+> **FSM tracks free space available in table pages so PostgreSQL knows where new rows can fit.**
+
+Instead of scanning the whole table, PostgreSQL consults FSM.
+
+---
+
+### Why FSM is needed
+
+* MVCC creates **dead tuples**
+* VACUUM frees space **inside pages**
+* FSM remembers **which pages have free space**
+
+Without FSM → slow inserts & table scans.
+
+---
+
+### How FSM works
+
+* One FSM file per table
+* Tracks approximate free space per page
+* Not exact → only a hint
+
+---
+
+### Example (real life)
+
+1. Large DELETE happens
+2. VACUUM removes dead tuples
+3. Space becomes free inside pages
+4. FSM marks those pages
+5. New INSERTs reuse that space
+
+➡ Prevents table growth.
+
+---
+
+### FSM file location
+
+```
+$PGDATA/base/<db_oid>/<relfilenode>_fsm
+```
+
+---
+
+## 2️⃣ VM – Visibility Map
+
+### What is VM?
+
+> **VM tracks which table pages are visible to all transactions and/or fully frozen.**
+
+This helps:
+
+* VACUUM skip pages
+* Index-only scans work
+
+---
+
+### What VM stores (2 bits per page)
+
+| VM bit      | Meaning                          |
+| ----------- | -------------------------------- |
+| All-visible | Page visible to all transactions |
+| All-frozen  | Page fully frozen (no XID risk)  |
+
+---
+
+### Why VM is needed
+
+#### 🔹 Faster VACUUM
+
+* VACUUM skips all-visible pages
+* Saves I/O
+
+#### 🔹 Index-only scans
+
+* If page is all-visible → no heap fetch
+* Huge performance gain
+
+---
+
+### VM file location
+
+```
+$PGDATA/base/<db_oid>/<relfilenode>_vm
+```
+
+---
+
+## 3️⃣ FSM vs VM (Interview table)
+
+| Feature    | FSM              | VM               |
+| ---------- | ---------------- | ---------------- |
+| Purpose    | Track free space | Track visibility |
+| Used by    | INSERT / UPDATE  | VACUUM / SELECT  |
+| Updated by | VACUUM           | VACUUM           |
+| Improves   | Space reuse      | Query speed      |
+| Related to | Storage          | MVCC             |
+
+---
+
+## 4️⃣ Relation with VACUUM & MVCC
+
+### VACUUM:
+
+* Cleans dead tuples
+* Updates **FSM** (free space info)
+* Updates **VM** (visibility info)
+
+### MVCC:
+
+* Creates dead tuples
+* Requires VACUUM
+* FSM & VM make MVCC efficient
+
+---
+
+## 5️⃣ What happens if FSM/VM is missing or outdated?
+
+* PostgreSQL rebuilds them automatically
+* Worst case → slower performance
+* No data loss
+
+---
+
+## 6️⃣ Practical DBA commands
+
+### Check index-only scan usage
+
+```sql
+SELECT relname, idx_scan, idx_tup_fetch
+FROM pg_stat_user_indexes;
+```
+
+High `idx_scan` and low `idx_tup_fetch` → VM working well.
+
+---
+
+### Check vacuum progress
+
+```sql
+SELECT * FROM pg_stat_progress_vacuum;
+```
+
+---
+
+## 7️⃣ Interview one-liners (memorize)
+
+* **FSM:** “Tracks where free space exists in tables.”
+* **VM:** “Tracks which pages are visible to all transactions.”
+* “VACUUM maintains both FSM and VM.”
+
+---
+
+## 🔑 Final takeaway
+
+* FSM → **space reuse**
+* VM → **visibility & speed**
+* Both are **critical for performance**
+* Maintained automatically by VACUUM
+
+---
+
+
