@@ -1,0 +1,29 @@
+			There are 2 methods
+		1)Package Based	Method		2)Source Code Method
+		1A)With Repository		
+		1B)Without Repository
+
+Package Based Method Installation	Vs	1) Source Code Method Installation
+1)		OS User postgres gets		In this method we have to create
+		created automatically		OS user manually
+
+2)	Package Based method installation	2) Source Code method installation
+		Can only be performed		can be performed by Any OS user
+		by root user
+	Even though the software has been
+	installed by root user
+	software can be used by Any OS user
+
+3)	Package Based method installation	3) Source Code Method Installation
+	will have fixed software location	Default Location :  /usr/local/pgsql
+	we can't change this			we can possible to change the default location
+	/usr/pgsql-major-version-number		./configure --prefix=/home/user1/pgsoftware
+
+4)	Once we install on Fixed Location	4) Same Major Version can be installed multiple times but
+Of the Major Version , the same software		location must be different for each installation
+Major Version cannot be installed on more time		Example : If we install first time on the location 
+Example : If we installed Major Version 17					 /home/user1/pgsoftware 
+it get installed on the location : /usr/pgsql-17	Second Time install on : /home/user1/pgsoftware2
+We cannot possible to install again Major Version 17
+
+

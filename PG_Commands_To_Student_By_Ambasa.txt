@@ -1,0 +1,639 @@
+
+ psql -h 192.168.56.11 -U u1 -W		---->Default login to postgres database
+ psql -h 192.168.56.11 -U u1 -d postgres -W 	---->explicit mentioned login to postgres database
+ psql -h 192.168.56.11 -U u1 -d db1 -W
+ psql postgressql://username:password@IP_or_Hostname:port/databasename--->URLFormat connect
+ psql postgresql://u1:u1@192.168.56.11:5432/db1-------------->URLFormat
+ export PGPASSWORD=u1pass && psql -d db1 -U u1---------------->Password and login details
+ psql
+	port  databasename  actualcommand
+ psql -p 5432 postgres -c "select * from emp";
+SELECT pg_current_wal_lsn();
+SELECT pg_walfile_name('0/4D000450');
+
+select * from pg_ls_waldir() order by 1 desc;
+select pg_current_wal_lsn(),pg_walfile_name(pg_current_wal_lsn()),pg_walfile_name_offset(pg_current_wal_lsn());
+
+su - postgres
+cd /u01/PostgreSQL/10.12/
+source pg_env.sh
+/u01/PostgreSQL/10.12/bin/pg_ctl -D /u01/PostgreSQL/10.12/data start
+/u01/PostgreSQL/10.12/bin/pg_ctl -D /u01/PostgreSQL/10.12/data stop
+/u01/PostgreSQL/10.12/bin/pg_ctl -D /u01/PostgreSQL/10.12/data restart
+/u01/PostgreSQL/10.12/bin/pg_ctl -D /u01/PostgreSQL/10.12/data reload
+
+select pg_postmaster_start_time();
+SELECT now() - pg_postmaster_start_time();
+SELECT now() - pg_postmaster_start_time() "uptime";
+
+
+\timing on
+
+Store output in html format
+
+psql
+\H
+\o t2.html
+select * from t2;
+\o
+
+source /u01/PostgreSQL/10.12/pg_env.sh
+
+export PGPASSWORD=postgres
+
+cd $PGDATA;psql
+
+postgres=# \p \g
+select current_schema;
+ current_schema
+----------------
+ public
+(1 row)
+
+postgres-# \! clear
+
+SELECT 
+    pg_terminate_backend(pid) 
+FROM 
+    pg_stat_activity 
+WHERE 
+    -- don't kill my own connection!
+    pid <> pg_backend_pid()
+    -- don't kill the connections to other databases
+    AND datname = 'database_name'
+    ;
+
+select pg_terminate_backend(11167);
+select txid_current();
+
+postgres=# show config_file ;
+                config_file
+-------------------------------------------
+ /u01/PostgreSQL/12.4/data/postgresql.conf
+(1 row)
+
+postgres=#
+
+postgres=# show data_directory;
+      data_directory
+---------------------------
+ /u01/PostgreSQL/12.4/data
+(1 row)
+
+postgres=# show log_directory ;
+ log_directory
+---------------
+ log
+(1 row)
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public to rep1;
+
+postgres=# show log_filename;
+          log_filename
+--------------------------------
+ postgresql-%Y-%m-%d_%H%M%S.log
+(1 row)
+
+select pg_relation_filepath('s11.emp');
+
+1. create table test1
+	create table test1(id int, name varchar(12));
+2. List the Tables/Relations
+	\dt	or \d
+3. List Specific Table/Relation
+	\dt test1
+4. List Databases
+	\l
+5. Create Database
+	create database db1;			--->psql Prompt
+	createdb --owner=u1 db1			--->At OS Prompt
+6. List Databases
+	\l
+7. Create User
+	create user u1;		--->psql Prompt
+	createuser u11		--->At OS Prompt
+	create user u1 with superuser password 'u1'; --->psql Prompt
+8. List Roles/Users
+	\du
+	select * from pg_roles;
+	SELECT * FROM pg_user;
+9. Create User Not allow Login
+	create user u2 with nologin;
+10. List Users
+	\du
+11. Change database ownership
+	alter database db1 owner to u1;	
+12. Create Role
+	create role r1;
+13. List Roles/Users
+	\du
+14 Switch Between One Database to Another Database
+	\c db1
+15 Switch Between One Database to Another Database along with One User to Another User
+	\c db2	u2
+16. Create User with Connnection Limit:
+	SELECT rolconnlimit  FROM pg_roles  WHERE rolname = 'u3';
+	create user u3 with connection limit 1;
+	SELECT rolconnlimit  FROM pg_roles  WHERE rolname = 'u3';
+17. List Schema Name
+	\dn
+19. Create Schema
+	create schema u1;
+18. List All commands
+	\h
+19. List Create Table Help
+	\h create table
+20. List Current User
+	select current_user();
+21. List Current Database
+	select current_database();
+	select current_schema,current_user,current_database();
+	\conninfo
+					
+22. List Version
+	select version();
+
+23. List Table List under Schema Name s1,s2
+
+postgres=# select tablename from pg_tables where schemaname='s1';
+ tablename
+-----------
+ t1
+(1 row)
+
+postgres=# select tablename from pg_tables where schemaname='s2';
+ tablename
+-----------
+ t1
+(1 row)
+
+postgres=#
+
+
+24. List Data Directory
+
+postgres=# show data_directory ;
+       data_directory
+----------------------------
+ /u01/PostgreSQL/10.12/data
+(1 row)
+
+postgres=#
+
+
+postgres=# select relfilenode,relname,oid,relnamespace,reltablespace from pg_class  where relname='emp';
+ relfilenode | relname |  oid  | relnamespace | reltablespace
+-------------+---------+-------+--------------+---------------
+       24584 | emp     | 24584 |         2200 |             0
+       24614 | emp     | 24614 |        24589 |             0
+(2 rows)
+
+postgres=# \! oid2name -t emp -x
+From database "postgres":
+  Filenode  Table Name    Oid  Schema  Tablespace
+-------------------------------------------------
+     24584         emp  24584  public  pg_default
+     24614         emp  24614      s1  pg_default
+postgres=#
+
+
+
+
+
+
+
+24.Username/role Details
+
+
+
+postgres=# \i urp1.sql
+ rolname  | rolsuper | rolinherit | rolcreaterole | rolcreatedb | rolcanlogin | rolconnlimit | rolvaliduntil | memberof | rolreplication | rolbypassrls
+----------+----------+------------+---------------+-------------+-------------+--------------+---------------+----------+----------------+--------------
+ aalok    | f        | t          | f             | f           | t           |           -1 |               | {}       | f              | f
+ abc      | f        | t          | f             | f           | t           |           -1 |               | {}       | f              | f
+ ambasa   | t        | t          | f             | f           | t           |           -1 |               | {}       | f              | f
+ postgres | t        | t          | t             | t           | t           |           -1 |               | {}       | t              | t
+(4 rows)
+
+postgres=#
+
+
+25. Username and Its Password:
+
+postgres=# select usename,passwd from pg_shadow;
+ usename  |               passwd
+----------+-------------------------------------
+ postgres | md53175bce1d3201d16594cebf9d7eb3f9d
+ ambasa   | md54441c00621c1b7bcf8e0cda64cf78536
+ abc      | md56be2b63ee1f08e011cca25e1630fa5f6
+ aalok    | md59619b799be59b2867b131f088c4f675c
+(4 rows)
+
+postgres=#
+
+26. Old Password Reset
+
+postgres=# alter user abc password 'abc';
+ALTER ROLE
+postgres=# select usename,passwd from pg_shadow ;
+ usename  |               passwd
+----------+-------------------------------------
+ postgres | md53175bce1d3201d16594cebf9d7eb3f9d
+ ambasa   | md54441c00621c1b7bcf8e0cda64cf78536
+ aalok    | md59619b799be59b2867b131f088c4f675c
+ abc      | md5440ac85892ca43ad26d44c7ad9d47d3e
+(4 rows)
+
+
+postgres=# alter user abc password 'md5440ac85892ca43ad26d44c7ad9d47d3e';
+ALTER ROLE
+postgres=#
+
+postgres=# alter user abc password 'md56be2b63ee1f08e011cca25e1630fa5f6';
+ALTER ROLE
+
+
+Privilege to Check :
+\z
+
+postgres=# \i autovacuumcheck.sql
+ schemaname |      relname      | n_live_tup | n_dead_tup | last_autovacuum
+------------+-------------------+------------+------------+-----------------
+ pg_catalog | pg_authid         |          3 |          9 |
+ pg_catalog | pg_attribute      |         24 |          8 |
+ pg_catalog | pg_class          |          5 |          7 |
+ pg_catalog | pg_namespace      |          2 |          4 |
+ pg_catalog | pg_depend         |         21 |          3 |
+ pg_catalog | pg_database       |          0 |          2 |
+ pg_catalog | pg_shdepend       |          3 |          2 |
+ pg_catalog | pg_type           |         10 |          2 |
+ s1         | t1                |          1 |          1 |
+ pg_catalog | pg_foreign_server |          0 |          0 |
+(10 rows)
+
+postgres=#
+
+insert into log values(generate_series(1,10000));
+select oid,relname from pg_class where relname='emp';
+select relname,reltablespace,oid,relfilenode from pg_class  where relname='emp';
+
+pg_setting
+Parameter Change : 
+1)At System Level:
+2)At Session Level
+3)At User Level
+
+====================
+At Table Level
+====================
+
+postgres=# alter system set log_checkpoints=on;
+ALTER SYSTEM
+postgres=# show log_checkpoints ;
+ log_checkpoints
+-----------------
+ off
+(1 row)
+
+postgres=# show
+
+
+cat /u01/PostgreSQL/10.12/data/postgresql.auto.conf
+# Do not edit this file manually!
+# It will be overwritten by the ALTER SYSTEM command.
+log_checkpoints = 'on'
+-bash-4.1$
+
+
+postgres=# select name,setting,short_desc,context from pg_settings where name like '%duration%';
+            name             | setting |                                   short_desc                                   |  context
+-----------------------------+---------+--------------------------------------------------------------------------------+-----------
+ log_autovacuum_min_duration | -1      | Sets the minimum execution time above which autovacuum actions will be logged. | sighup
+ log_duration                | off     | Logs the duration of each completed SQL statement.                             | superuser
+ log_min_duration_statement  | -1      | Sets the minimum execution time above which statements will be logged.         | superuser
+(3 rows)
+
+postgres=#
+
+grep -3 log_min_duration_statement *conf
+
+alter table emp add constraint pk_eno primary key(eno);
+
+
+
+postgres=# \! pwd
+/var/lib/pgsql
+postgres=# \w who.sql
+postgres=# \i who.sql
+ current_schema | current_user | current_database
+----------------+--------------+------------------
+ public         | postgres     | postgres
+(1 row)
+
+postgres=# \p
+select current_schema,current_user,current_database();
+postgres=#
+
+SSELECT pg_current_wal_lsn();
+
+postgres=# select pg_switch_wal();
+ pg_switch_wal
+---------------
+ 0/168BCA0
+(1 row)
+
+SELECT pg_current_wal_lsn();
+postgres=# select * from pg_ls_waldir();
+           name           |   size   |       modification
+--------------------------+----------+---------------------------
+ 000000010000000000000001 | 16777216 | 2020-11-18 12:44:05+05:30
+ 000000010000000000000002 | 16777216 | 2020-11-18 12:44:05+05:30
+(2 rows)
+
+postgres=# select pg_switch_wal();
+ pg_switch_wal
+---------------
+ 0/2000078
+(1 row)
+
+postgres=# select * from pg_ls_waldir();
+           name           |   size   |       modification
+--------------------------+----------+---------------------------
+ 000000010000000000000001 | 16777216 | 2020-11-18 12:44:05+05:30
+ 000000010000000000000002 | 16777216 | 2020-11-18 12:44:21+05:30
+(2 rows)
+
+postgres=# select pg_switch_wal();
+ pg_switch_wal
+---------------
+ 0/3000078
+(1 row)
+
+postgres=# select * from pg_ls_waldir();
+           name           |   size   |       modification
+--------------------------+----------+---------------------------
+ 000000010000000000000003 | 16777216 | 2020-11-18 12:44:34+05:30
+ 000000010000000000000001 | 16777216 | 2020-11-18 12:44:05+05:30
+ 000000010000000000000002 | 16777216 | 2020-11-18 12:44:21+05:30
+(3 rows)
+
+postgres=# select pg_switch_wal();
+ pg_switch_wal
+---------------
+ 0/4000000
+(1 row)
+
+postgres=# select * from pg_ls_waldir();
+           name           |   size   |       modification
+--------------------------+----------+---------------------------
+ 000000010000000000000003 | 16777216 | 2020-11-18 12:44:34+05:30
+ 000000010000000000000001 | 16777216 | 2020-11-18 12:44:05+05:30
+ 000000010000000000000002 | 16777216 | 2020-11-18 12:44:21+05:30
+(3 rows)
+
+postgres=# select * from pg_ls_waldir();
+           name           |   size   |       modification
+--------------------------+----------+---------------------------
+ 000000010000000000000003 | 16777216 | 2020-11-18 12:44:34+05:30
+ 000000010000000000000001 | 16777216 | 2020-11-18 12:44:05+05:30
+ 000000010000000000000002 | 16777216 | 2020-11-18 12:44:21+05:30
+ 000000010000000000000004 | 16777216 | 2020-11-18 12:44:44+05:30
+(4 rows)
+
+postgres=#
+
+# Prior version 10
+ SELECT pg_xlogfile_name('0/4D000450'); 
+# From version 10 or later
+SELECT pg_walfile_name('0/4D000450');
+
+postgres=# select pg_current_wal_lsn();
+ pg_current_wal_lsn
+--------------------
+ 0/4D000450
+(1 row)
+
+postgres=#
+
+select pg_is_in_recovery()
+
+
+select count(*) * 16 * 1024 * 1024 as total_size
+from pg_ls_waldir();
+
+
+-- returns the write, flush and replay lags per WAL sender, as described above
+SELECT write_lsn - sent_lsn AS write_lag,
+       flush_lsn - write_lsn AS flush_lag,
+       replay_lsn - flush_lsn AS replay_lag
+  FROM pg_stat_replication;
+
+SELECT pg_current_wal_lsn() - confirmed_flush_lsn
+  FROM pg_replication_slots
+
+
+select * from pg_ls_waldir() order by 1 desc;
+select pg_current_wal_lsn(),pg_walfile_name(pg_current_wal_lsn()),pg_walfile_name_offset(pg_current_wal_lsn());
+
+
+
+
+
+---------------------
+
+select * from pg_create_physical_replication_slot('standby1');
+select slot_name, restart_lsn from pg_replication_slots;
+---------------------
+
+Tablespace and Objects Details
+
+select t.schemaname, t.tablename,
+       coalesce(t.tablespace, ts.default_tablespace) as tablespace
+from pg_tables t
+  cross join (
+     select ts.spcname as default_tablespace
+     from pg_database d
+       join pg_tablespace ts on ts.oid = d.dattablespace
+      where d.datname = current_database()
+   ) ts
+where schemaname = 'public';
+
+
+\d tablename(relationname)
+
+at the end of the line we can see tablespace
+
+
+postgres=# select oid,* from pg_tablespace;
+  oid  |  oid  |  spcname   | spcowner | spcacl | spcoptions
+-------+-------+------------+----------+--------+------------
+  1663 |  1663 | pg_default |       10 |        |
+  1664 |  1664 | pg_global  |       10 |        |
+ 16392 | 16392 | tbs01      |       10 |        |
+ 16396 | 16396 | tbs02      |       10 |        |
+ 24588 | 24588 | tbs03      |       10 |        |
+(5 rows)
+
+postgres=# select
+
+SELECT pg_tablespace_location(24588);
+postgres=# SELECT pg_tablespace_location(24588);
+           pg_tablespace_location
+---------------------------------------------
+ /u01/PostgreSQL/12/clusters01_primary_tbs03
+(1 row)
+
+postgres=#
+
+postgres=# \db
+                         List of tablespaces
+    Name    |  Owner   |                  Location
+------------+----------+---------------------------------------------
+ pg_default | postgres |
+ pg_global  | postgres |
+ tbs01      | postgres | /u01/PostgreSQL/12/clusters01_primary_tbs01
+ tbs02      | postgres | /u01/PostgreSQL/12/clusters01_primary_tbs02
+ tbs03      | postgres | /u01/PostgreSQL/12/clusters01_primary_tbs03
+(5 rows)
+
+
+SELECT blocked_locks.pid     AS blocked_pid,
+         blocked_activity.usename  AS blocked_user,
+         blocking_locks.pid     AS blocking_pid,
+         blocking_activity.usename AS blocking_user,
+         blocked_activity.query    AS blocked_statement,
+         blocking_activity.query   AS current_statement_in_blocking_process,
+         blocked_activity.application_name AS blocked_application,
+         blocking_activity.application_name AS blocking_application
+   FROM  pg_catalog.pg_locks         blocked_locks
+    JOIN pg_catalog.pg_stat_activity blocked_activity  ON blocked_activity.pid = blocked_locks.pid
+    JOIN pg_catalog.pg_locks         blocking_locks 
+        ON blocking_locks.locktype = blocked_locks.locktype
+        AND blocking_locks.DATABASE IS NOT DISTINCT FROM blocked_locks.DATABASE
+        AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation
+        AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page
+        AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple
+        AND blocking_locks.virtualxid IS NOT DISTINCT FROM blocked_locks.virtualxid
+        AND blocking_locks.transactionid IS NOT DISTINCT FROM blocked_locks.transactionid
+        AND blocking_locks.classid IS NOT DISTINCT FROM blocked_locks.classid
+        AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid
+        AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid
+        AND blocking_locks.pid != blocked_locks.pid
+    JOIN pg_catalog.pg_stat_activity blocking_activity ON blocking_activity.pid = blocking_locks.pid
+   WHERE NOT blocked_locks.GRANTED;
+
+
+
+Rollback a transaction gracefully using function pg_cancel_backend
+==================================================================
+
+postgres=# select pg_cancel_backend(pidvalue);
+postgres=# select pg_cancel_backend(4121);
+
+Terminate a session gracefully using the pg_terminate_backend function
+======================================================================
+
+postgres=# select pg_terminate_backend(pidvalue);
+postgres=# select pg_terminate_backend(4121);
+
+select pg_relation_filepath('u1.emp');
+select pg_size_pretty(pg_relation_size('u1.emp'))
+select pg_size_pretty(pg_relation_size('u1.emp'))
+select pg_size_pretty(pg_relation_size('u1.emp'))
+select pg_size_pretty(pg_total_relation_size('u1.emp'))
+select pg_size_pretty (pg_indexes_size('actor'));
+===========================Invalid-Index-Checks=============================
+
+SELECT pg_class.relname,indisvalid FROM pg_class, pg_index 
+WHERE pg_index.indisvalid = false 
+AND pg_index.indexrelid = pg_class.oid;
+
+select t.schemaname, t.tablename,
+       coalesce(t.tablespace, ts.default_tablespace) as tablespace
+from pg_tables t
+  cross join (
+     select ts.spcname as default_tablespace
+     from pg_database d
+       join pg_tablespace ts on ts.oid = d.dattablespace
+      where d.datname = current_database()
+   ) ts
+where schemaname = 'public';
+
+
+
+=========================Object Count==================================
+
+
+
+select 
+    nsp.nspname as SchemaName
+    ,cls.relname as ObjectName 
+    ,rol.rolname as ObjectOwner
+    ,case cls.relkind
+        when 'r' then 'TABLE'
+        when 'm' then 'MATERIALIZED_VIEW'
+        when 'i' then 'INDEX'
+        when 'S' then 'SEQUENCE'
+        when 'v' then 'VIEW'
+        when 'c' then 'TYPE'
+        else cls.relkind::text
+    end as ObjectType
+from pg_class cls
+join pg_roles rol 
+	on rol.oid = cls.relowner
+join pg_namespace nsp 
+	on nsp.oid = cls.relnamespace
+where nsp.nspname not in ('information_schema', 'pg_catalog')
+    and nsp.nspname not like 'pg_toast%'
+    and rol.rolname = 'db01'  
+order by nsp.nspname, cls.relname;
+
+
+Tablespace and Objects Details
+
+select t.schemaname, t.tablename,
+       coalesce(t.tablespace, ts.default_tablespace) as tablespace
+from pg_tables t
+  cross join (
+     select ts.spcname as default_tablespace
+     from pg_database d
+       join pg_tablespace ts on ts.oid = d.dattablespace
+      where d.datname = current_database()
+   ) ts
+where schemaname = 'public';
+
+
+select i.schemaname, i.tablename,i.indexname,
+       coalesce(i.tablespace, ts.default_tablespace) as tablespace
+from pg_indexes i
+  cross join (
+     select ts.spcname as default_tablespace
+     from pg_database d
+       join pg_tablespace ts on ts.oid = d.dattablespace
+      where d.datname = current_database()
+   ) ts
+where schemaname = 'public';
+
+=========================Object Count==================================
+
+************************************************************************************************
+Find out Live Tuples or Dead Tuples using two below steps.
+
+Using system function and pg_class:
+-------------------------------------
+SELECT 
+	relname AS ObjectName
+	,pg_stat_get_live_tuples(c.oid) AS LiveTuples
+	,pg_stat_get_dead_tuples(c.oid) AS DeadTuples
+FROM pg_class c
+WHERE relname='emp';
+
+
+Using pg_stat_user_tables:
+-------------------------------------
+SELECT 
+	relname AS TableName
+	,n_live_tup AS LiveTuples
+	,n_dead_tup AS DeadTuples
+FROM pg_stat_user_tables
+WHERE relname='emp';
